@@ -21,6 +21,7 @@ public class ImmunizationDTO {
                            String vaccineCode,
                            String vaccineDisplay,
                            String occurrenceDateTime,
+                           String doseNumber,
                            String status) {
         this.immunizationId = immunizationId;
         this.patientId = patientId;
@@ -95,6 +96,7 @@ public class ImmunizationDTO {
     public void setStatus(String status) {
         this.status = status;
     }
+
 
     @Override
     public String toString() {
