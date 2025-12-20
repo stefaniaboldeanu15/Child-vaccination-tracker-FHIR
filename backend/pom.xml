@@ -32,6 +32,7 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+
         <!-- Needed for WebClient (reactive HTTP client) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -56,6 +57,7 @@
             <artifactId>hapi-fhir-structures-r5</artifactId>
             <version>${hapi.fhir.version}</version>
         </dependency>
+
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-client</artifactId>
