@@ -3,39 +3,38 @@ package org.prt.prtvaccinationtracking_fhir.dto.practitioner;
 import java.util.List;
 
 /**
- * Full clinical overview for one patient (the child) on the practitioner dashboard.
+ * Full clinical overview for one patient on the practitioner dashboard.
+ *
  * Contains:
  *  - basic patient details
- *  - parents/guardians (RelatedPerson)
- *  - list of encounters, each with location, organization, immunizations, observations
+ *  - list of encounters, each including:
+ *      EncounterDTO
+ *      LocationDTO
+ *      OrganizationDTO
+ *      List<ImmunizationBlockDTO> (immunization + practitioner + observations)
+ *      List<ObservationDTO> (other observations)
+ *  - list of allergy intolerances
  */
-/**
- * Clinical history grouped by encounters.
- * Each EncounterBlockDTO already contains:
- *  - EncounterDTO
- *  - LocationDTO (organization's location)
- *  - OrganizationDTO
- *  - List<ImmunizationBlockDTO> (Immunization + Practitioner + Obs)
- *  - List<ObservationDTO> (other observations for the encounter)
- */
+
 public class PatientClinicalOverviewDTO {
 
     private PatientDetailsDTO patient;
-    private List<RelatedPersonDTO> relatedPersons;
     private List<EncounterBlockDTO> encounters;
+    private List<AllergyIntoleranceDTO> allergies;
 
-    public PatientClinicalOverviewDTO() {
-    }
+    public PatientClinicalOverviewDTO() {}
 
-    public PatientClinicalOverviewDTO(PatientDetailsDTO patient,
-                                      List<RelatedPersonDTO> relatedPersons,
-                                      List<EncounterBlockDTO> encounters) {
+    public PatientClinicalOverviewDTO(
+            PatientDetailsDTO patient,
+            List<EncounterBlockDTO> encounters,
+            List<AllergyIntoleranceDTO> allergies
+    ) {
         this.patient = patient;
-        this.relatedPersons = relatedPersons;
         this.encounters = encounters;
+        this.allergies = allergies;
     }
 
-    // ---- Getters & Setters ----
+    // ------------------- Getters & Setters -------------------
 
     public PatientDetailsDTO getPatient() {
         return patient;
@@ -43,14 +42,6 @@ public class PatientClinicalOverviewDTO {
 
     public void setPatient(PatientDetailsDTO patient) {
         this.patient = patient;
-    }
-
-    public List<RelatedPersonDTO> getRelatedPersons() {
-        return relatedPersons;
-    }
-
-    public void setRelatedPersons(List<RelatedPersonDTO> relatedPersons) {
-        this.relatedPersons = relatedPersons;
     }
 
     public List<EncounterBlockDTO> getEncounters() {
@@ -61,12 +52,20 @@ public class PatientClinicalOverviewDTO {
         this.encounters = encounters;
     }
 
+    public List<AllergyIntoleranceDTO> getAllergies() {
+        return allergies;
+    }
+
+    public void setAllergies(List<AllergyIntoleranceDTO> allergies) {
+        this.allergies = allergies;
+    }
+
     @Override
     public String toString() {
         return "PatientClinicalOverviewDTO{" +
                 "patient=" + patient +
-                ", relatedPersons=" + relatedPersons +
                 ", encounters=" + encounters +
+                ", allergies=" + allergies +
                 '}';
     }
 }
