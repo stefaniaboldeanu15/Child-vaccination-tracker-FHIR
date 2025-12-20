@@ -1,6 +1,5 @@
 package org.prt.prtvaccinationtracking_fhir.dto.practitioner;
 
-///  PATIENT = child
 public class PatientDetailsDTO {
 
     private String patientId; /// FHIR server id (Patient.id)
