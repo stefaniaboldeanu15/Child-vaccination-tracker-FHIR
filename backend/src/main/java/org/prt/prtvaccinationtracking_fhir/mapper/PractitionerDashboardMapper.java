@@ -39,44 +39,6 @@ public class PractitionerDashboardMapper {
         return dto;
     }
 
-    public RelatedPersonDTO toRelatedPerson(RelatedPerson rp) {
-        RelatedPersonDTO dto = new RelatedPersonDTO();
-        dto.setRelatedPersonId(rp.getIdElement().getIdPart());
-
-        if (rp.hasIdentifier()) {
-            dto.setRelatedPersonIdentifier(rp.getIdentifierFirstRep().getValue());
-        }
-
-        if (rp.hasRelationship()) {
-            CodeableConcept rel = rp.getRelationshipFirstRep();
-            if (!rel.getCoding().isEmpty()) {
-                dto.setRelationship(rel.getCodingFirstRep().getDisplay());
-            } else {
-                dto.setRelationship(rel.getText());
-            }
-        }
-
-        if (rp.hasName()) {
-            dto.setFullName(rp.getNameFirstRep().getNameAsSingleString());
-        }
-
-        if (rp.hasTelecom()) {
-            for (ContactPoint t : rp.getTelecom()) {
-                if (t.getSystem() == ContactPoint.ContactPointSystem.PHONE && dto.getPhone() == null) {
-                    dto.setPhone(t.getValue());
-                } else if (t.getSystem() == ContactPoint.ContactPointSystem.EMAIL && dto.getEmail() == null) {
-                    dto.setEmail(t.getValue());
-                }
-            }
-        }
-
-        if (rp.hasAddress()) {
-            dto.setAddress(rp.getAddressFirstRep().getText());
-        }
-
-        return dto;
-    }
-
     // ---------------- Encounter / Organization / Location ----------------
 
     public EncounterDTO toEncounter(Encounter enc) {
@@ -245,4 +207,39 @@ public class PractitionerDashboardMapper {
 
         return dto;
     }
+
+    public AllergyIntoleranceDTO toAllergyIntoleranceDTO(AllergyIntolerance ai) {
+
+        AllergyIntoleranceDTO dto = new AllergyIntoleranceDTO();
+
+        dto.setAllergyId(ai.getIdElement().getIdPart());
+
+        if (ai.hasClinicalStatus()) {
+            dto.setClinicalStatus(ai.getClinicalStatus().getText());
+        }
+
+        if (ai.hasVerificationStatus()) {
+            dto.setVerificationStatus(ai.getVerificationStatus().getText());
+        }
+
+        if (ai.hasCode() && ai.getCode().hasCoding()) {
+            Coding c = ai.getCode().getCodingFirstRep();
+            dto.setCode(c.getCode());
+            dto.setDisplay(c.getDisplay());
+        }
+
+        if (ai.hasCriticality()) {
+            dto.setCriticality(ai.getCriticality().toCode());
+        }
+
+        if (ai.hasReaction() && !ai.getReaction().isEmpty()) {
+            var r = ai.getReactionFirstRep();
+            if (r.hasDescription()) {
+                dto.setReaction(r.getDescription());
+            }
+        }
+
+        return dto;
+    }
+
 }
