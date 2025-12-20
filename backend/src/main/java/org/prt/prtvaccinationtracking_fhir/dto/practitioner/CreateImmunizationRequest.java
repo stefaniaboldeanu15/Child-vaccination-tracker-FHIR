@@ -7,7 +7,7 @@ public class CreateImmunizationRequest {
     private String vaccineCode;     // required
     private String vaccineDisplay;  // optional label
     private LocalDate date;         // required
-    private String lotNumber;       // optional
+    private String immunizationId;       // optional
     private String performerId;     // optional: FHIR Practitioner.id if you want to set it
 
     public CreateImmunizationRequest() {
@@ -16,12 +16,12 @@ public class CreateImmunizationRequest {
     public CreateImmunizationRequest(String vaccineCode,
                                      String vaccineDisplay,
                                      LocalDate date,
-                                     String lotNumber,
+                                     String immunizationId,
                                      String performerId) {
         this.vaccineCode = vaccineCode;
         this.vaccineDisplay = vaccineDisplay;
         this.date = date;
-        this.lotNumber = lotNumber;
+        this.immunizationId = immunizationId;
         this.performerId = performerId;
     }
 
@@ -49,13 +49,14 @@ public class CreateImmunizationRequest {
         this.date = date;
     }
 
-    public String getLotNumber() {
-        return lotNumber;
+    public String getImmunizationId() {
+        return immunizationId;
     }
 
-    public void setLotNumber(String lotNumber) {
-        this.lotNumber = lotNumber;
+    public void setImmunizationId(String immunizationId) {
+        this.immunizationId = immunizationId;
     }
+
 
     public String getPerformerId() {
         return performerId;
