@@ -5,7 +5,7 @@ import ca.uhn.fhir.rest.client.api.IGenericClient;
 import org.hl7.fhir.r5.model.*;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.LoginRequestDTO;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.LoginResponseDTO;
-import org.prt.prtvaccinationtracking_fhir.practitioner.RegistrationRequestDTO;
+//import org.prt.prtvaccinationtracking_fhir.practitioner.RegistrationRequestDTO;
 import org.prt.prtvaccinationtracking_fhir.service.AuthService;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +23,7 @@ public class AuthServiceImpl implements AuthService {
         // Your existing login logic
         return new LoginResponseDTO();
     }
-
+/**
     @Override
     public void register(RegistrationRequestDTO request) {
         if (request.getIdentifier() == null || request.getPassword() == null) {
@@ -72,4 +72,5 @@ public class AuthServiceImpl implements AuthService {
 
         System.out.println("Registered practitioner with ID: " + outcome.getId().getIdPart());
     }
+ */
 }
