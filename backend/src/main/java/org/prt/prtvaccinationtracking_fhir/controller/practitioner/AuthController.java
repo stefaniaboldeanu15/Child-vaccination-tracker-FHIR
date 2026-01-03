@@ -11,8 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * Handles all authentication endpoints, such as login and token refreshing.
+ * LOGIN practitioner - endpoint
  */
+
 @RestController
 @RequestMapping("/api")
 public class AuthController {
