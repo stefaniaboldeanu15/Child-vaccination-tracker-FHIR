@@ -7,7 +7,7 @@ package org.prt.prtvaccinationtracking_fhir.dto.practitioner;
 public class LoginResponseDTO {
 
     private String accessToken;
-    private PractitionerHeaderDTO practitioner;
+    private PractitionerDTO practitioner;
 
     // Default Constructor (required for JSON deserialization)
     public LoginResponseDTO() {
@@ -18,7 +18,7 @@ public class LoginResponseDTO {
      * @param accessToken The generated JWT or session token.
      * @param practitioner The header details of the logged-in practitioner.
      */
-    public LoginResponseDTO(String accessToken, PractitionerHeaderDTO practitioner) {
+    public LoginResponseDTO(String accessToken, PractitionerDTO practitioner) {
         this.accessToken = accessToken;
         this.practitioner = practitioner;
     }
@@ -33,11 +33,11 @@ public class LoginResponseDTO {
         this.accessToken = accessToken;
     }
 
-    public PractitionerHeaderDTO getPractitioner() {
+    public PractitionerDTO getPractitioner() {
         return practitioner;
     }
 
-    public void setPractitioner(PractitionerHeaderDTO practitioner) {
+    public void setPractitioner(PractitionerDTO practitioner) {
         this.practitioner = practitioner;
     }
 }
