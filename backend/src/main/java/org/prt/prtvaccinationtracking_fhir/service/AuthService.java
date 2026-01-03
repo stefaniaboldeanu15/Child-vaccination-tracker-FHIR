@@ -1,8 +1,8 @@
 package org.prt.prtvaccinationtracking_fhir.service;
 
-import org.prt.prtvaccinationtracking_fhir.LoginRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.LoginResponseDTO;
-import org.prt.prtvaccinationtracking_fhir.RegistrationRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.LoginRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.LoginResponseDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.RegistrationRequestDTO;
 
 /**
  * Defines the contract for authentication and authorization business logic.
