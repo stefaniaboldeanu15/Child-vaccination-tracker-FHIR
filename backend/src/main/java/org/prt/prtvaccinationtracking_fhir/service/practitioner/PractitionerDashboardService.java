@@ -25,7 +25,7 @@ public class PractitionerDashboardService {
         this.mapper = mapper;
     }
 
-    // CĂUTARE DUPĂ SVNR
+    /// CĂUTARE DUPĂ SVNR
     public List<PatientDashboardRowDTO> searchBySvnr(String svnr) {
 
         Practitioner practitioner = getCurrentPractitioner();
@@ -80,7 +80,7 @@ public class PractitionerDashboardService {
         return rows;
     }
 
-    // DASHBOARD: list patients + related person
+    /// DASHBOARD: list patients + related person
     public List<PatientDashboardRowDTO> getDashboardRows() {
 
         List<PatientDashboardRowDTO> rows = new ArrayList<>();
@@ -126,7 +126,7 @@ public class PractitionerDashboardService {
         return rows;
     }
 
-    // Retrieves the patients, based on practitioner
+    /// Retrieves the patients, based on practitioner
     private Practitioner getCurrentPractitioner() {
 
         String username = SecurityContextHolder
@@ -151,7 +151,7 @@ public class PractitionerDashboardService {
         return (Practitioner) bundle.getEntryFirstRep().getResource();
     }
 
-    // CREATE Patient
+    /// CREATE Patient
     public String createPatient(CreatePatientRequestDTO dto) {
 
         Patient patient = mapper.toPatient(dto);
@@ -163,7 +163,7 @@ public class PractitionerDashboardService {
         return outcome.getId().getIdPart();
     }
 
-    // UPDATE Patient
+    /// UPDATE Patient
     public void updatePatient(String patientId, UpdatePatientRequestDTO dto) {
 
         Patient patient = fhirClient.read()
@@ -178,7 +178,7 @@ public class PractitionerDashboardService {
                 .execute();
     }
 
-    // CREATE RelatedPerson
+    /// CREATE RelatedPerson
     public String createRelatedPerson(CreateRelatedPersonRequestDTO dto) {
 
         RelatedPerson rp = mapper.toRelatedPerson(dto);
@@ -190,10 +190,8 @@ public class PractitionerDashboardService {
         return outcome.getId().getIdPart();
     }
 
-    // UPDATE RelatedPerson
-    public void updateRelatedPerson(
-            String relatedPersonId,
-            UpdateRelatedPersonRequestDTO dto) {
+    /// UPDATE RelatedPerson
+    public void updateRelatedPerson(String relatedPersonId, UpdateRelatedPersonRequestDTO dto) {
 
         RelatedPerson rp = fhirClient.read()
                 .resource(RelatedPerson.class)
