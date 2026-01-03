@@ -5,6 +5,15 @@ import org.prt.prtvaccinationtracking_fhir.service.practitioner.PractitionerDash
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+/**
+ * PRACTITIONER DASHBOARD - ENDPOINTS :
+ * 1. Search a patient by SVNR (not necessarily assigned to the practitioner)
+ * 2. List all practitioner's assigned patients
+ * 3. Create PATIENT
+ * 4. Update PATIENT
+ * 5. Create RELATED PERSON (parent / guardian)
+ * 6. Update RELATED PERSON
+ */
 
 @RestController
 @RequestMapping("/api/practitioner/dashboard")
@@ -18,6 +27,7 @@ public class PractitionerDashboardController {
         this.service = service;
     }
 
+    /// Search a patient by SVNR
     @GetMapping("/search")
     public List<PatientDashboardRowDTO> searchPatientBySvnr(
             @RequestParam String svnr
@@ -25,20 +35,21 @@ public class PractitionerDashboardController {
         return service.searchBySvnr(svnr);
     }
 
-    // DASHBOARD
+    /// Lists all patients
     @GetMapping("/patients")
     public List<PatientDashboardRowDTO> getDashboard() {
         return service.getDashboardRows();
     }
 
-    // Create PATIENT
+    /// Create PATIENT
     @PostMapping("/patients")
     public String createPatient(
             @RequestBody CreatePatientRequestDTO dto
     ) {
         return service.createPatient(dto);
     }
-    // Update PATIENT
+
+    /// Update PATIENT
     @PutMapping("/patients/{patientId}")
     public void updatePatient(
             @PathVariable String patientId,
@@ -47,7 +58,7 @@ public class PractitionerDashboardController {
         service.updatePatient(patientId, dto);
     }
 
-    // Create RELATED PERSON (parent / guardian)
+    /// Create RELATED PERSON (parent / guardian)
     @PostMapping("/related-persons")
     public String createRelatedPerson(
             @RequestBody CreateRelatedPersonRequestDTO dto
@@ -55,7 +66,7 @@ public class PractitionerDashboardController {
         return service.createRelatedPerson(dto);
     }
 
-    // Update RELATED PERSON (parent / guardian)
+    /// Update RELATED PERSON (parent / guardian)
     @PutMapping("/related-persons/{relatedPersonId}")
     public void updateRelatedPerson(
             @PathVariable String relatedPersonId,
