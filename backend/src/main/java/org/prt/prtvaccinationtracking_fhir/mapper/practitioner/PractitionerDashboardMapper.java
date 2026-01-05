@@ -28,13 +28,13 @@ public class PractitionerDashboardMapper {
 
         dto.setPatientId(patient.getIdElement().getIdPart());
 
-        // Business identifier (SVNR)
+        /// Business identifier (SVNR)
         if (patient.hasIdentifier()) {
-            // If you want to be strict, pick the identifier that matches SVNR_SYSTEM
+            ///  picks the identifier that matches SVNR_SYSTEM
             dto.setPatientIdentifier(patient.getIdentifierFirstRep().getValue());
         }
 
-        // Name
+        /// Name
         if (patient.hasName()) {
             HumanName name = patient.getNameFirstRep();
             if (!name.getGiven().isEmpty()) {
@@ -43,12 +43,12 @@ public class PractitionerDashboardMapper {
             dto.setLastName(name.getFamily());
         }
 
-        // Birth date
+        /// Birth date
         if (patient.hasBirthDate()) {
             dto.setBirthDate(patient.getBirthDate().toString());
         }
 
-        // Gender
+        /// Gender
         if (patient.hasGender()) {
             dto.setGender(patient.getGender().toCode());
         }
