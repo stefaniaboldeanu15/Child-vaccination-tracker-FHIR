@@ -29,23 +29,19 @@ public class PractitionerDashboardController {
 
     /// Search a patient by SVNR
     @GetMapping("/search")
-    public List<PatientDashboardRowDTO> searchPatientBySvnr(
-            @RequestParam String svnr
-    ) {
+    public List<PatientDashboardRowDTO> searchPatientBySvnr(@RequestParam String svnr) {
         return service.searchBySvnr(svnr);
     }
 
     /// Lists all patients
     @GetMapping("/patients")
     public List<PatientDashboardRowDTO> getDashboard() {
-        return service.getDashboardRows();
+        return service.getMyPatients();
     }
 
     /// Create PATIENT
     @PostMapping("/patients")
-    public String createPatient(
-            @RequestBody CreatePatientRequestDTO dto
-    ) {
+    public String createPatient(@RequestBody CreatePatientRequestDTO dto) {
         return service.createPatient(dto);
     }
 
