@@ -22,13 +22,9 @@ public class PractitionerMapper {
             );
         }
 
-        if (practitioner.hasName()) {
+        if (practitioner.hasName() && !practitioner.getName().isEmpty()) {
             HumanName name = practitioner.getNameFirstRep();
-
-            if (!name.getGiven().isEmpty()) {
-                dto.setFirstName(name.getGiven().get(0).getValue());
-            }
-
+            dto.setFirstName(name.getGivenAsSingleString()); // all given names joined
             dto.setLastName(name.getFamily());
         }
 
