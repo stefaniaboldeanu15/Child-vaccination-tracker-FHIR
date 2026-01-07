@@ -58,7 +58,7 @@ public class AuthServiceImpl implements AuthService {
         LoginResponseDTO response = new LoginResponseDTO();
         response.setAccessToken("dummy-token"); // pentru frontend
         response.setPractitioner(
-                practitionerMapper.toDto(practitioner)
+                practitionerMapper.toPractitioner(practitioner)
         );
         return response;
     }
