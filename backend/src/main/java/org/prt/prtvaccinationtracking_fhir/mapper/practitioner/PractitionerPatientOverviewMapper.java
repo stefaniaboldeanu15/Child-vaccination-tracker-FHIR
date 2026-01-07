@@ -231,6 +231,35 @@ public class PractitionerPatientOverviewMapper {
         }
         return dto;
     }
+    //add recommendations based on patient's age
+    private int calculateAgeInMonths(Patient patient) {
+
+        if (!patient.hasBirthDate()) {
+            throw new IllegalStateException("Patient has no birth date");
+        }
+
+        LocalDate birthDate = patient.getBirthDate()
+                .toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+
+        LocalDate today = LocalDate.now();
+
+        return (today.getYear() - birthDate.getYear()) * 12
+                + (today.getMonthValue() - birthDate.getMonthValue());
+    }
+
+    private record VaccineRule(
+            String cvxCode,
+            String display,
+            int minAgeMonths,
+            int maxAgeMonths
+    ) {}
+
+
+
+
+
     //-----------------Appointment--------------------
     public AppointmentDTO toAppointmentDTO(Appointment appt) {
         AppointmentDTO dto = new AppointmentDTO();
