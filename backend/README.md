@@ -1,7 +1,7 @@
 
 # Backend – FHIR Vaccination Tracking System
 
-##  Overview
+##  1.Overview
 
 This module implements the Backend of the Child Vaccination Tracking System.
 It is a stateless Spring Boot application that exposes REST APIs for healthcare practitioners/related persons (parent and legal guardians) to manage patients, encounters, immunizations, observations, adverse events, and related clinical data.
@@ -54,7 +54,7 @@ The Practitioner Backend is responsible for:
 - Frontend receives structured response
 
 ---
-### 2. Backend (REST API)
+## 2. Backend - set up
 Run the application
 ```bash
 cd backend
@@ -65,19 +65,16 @@ The backend will start on:
 ```bash
 http://localhost:8081
 ```
-And the server will start on:
+Run the server. It will start on:
 ```bash
 http://localhost:8080
 ```
+Run the script from the backend directory: `upload-terminology`
+- Windows → PowerShell (.ps1)
+- Linux/macOS → Bash (.sh)
 
+The script will upload:
+- CodeSystems – define allowed codes 
+- ValueSets – constrain which codes may be used 
+- Profiles (StructureDefinitions) – enforce resource constraints
 ---
-### Example Practitioner Endpoints
-```bash
-POST /api/practitioners/create-practitioner
-POST /api/auth/login
-GET  /api/practitioner/dashboard
-POST /api/practitioner/encounter
-POST /api/practitioner/adverse-event
-GET  /api/practitioner/adverse-events/{patientId}
-
-```
