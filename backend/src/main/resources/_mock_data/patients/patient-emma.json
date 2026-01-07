@@ -1,0 +1,23 @@
+{
+  "resourceType": "Patient",
+  "id": "patient-emma",
+  "identifier": [
+    {
+      "system": "https://elga.gv.at/svnr",
+      "value": "1234567890"
+    }
+  ],
+  "name": [
+    {
+      "family": "Smith",
+      "given": ["Emma"]
+    }
+  ],
+  "gender": "female",
+  "birthDate": "2024-10-01",
+  "generalPractitioner": [
+    {
+      "reference": "Practitioner/pract-smith"
+    }
+  ]
+}

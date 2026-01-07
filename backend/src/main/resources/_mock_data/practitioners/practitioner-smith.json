@@ -1,0 +1,22 @@
+{
+  "resourceType": "Practitioner",
+  "id": "pract-smith",
+  "identifier": [
+    {
+      "system": "http://hospital.smarthealthit.org/practitioners",
+      "value": "dr.smith"
+    }
+  ],
+  "name": [
+    {
+      "family": "Smith",
+      "given": ["Allan"]
+    }
+  ],
+  "extension": [
+    {
+      "url": "http://example.org/extensions/password",
+      "valueString": "pwSmith01"
+    }
+  ]
+}

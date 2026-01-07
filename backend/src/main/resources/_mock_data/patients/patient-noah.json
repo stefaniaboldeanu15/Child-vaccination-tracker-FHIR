@@ -1,0 +1,23 @@
+{
+  "resourceType": "Patient",
+  "id": "patient-noah",
+  "identifier": [
+    {
+      "system": "https://elga.gv.at/svnr",
+      "value": "0987654321"
+    }
+  ],
+  "name": [
+    {
+      "family": "Bauer",
+      "given": ["Noah"]
+    }
+  ],
+  "gender": "male",
+  "birthDate": "2024-03-15",
+  "generalPractitioner": [
+    {
+      "reference": "Practitioner/pract-smith"
+    }
+  ]
+}
