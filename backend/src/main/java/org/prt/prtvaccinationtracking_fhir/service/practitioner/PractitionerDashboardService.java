@@ -11,9 +11,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -690,6 +692,133 @@ public class PractitionerDashboardService {
         String recId = created.getIdElement().getIdPart();
         return overviewMapper.toRecommendationDTO(recId, patientId, created.getRecommendationFirstRep());
     }
+
+    //--------------DISPLAY IMMUNIZATIONS recommendations based on patient's age
+
+    private int calculateAgeInMonths(Patient patient) {
+
+        if (!patient.hasBirthDate()) {
+            throw new IllegalStateException("Patient has no birth date");
+        }
+
+        LocalDate birthDate = patient.getBirthDate()
+                .toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+
+        LocalDate today = LocalDate.now();
+
+        return (today.getYear() - birthDate.getYear()) * 12
+                + (today.getMonthValue() - birthDate.getMonthValue());
+    }
+
+    private record VaccineRule(
+            String cvxCode,
+            String display,
+            int minAgeMonths,
+            int maxAgeMonths
+    ) {}
+    private static final List<VaccineRule> AUSTRIA_PEDIATRIC_RULES = List.of(
+
+            // Rotavirus
+            new VaccineRule("122", "Rotavirus", 0, 6),
+
+            // 6-in-1 (DTaP-HepB-IPV-Hib)
+            new VaccineRule("120", "DTaP-HepB-IPV-Hib", 2, 12),
+
+            // Pneumococcal conjugate
+            new VaccineRule("133", "Pneumococcal conjugate (PCV13)", 2, 24),
+            new VaccineRule("152", "Pneumococcal conjugate (PCV15)", 2, 24),
+
+            // MMR / MMRV
+            new VaccineRule("03", "MMR", 12, 24),
+            new VaccineRule("94", "MMRV", 12, 24),
+
+            // Varicella
+            new VaccineRule("21", "Varicella", 12, 24),
+
+            // Meningococcal
+            new VaccineRule("114", "Meningococcal C", 12, 24),
+            new VaccineRule("136", "Meningococcal B", 2, 24),
+            new VaccineRule("147", "Meningococcal ACWY", 12, 216),
+
+            // Hepatitis A (optional / risk-based)
+            new VaccineRule("52", "Hepatitis A", 12, 216),
+
+            // HPV (girls & boys)
+            new VaccineRule("165", "HPV (9-valent)", 108, 216), // 9–18 years
+
+            // Influenza (seasonal)
+            new VaccineRule("141", "Influenza (injectable)", 6, 216),
+            new VaccineRule("111", "Influenza (live)", 24, 216),
+
+            // FSME (Tick-borne encephalitis – Austria-specific)
+            new VaccineRule("37", "FSME (Tick-borne encephalitis)", 12, 216)
+    );
+
+    private Set<String> getGivenVaccineCodes(String patientId) {
+
+        Bundle immBundle = fhirClient.search()
+                .forResource(Immunization.class)
+                .where(Immunization.PATIENT.hasId(patientId))
+                .returnBundle(Bundle.class)
+                .execute();
+
+        return immBundle.getEntry().stream()
+                .map(e -> (Immunization) e.getResource())
+                .filter(Immunization::hasVaccineCode)
+                .map(imm -> imm.getVaccineCode()
+                        .getCodingFirstRep()
+                        .getCode())
+                .collect(Collectors.toSet());
+    }
+
+    public List<ImmunizationRecommendationDTO> getAgeBasedRecommendations(
+            String patientId
+    ) {
+        Patient patient = fhirClient.read()
+                .resource(Patient.class)
+                .withId(patientId)
+                .execute();
+
+        int ageInMonths = calculateAgeInMonths(patient);
+
+        //  exclude already given vaccines
+        Set<String> givenVaccines = getGivenVaccineCodes(patientId);
+
+        List<ImmunizationRecommendationDTO> recommendations = new ArrayList<>();
+
+        for (VaccineRule rule : AUSTRIA_PEDIATRIC_RULES) {
+
+            // age check
+            if (ageInMonths < rule.minAgeMonths()
+                    || ageInMonths > rule.maxAgeMonths()) {
+                continue;
+            }
+
+            // skip already administered vaccines
+            if (givenVaccines.contains(rule.cvxCode())) {
+                continue;
+            }
+
+            ImmunizationRecommendationDTO dto =
+                    new ImmunizationRecommendationDTO();
+
+            dto.setPatientId(patientId);
+            dto.setVaccineCode(rule.cvxCode());
+            dto.setVaccineDisplay(rule.display());
+            dto.setStatus("due");
+            dto.setDueDate(LocalDate.now());
+
+            recommendations.add(dto);
+        }
+
+        return recommendations;
+    }
+
+
+    //------------APPOINTMENTS---------------------------------------
+
     public List<AppointmentDTO> getAppointmentsForPatient(String patientId) {
         Bundle bundle = fhirClient.search()
                 .forResource(Appointment.class)
