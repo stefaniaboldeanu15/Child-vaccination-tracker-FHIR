@@ -13,6 +13,7 @@ public class CreatePractitionerRequestDTO {
 
     private String firstName;
     private String lastName;
+    private String password;
 
     // --- getters & setters ---
 
@@ -38,5 +39,12 @@ public class CreatePractitionerRequestDTO {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
