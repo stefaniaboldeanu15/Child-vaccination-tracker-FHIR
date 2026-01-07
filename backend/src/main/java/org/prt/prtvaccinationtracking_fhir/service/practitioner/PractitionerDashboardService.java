@@ -11,10 +11,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -361,7 +359,7 @@ public class PractitionerDashboardService {
                                 .resource(Practitioner.class)
                                 .withId(pracId)
                                 .execute();
-                        pracDto = practitionerMapper.toDto(practitioner);
+                        pracDto = practitionerMapper.toPractitioner(practitioner);
                     }
                 }
                 immBlock.setPractitioner(pracDto);
@@ -498,7 +496,7 @@ public class PractitionerDashboardService {
                                 .resource(Practitioner.class)
                                 .withId(pracId)
                                 .execute();
-                        pracDto = practitionerMapper.toDto(practitioner);
+                        pracDto = practitionerMapper.toPractitioner(practitioner);
                     }
                 }
                 immBlock.setPractitioner(pracDto);
@@ -775,104 +773,126 @@ public class PractitionerDashboardService {
         return overviewMapper.toAppointmentDTO(updated);
     }
 
-    /// CREATE ENCOUNTER = Organization ID + Location ID + IMMUNIZATIONS + OBSERVATIONS
-    public void createFullEncounter(String patientId, CreateFullEncounterRequest request) {
+    public void createFullEncounter(
+            CreateFullEncounterRequest request,
+            String patientId
+    ) {
+        Practitioner practitioner = getCurrentPractitioner();
+        String practitionerId = practitioner.getIdElement().getIdPart();
 
-        // 1) CREATE ENCOUNTER
-        Encounter encounter = new Encounter();
+        Encounter encounter = overviewMapper.toEncounter(
+                request,
+                patientId,
+                practitionerId
+        );
 
-        encounter.setId("Encounter/" + request.getEncounterId());
-        encounter.setStatus(Enumerations.EncounterStatus.COMPLETED);
-        encounter.setSubject(new Reference("Patient/" + patientId));
+        MethodOutcome outcome = fhirClient.create()
+                .resource(encounter)
+                .execute();
 
-        // Encounter date
-        if (request.getEncounterDate() != null) {
-            Period period = new Period();
-            period.setStart(Date.from(
-                    LocalDateTime.parse(request.getEncounterDate())
-                            .atZone(ZoneId.systemDefault())
-                            .toInstant()
-            ));
-
-            encounter.setActualPeriod(period);
-        }
-
-        // Organization
-        if (request.getOrganizationId() != null) {
-            encounter.setServiceProvider(
-                    new Reference("Organization/" + request.getOrganizationId())
-            );
-        }
-
-        // Location
-        if (request.getLocationId() != null) {
-            encounter.addLocation().setLocation(
-                    new Reference("Location/" + request.getLocationId())
-            );
-        }
-
-        fhirClient.update().resource(encounter).execute();
-
-        // 2) CREATE IMMUNIZATIONS
+        Encounter savedEncounter = (Encounter) outcome.getResource();
+        String encounterId = savedEncounter.getIdElement().getIdPart();
 
         if (request.getImmunizations() != null) {
-            for (var immInput : request.getImmunizations()) {
+            for (CreateFullEncounterRequest.FullImmunizationInput immDto
+                    : request.getImmunizations()) {
 
-                Immunization imm = new Immunization();
-
-                imm.setId("Immunization/" + immInput.getImmunizationId());
-                imm.setStatus(Immunization.ImmunizationStatusCodes.COMPLETED);
-                imm.setPatient(new Reference("Patient/" + patientId));
-                imm.setEncounter(new Reference("Encounter/" + request.getEncounterId()));
-
-                imm.setVaccineCode(
-                        new CodeableConcept().addCoding(
-                                new Coding()
-                                        .setSystem("http://hl7.org/fhir/sid/cvx")
-                                        .setCode(immInput.getVaccineCode())
-                                        .setDisplay(immInput.getVaccineDisplay())
-                        )
+                Immunization imm = overviewMapper.toImmunization(
+                        immDto,
+                        patientId,
+                        encounterId
                 );
 
-                if (immInput.getOccurrenceDateTime() != null) {
-                    imm.setOccurrence(
-                            new DateTimeType(immInput.getOccurrenceDateTime())
-                    );
-                }
-
-                fhirClient.update().resource(imm).execute();
+                fhirClient.create().resource(imm).execute();
             }
         }
 
-        // 3) CREATE OBSERVATIONS
         if (request.getObservations() != null) {
-            for (var obsInput : request.getObservations()) {
+            for (CreateFullEncounterRequest.FullObservationInput obsDto
+                    : request.getObservations()) {
 
-                Observation obs = new Observation();
-                obs.setId("Observation/" + obsInput.getObservationId());
-
-                obs.setStatus(Enumerations.ObservationStatus.FINAL);
-                obs.setSubject(new Reference("Patient/" + patientId));
-                obs.setEncounter(new Reference("Encounter/" + request.getEncounterId()));
-
-                obs.setCode(new CodeableConcept().addCoding(
-                        new Coding()
-                                .setCode(obsInput.getCode())
-                                .setDisplay(obsInput.getDisplay())
-                ));
-
-                obs.setValue(new Quantity()
-                        .setValue(Double.parseDouble(obsInput.getValue()))
-                        .setUnit(obsInput.getUnit())
+                Observation obs = overviewMapper.toObservation(
+                        obsDto,
+                        patientId,
+                        encounterId
                 );
 
-                if (obsInput.getEffectiveDateTime() != null) {
-                    obs.setEffective(new DateTimeType(obsInput.getEffectiveDateTime()));
-                }
-
-                fhirClient.update().resource(obs).execute();
+                fhirClient.create().resource(obs).execute();
             }
         }
     }
+
+    //List  ALL ADVERSE EVENTS
+    public List<AdverseEventDTO> getAdverseEventsForPatient(String patientId) {
+
+        Bundle bundle = fhirClient.search()
+                .forResource(AdverseEvent.class)
+                .where(AdverseEvent.SUBJECT.hasId("Patient/" + patientId))
+                .returnBundle(Bundle.class)
+                .execute();
+
+        List<AdverseEventDTO> result = new ArrayList<>();
+
+        for (Bundle.BundleEntryComponent entry : bundle.getEntry()) {
+            AdverseEvent ae = (AdverseEvent) entry.getResource();
+            result.add(overviewMapper.toAdverseEvent(ae));
+        }
+
+        return result;
+    }
+
+    //List  ALL ADVERSE EVENTS FOR A SPECIFIC ENCOUNTER
+    public List<AdverseEventDTO> getAdverseEventsForEncounter(
+            String patientId,
+            String encounterId
+    ) {
+        Bundle bundle = fhirClient.search()
+                .forResource(AdverseEvent.class)
+                .where(AdverseEvent.SUBJECT.hasId("Patient/" + patientId))
+                .returnBundle(Bundle.class)
+                .execute();
+
+        List<AdverseEventDTO> result = new ArrayList<>();
+
+        for (Bundle.BundleEntryComponent entry : bundle.getEntry()) {
+            AdverseEvent ae = (AdverseEvent) entry.getResource();
+
+            if (!ae.hasEncounter()
+                    || !ae.getEncounter().getReferenceElement().hasIdPart()
+                    || !encounterId.equals(
+                    ae.getEncounter().getReferenceElement().getIdPart())) {
+                continue;
+            }
+
+            result.add(overviewMapper.toAdverseEvent(ae));
+        }
+
+        return result;
+    }
+
+    public void createAdverseEvent(
+            String patientId,
+            CreateAdverseEventRequestDTO dto
+    ) {
+        if (patientId == null || patientId.isBlank()) {
+            throw new IllegalArgumentException("patientId is required");
+        }
+
+        // Map DTO → FHIR AdverseEvent
+        AdverseEvent adverseEvent = overviewMapper.toAdverseEvent(
+                dto,
+                patientId
+        );
+
+        // Persist AdverseEvent
+        fhirClient.create()
+                .resource(adverseEvent)
+                .execute();
+    }
+
+
+
+
+
 
 }
