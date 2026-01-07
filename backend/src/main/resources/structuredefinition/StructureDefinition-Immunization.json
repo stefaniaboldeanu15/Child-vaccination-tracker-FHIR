@@ -1,0 +1,34 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "immunization-child",
+  "url": "http://example.org/fhir/StructureDefinition/immunization-child",
+  "version": "1.0.0",
+  "name": "ImmunizationChild",
+  "status": "active",
+  "kind": "resource",
+  "type": "Immunization",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Immunization",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      { "path": "Immunization.status", "min": 1 },
+
+      { "path": "Immunization.patient", "min": 1 },
+
+      { "path": "Immunization.encounter", "min": 1 },
+
+      { "path": "Immunization.vaccineCode", "min": 1 },
+      {
+        "path": "Immunization.vaccineCode",
+        "binding": {
+          "strength": "required",
+          "valueSet": "http://hl7.org/fhir/ValueSet/vaccine-cvx"
+        }
+      },
+
+      { "path": "Immunization.occurrence[x]", "min": 1 },
+
+      { "path": "Immunization.performer", "min": 1 }
+    ]
+  }
+}

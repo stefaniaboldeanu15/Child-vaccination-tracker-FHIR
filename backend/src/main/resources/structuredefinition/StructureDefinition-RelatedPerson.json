@@ -1,0 +1,31 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "relatedperson-guardian",
+  "url": "http://example.org/fhir/StructureDefinition/relatedperson-guardian",
+  "version": "1.0.0",
+  "name": "RelatedPersonGuardian",
+  "status": "active",
+  "kind": "resource",
+  "abstract": false,
+  "type": "RelatedPerson",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/RelatedPerson",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      { "path": "RelatedPerson.patient", "min": 1 },
+
+      { "path": "RelatedPerson.relationship", "min": 1 },
+      {
+        "path": "RelatedPerson.relationship",
+        "binding": {
+          "strength": "required",
+          "valueSet": "http://example.org/fhir/ValueSet/guardian-relationship"
+        }
+      },
+
+      { "path": "RelatedPerson.name", "min": 1 },
+      { "path": "RelatedPerson.name.family", "min": 1 },
+      { "path": "RelatedPerson.name.given", "min": 1 }
+    ]
+  }
+}
