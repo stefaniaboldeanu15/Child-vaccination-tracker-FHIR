@@ -1,0 +1,18 @@
+{
+  "resourceType": "ValueSet",
+  "id": "adverse-event-category",
+  "url": "http://example.org/fhir/ValueSet/adverse-event-category",
+  "version": "1.0.0",
+  "name": "AdverseEventCategory",
+  "title": "Adverse Event Category",
+  "status": "active",
+  "publisher": "Vaccination Tracking App",
+  "description": "Allowed categories for adverse events following immunization.",
+  "compose": {
+    "include": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/adverse-event-category"
+      }
+    ]
+  }
+}
