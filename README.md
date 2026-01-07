@@ -67,7 +67,7 @@ To build a functional FHIR-based Vaccination Registry that provides secure, stan
 git clone https://github.com/stefaniaboldeanu15/Child-vaccination-tracker-FHIR.git
 ````
 
-### 2. Backend (FastAPI)
+### 2. Backend (REST API)
 
 ```bash
 cd backend
