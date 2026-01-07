@@ -1,0 +1,8 @@
+{
+  "resourceType": "Location",
+  "id": "loc-room-1",
+  "name": "Pediatric Vaccination Room 1",
+  "managingOrganization": {
+    "reference": "Organization/org-city-clinic"
+  }
+}
