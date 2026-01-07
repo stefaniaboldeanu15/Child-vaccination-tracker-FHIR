@@ -1,0 +1,22 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "encounter-vaccination",
+  "url": "http://example.org/fhir/StructureDefinition/encounter-vaccination",
+  "version": "1.0.0",
+  "name": "EncounterVaccination",
+  "status": "active",
+  "kind": "resource",
+  "type": "Encounter",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Encounter",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      { "path": "Encounter.status", "min": 1 },
+      { "path": "Encounter.subject", "min": 1 },
+      { "path": "Encounter.participant", "min": 1 },
+      { "path": "Encounter.actualPeriod.start", "min": 1 },
+      { "path": "Encounter.serviceProvider", "min": 1 },
+      { "path": "Encounter.location", "min": 1 }
+    ]
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "patient-child",
+  "url": "http://example.org/fhir/StructureDefinition/patient-child",
+  "version": "1.0.0",
+  "name": "PatientChild",
+  "status": "active",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Patient",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Patient",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      { "path": "Patient.identifier", "min": 1 },
+      {
+        "path": "Patient.identifier.system",
+        "fixedUri": "https://elga.gv.at/svnr"
+      },
+      { "path": "Patient.identifier.value", "min": 1 },
+
+      { "path": "Patient.name", "min": 1 },
+      { "path": "Patient.name.family", "min": 1 },
+      { "path": "Patient.name.given", "min": 1 },
+
+      { "path": "Patient.gender", "min": 1 },
+      {
+        "path": "Patient.gender",
+        "binding": {
+          "strength": "required",
+          "valueSet": "http://hl7.org/fhir/ValueSet/administrative-gender"
+        }
+      },
+
+      { "path": "Patient.birthDate", "min": 1 },
+
+      { "path": "Patient.generalPractitioner", "min": 1 }
+    ]
+  }
+}
