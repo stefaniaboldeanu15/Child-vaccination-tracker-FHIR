@@ -1,0 +1,26 @@
+{
+  "resourceType": "CodeSystem",
+  "id": "practitioner-role",
+  "url": "http://terminology.hl7.org/CodeSystem/practitioner-role",
+  "version": "1.0.0",
+  "name": "PractitionerRole",
+  "title": "Practitioner Role",
+  "status": "active",
+  "experimental": false,
+  "publisher": "Vaccination Tracking App",
+  "description": "Roles that a healthcare practitioner may have within the vaccination tracking system.",
+  "caseSensitive": true,
+  "content": "complete",
+  "concept": [
+    {
+      "code": "doctor",
+      "display": "Doctor",
+      "definition": "A licensed medical doctor responsible for administering and supervising vaccinations."
+    },
+    {
+      "code": "nurse",
+      "display": "Nurse",
+      "definition": "A qualified nurse involved in administering vaccines and patient care."
+    }
+  ]
+}
