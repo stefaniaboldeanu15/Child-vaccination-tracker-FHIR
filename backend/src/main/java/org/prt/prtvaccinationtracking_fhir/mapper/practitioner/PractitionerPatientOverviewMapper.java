@@ -4,9 +4,11 @@ import org.hl7.fhir.r5.model.*;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.*;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Date;
 
 @Component
 public class PractitionerPatientOverviewMapper {
@@ -267,7 +269,204 @@ public class PractitionerPatientOverviewMapper {
         return dto;
     }
 
+    ///  CREATE FULL ENCOUNTER REQUEST
+    // ---------------- Create / Update Encounter ----------------
+    public Encounter toEncounter(
+            CreateFullEncounterRequest dto,
+            String patientId,
+            String practitionerId
+    ) {
+        Encounter enc = new Encounter();
 
+        // Update vs Create
+        if (dto.getEncounterId() != null) {
+            enc.setId(dto.getEncounterId());
+        }
+
+        enc.getStatusElement().setValueAsString("finished");
+
+        // Patient
+        enc.setSubject(new Reference("Patient/" + patientId));
+
+        // Practitioner
+        enc.addParticipant()
+                .setActor(new Reference("Practitioner/" + practitionerId));
+
+        // Date
+        if (dto.getEncounterDate() != null) {
+            enc.getActualPeriod().setStart(
+                    Date.from(
+                            LocalDateTime.parse(dto.getEncounterDate())
+                                    .atZone(ZoneId.systemDefault())
+                                    .toInstant()
+                    )
+            );
+        }
+
+        // Organization
+        if (dto.getOrganizationId() != null) {
+            enc.setServiceProvider(
+                    new Reference("Organization/" + dto.getOrganizationId())
+            );
+        }
+
+        // Location
+        if (dto.getLocationId() != null) {
+            enc.addLocation()
+                    .setLocation(new Reference("Location/" + dto.getLocationId()));
+        }
+
+        return enc;
+    }
+    // ---------------- Create / Update Immunization ----------------
+
+    public Immunization toImmunization(
+            CreateFullEncounterRequest.FullImmunizationInput dto,
+            String patientId,
+            String encounterId
+    ) {
+        Immunization imm = new Immunization();
+
+        if (dto.getImmunizationId() != null) {
+            imm.setId(dto.getImmunizationId());
+        }
+
+        imm.getStatusElement().setValueAsString("completed");
+
+        imm.setPatient(new Reference("Patient/" + patientId));
+        imm.setEncounter(new Reference("Encounter/" + encounterId));
+
+        imm.getVaccineCode().addCoding()
+                .setSystem("http://hl7.org/fhir/sid/cvx")
+                .setCode(dto.getVaccineCode())
+                .setDisplay(dto.getVaccineDisplay());
+
+        if (dto.getOccurrenceDateTime() != null) {
+            imm.setOccurrence(
+                    new DateTimeType(dto.getOccurrenceDateTime())
+            );
+        }
+
+        return imm;
+    }
+    // ---------------- Create / Update Observation ----------------
+    public Observation toObservation(
+            CreateFullEncounterRequest.FullObservationInput dto,
+            String patientId,
+            String encounterId
+    ) {
+        Observation obs = new Observation();
+
+        if (dto.getObservationId() != null) {
+            obs.setId(dto.getObservationId());
+        }
+
+        obs.getStatusElement().setValueAsString("final");
+
+        obs.setSubject(new Reference("Patient/" + patientId));
+        obs.setEncounter(new Reference("Encounter/" + encounterId));
+
+        obs.getCode().addCoding()
+                .setSystem("http://loinc.org")
+                .setCode(dto.getCode())
+                .setDisplay(dto.getDisplay());
+
+        if (dto.getValue() != null) {
+            obs.setValue(
+                    new Quantity()
+                            .setValue(new BigDecimal(dto.getValue()))
+                            .setUnit(dto.getUnit())
+            );
+        }
+
+        if (dto.getEffectiveDateTime() != null) {
+            obs.setEffective(
+                    new DateTimeType(dto.getEffectiveDateTime())
+            );
+        }
+
+        return obs;
+    }
+
+    //----------------- Adverse events --------------------------
+    public AdverseEventDTO toAdverseEvent(AdverseEvent ae) {
+
+        AdverseEventDTO dto = new AdverseEventDTO();
+        dto.setAdverseEventId(ae.getIdElement().getIdPart());
+
+        if (ae.hasSubject()) {
+            dto.setPatientId(ae.getSubject().getReferenceElement().getIdPart());
+        }
+
+        if (ae.hasEncounter()) {
+            dto.setEncounterId(ae.getEncounter().getReferenceElement().getIdPart());
+        }
+
+        if (ae.hasCategory() && !ae.getCategory().isEmpty()) {
+            dto.setCategory(ae.getCategoryFirstRep().getText());
+        }
+
+        if (ae.hasOutcome() && !ae.getOutcome().isEmpty()) {
+            dto.setOutcome(ae.getOutcomeFirstRep().getText());
+        }
+
+        if (ae.hasRecordedDate()) {
+            dto.setDate(
+                    ae.getRecordedDate()
+                            .toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDateTime()
+            );
+        }
+
+        if (ae.hasSuspectEntity() && !ae.getSuspectEntity().isEmpty()) {
+            DataType dt = ae.getSuspectEntityFirstRep().getInstance();
+            if (dt instanceof Reference ref &&
+                    ref.getReferenceElement().hasIdPart()) {
+                dto.setImmunizationId(ref.getReferenceElement().getIdPart());
+            }
+        }
+
+        return dto;
+    }
+
+    public AdverseEvent toAdverseEvent(
+            CreateAdverseEventRequestDTO dto,
+            String patientId
+    ) {
+        AdverseEvent ae = new AdverseEvent();
+
+        ae.setSubject(new Reference("Patient/" + patientId));
+
+        if (dto.getEncounterId() != null) {
+            ae.setEncounter(new Reference("Encounter/" + dto.getEncounterId()));
+        }
+
+        if (dto.getImmunizationId() != null) {
+            ae.addSuspectEntity()
+                    .setInstance(new Reference("Immunization/" + dto.getImmunizationId()));
+        }
+
+        if (dto.getCategory() != null) {
+            ae.addCategory(new CodeableConcept().setText(dto.getCategory()));
+        }
+
+        if (dto.getOutcome() != null) {
+            ae.addOutcome(new CodeableConcept().setText(dto.getOutcome()));
+        }
+
+        if (dto.getDate() != null) {
+            ae.setRecordedDate(
+                    Date.from(
+                            dto.getDate()
+                                    .atZone(ZoneId.systemDefault())
+                                    .toInstant()
+                    )
+            );
+        }
+
+        return ae;
+    }
 
 
 }
