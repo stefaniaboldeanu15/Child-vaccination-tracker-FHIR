@@ -63,7 +63,7 @@ public class PractitionerDashboardController {
     }
 
     /// Update RELATED PERSON (parent / guardian)
-    @PutMapping("/related-persons/{relatedPersonId}")
+    @PutMapping( "/related-persons/{relatedPersonId}")
     public void updateRelatedPerson(
             @PathVariable String relatedPersonId,
             @RequestBody UpdateRelatedPersonRequestDTO dto
