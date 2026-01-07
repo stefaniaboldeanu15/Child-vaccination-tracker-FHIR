@@ -1,7 +1,7 @@
 
 # Backend – FHIR Vaccination Tracking System
 
-##  1.Overview
+##  1. Overview
 
 This module implements the Backend of the Child Vaccination Tracking System.
 It is a stateless Spring Boot application that exposes REST APIs for healthcare practitioners/related persons (parent and legal guardians) to manage patients, encounters, immunizations, observations, adverse events, and related clinical data.
@@ -54,7 +54,7 @@ The Practitioner Backend is responsible for:
 - Frontend receives structured response
 
 ---
-## 2. Backend - set up
+## 2. Backend - setup
 Run the application
 ```bash
 cd backend
@@ -77,4 +77,41 @@ The script will upload:
 - CodeSystems – define allowed codes 
 - ValueSets – constrain which codes may be used 
 - Profiles (StructureDefinitions) – enforce resource constraints
----
+
+Check if the mock data is perfectly alligned with the profiles:
+```
+POST /fhir/Patient/$validate
+Content-Type: application/fhir+json
+```
+
+```
+backend/
+└── src/main/resources/
+├── codesystems/
+│   ├── CodeSystem-AdministrativeGender.json
+│   ├── CodeSystem-AdverseEventCategory.json
+│   ├── CodeSystem-AdverseEventSeverity.json
+│   ├── CodeSystem-AdverseEventOutcome.json
+│   ├── CodeSystem-GuardianRelationship.json
+│   ├── CodeSystem-ImmunizationsCVX.json
+│   └── CodeSystem-PractitionerRole.json
+│
+├── valuesets/
+│   ├── ValueSet-AdministrativeGender.json
+│   ├── ValueSet-AdverseEventCategory.json
+│   ├── ValueSet-AdverseEventSeverity.json
+│   ├── ValueSet-AdverseEventOutcome.json
+│   ├── ValueSet-GuardianRelationship.json
+│   ├── ValueSet-ImmunizationsCVX.json
+│   └── ValueSet-PractitionerRole.json
+│
+├── structuredefinition
+│   ├── StructureDefinition-Encounter.json
+│   ├── StructureDefinition-Immunization.json
+│   ├── StructureDefinition-PatientChild.json
+│   ├── StructureDefinition-Practitioner.json
+│   ├── StructureDefinition-RelatedPerson.json
+│
+└── _mock_data
+
+```
