@@ -1,14 +1,14 @@
 package org.prt.prtvaccinationtracking_fhir.controller.practitioner;
 
-import ca.uhn.fhir.rest.client.api.IGenericClient;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.CreatePractitionerRequestDTO;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.PractitionerDTO;
 import org.prt.prtvaccinationtracking_fhir.service.practitioner.PractitionerService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-/**
- * Register practitioner - endpoint (creates new practitioner)
- */
 
+/**
+ * Practitioner registration endpoints
+ */
 @RestController
 @RequestMapping("/api/practitioners")
 public class PractitionerController {
@@ -19,7 +19,9 @@ public class PractitionerController {
         this.practitionerService = practitionerService;
     }
 
+    //Create a new Practitioner
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public PractitionerDTO createPractitioner(
             @RequestBody CreatePractitionerRequestDTO request
     ) {
