@@ -69,6 +69,15 @@ public class PractitionerPatientDashboardController {
     ) {
         return dashboardService.createRecommendationForPatient(patientId, request);
     }
+    /// GET RECOMMENDATIONS
+    @GetMapping("/patients/{patientId}/age-based-recommendations")
+    public List<ImmunizationRecommendationDTO> getAgeBasedRecommendations(
+            @PathVariable String patientId
+    ) {
+        return dashboardService
+                .getAgeBasedRecommendations(patientId);
+    }
+
     /// get - APPOINTMENTS
     @GetMapping("/patients/{patientId}/get-appointments")
     public List<AppointmentDTO> getAppointments(@PathVariable String patientId) {
