@@ -1,18 +1,21 @@
-package org.prt.prtvaccinationtracking_fhir.controller;
+package org.prt.prtvaccinationtracking_fhir.controller.practitioner;
 
 import jakarta.annotation.PostConstruct;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.CreatePractitionerRequestDTO;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.LoginRequestDTO;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.LoginResponseDTO;
-//import org.prt.prtvaccinationtracking_fhir.RegistrationRequestDTO;
-//import org.prt.prtvaccinationtracking_fhir.RegistrationResponseDTO;
+//import org.prt.prtvaccinationtracking_fhir.dto.practitioner.RegistrationRequestDTO;
+//import org.prt.prtvaccinationtracking_fhir.dto.practitioner.RegistrationResponseDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.PractitionerDTO;
 import org.prt.prtvaccinationtracking_fhir.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * Handles all authentication endpoints, such as login and token refreshing.
+ * LOGIN practitioner - endpoint
  */
+
 @RestController
 @RequestMapping("/api")
 public class AuthController {
@@ -20,6 +23,7 @@ public class AuthController {
     private final AuthService authService;
 
     public AuthController(AuthService authService) {
+
         this.authService = authService;
     }
 
@@ -34,11 +38,10 @@ public class AuthController {
         return "Hello! API is running.";
     }
 
-    // Login endpoint
+    // Login endpoint - PRACTITIONER
     @PostMapping("/auth/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request) {
         LoginResponseDTO response = authService.authenticate(request);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
 }

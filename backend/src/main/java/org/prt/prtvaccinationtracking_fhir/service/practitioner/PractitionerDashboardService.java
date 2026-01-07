@@ -3,18 +3,16 @@ package org.prt.prtvaccinationtracking_fhir.service.practitioner;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import org.hl7.fhir.r5.model.*;
-
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.*;
-import org.prt.prtvaccinationtracking_fhir.mapper.PractitionerDashboardMapper;
+import org.prt.prtvaccinationtracking_fhir.mapper.practitioner.PractitionerDashboardMapper;
+import org.prt.prtvaccinationtracking_fhir.mapper.practitioner.PractitionerMapper;
+import org.prt.prtvaccinationtracking_fhir.mapper.practitioner.PractitionerPatientOverviewMapper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,15 +21,237 @@ public class PractitionerDashboardService {
 
     private final IGenericClient fhirClient;
     private final PractitionerDashboardMapper mapper;
+    private final PractitionerPatientOverviewMapper overviewMapper;
+    private final PractitionerMapper  practitionerMapper;
 
-    public PractitionerDashboardService(IGenericClient fhirClient,
-                                        PractitionerDashboardMapper mapper) {
+    public PractitionerDashboardService(
+            IGenericClient fhirClient,
+            PractitionerDashboardMapper mapper,
+            PractitionerPatientOverviewMapper overviewMapper,
+            PractitionerMapper  practitionerMapper
+    ) {
         this.fhirClient = fhirClient;
         this.mapper = mapper;
+        this.overviewMapper = overviewMapper;
+        this.practitionerMapper = practitionerMapper;
+    }
+    /// credentials of the current practitioner
+    private String getCurrentUsername() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth != null ? auth.getName() : null;
+    }
+
+    private Practitioner getCurrentPractitioner() {
+        String username = getCurrentUsername();
+        if (username == null) {
+            throw new RuntimeException("No authenticated user found in security context.");
+        }
+
+        Bundle bundle = fhirClient.search()
+                .forResource(Practitioner.class)
+                .where(Practitioner.IDENTIFIER.exactly().identifier(username))
+                .returnBundle(Bundle.class)
+                .execute();
+
+        if (!bundle.hasEntry() || bundle.getEntry().isEmpty()) {
+            throw new RuntimeException("No Practitioner found with identifier = " + username);
+        }
+
+        return (Practitioner) bundle.getEntryFirstRep().getResource();
+    }
+
+/**
+    private Practitioner getCurrentPractitioner() {
+
+        String username = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        Bundle bundle = fhirClient.search()
+                .forResource(Practitioner.class)
+                .where(Practitioner.IDENTIFIER
+                        .exactly()
+                        .identifier(username))
+                .returnBundle(Bundle.class)
+                .execute();
+
+        if (!bundle.hasEntry()) {
+            throw new RuntimeException(
+                    "No Practitioner found for identifier: " + username
+            );
+        }
+
+        return (Practitioner) bundle.getEntryFirstRep().getResource();
+    }*/
+
+    // ─────────────────────────────────────────────────────────
+    // PRACTITIONER DASHBOARD
+    // ─────────────────────────────────────────────────────────
+
+    /// search by SVNR
+    public List<PatientDashboardRowDTO> searchBySvnr(String svnr) {
+
+        Practitioner practitioner = getCurrentPractitioner();
+        String practitionerId = practitioner.getIdElement().getIdPart();
+
+        Bundle patientBundle = fhirClient.search()
+                .forResource(Patient.class)
+                .where(
+                        Patient.IDENTIFIER.exactly()
+                                .systemAndCode("https://elga.gv.at/svnr", svnr)
+                )
+                .where(
+                        Patient.GENERAL_PRACTITIONER
+                                .hasId("Practitioner/" + practitionerId)
+                )
+                .returnBundle(Bundle.class)
+                .execute();
+
+        return buildDashboardRows(patientBundle);
+    }
+
+    /// builds the row of the searched patient by SVNR
+    private List<PatientDashboardRowDTO> buildDashboardRows(Bundle patientBundle) {
+
+        List<PatientDashboardRowDTO> rows = new ArrayList<>();
+
+        for (Bundle.BundleEntryComponent entry : patientBundle.getEntry()) {
+
+            Patient patient = (Patient) entry.getResource();
+            String patientId = patient.getIdElement().getIdPart();
+
+            Bundle rpBundle = fhirClient.search()
+                    .forResource(RelatedPerson.class)
+                    .where(
+                            RelatedPerson.PATIENT
+                                    .hasId("Patient/" + patientId)
+                    )
+                    .returnBundle(Bundle.class)
+                    .execute();
+
+            PatientDashboardRowDTO row = new PatientDashboardRowDTO();
+            row.setPatient(mapper.toPatientDetails(patient));
+            row.setRelatedPersons(
+                    rpBundle.getEntry().stream()
+                            .map(e -> mapper.toRelatedPerson(
+                                    (RelatedPerson) e.getResource()))
+                            .toList()
+            );
+
+            rows.add(row);
+        }
+
+        return rows;
+    }
+
+    /// DASHBOARD: list patients + related person (COMPLETE LIST -ALL PATIENTS)
+    public List<PatientDashboardRowDTO> getMyPatients() {
+
+        List<PatientDashboardRowDTO> rows = new ArrayList<>();
+
+        // 1) Resolve logged-in practitioner
+        Practitioner practitioner = getCurrentPractitioner();
+        String practitionerId = practitioner.getIdElement().getIdPart();
+
+        // 2) Get ONLY patients assigned to this practitioner
+        Bundle patientBundle = fhirClient.search()
+                .forResource(Patient.class)
+                .where(Patient.GENERAL_PRACTITIONER.hasId(
+                        "Practitioner/" + practitionerId
+                ))
+                .returnBundle(Bundle.class)
+                .execute();
+
+        for (Bundle.BundleEntryComponent entry : patientBundle.getEntry()) {
+
+            Patient patient = (Patient) entry.getResource();
+
+            PatientDashboardRowDTO row = new PatientDashboardRowDTO();
+            row.setPatient(mapper.toPatientDetails(patient));
+
+            // 3) Get related person (guardian)
+            Bundle rpBundle = fhirClient.search()
+                    .forResource(RelatedPerson.class)
+                    .where(RelatedPerson.PATIENT.hasId(
+                            patient.getIdElement().getIdPart()
+                    ))
+                    .returnBundle(Bundle.class)
+                    .execute();
+
+            if (!rpBundle.getEntry().isEmpty()) {
+                RelatedPerson rp =
+                        (RelatedPerson) rpBundle.getEntryFirstRep().getResource();
+                row.setRelatedPersons(
+                        rpBundle.getEntry().stream()
+                                .map(e -> (RelatedPerson) e.getResource())
+                                .map(mapper::toRelatedPerson)
+                                .toList()
+                );
+            }
+
+            rows.add(row);
+        }
+
+        return rows;
+    }
+
+    /// CREATE Patient
+    public String createPatient(CreatePatientRequestDTO dto) {
+
+        Patient patient = mapper.toPatient(dto);
+
+        MethodOutcome outcome = fhirClient.create()
+                .resource(patient)
+                .execute();
+
+        return outcome.getId().getIdPart();
+    }
+
+    /// UPDATE Patient
+    public void updatePatient(String patientId, UpdatePatientRequestDTO dto) {
+
+        Patient patient = fhirClient.read()
+                .resource(Patient.class)
+                .withId(patientId)
+                .execute();
+
+        mapper.updatePatient(patient, dto);
+
+        fhirClient.update()
+                .resource(patient)
+                .execute();
+    }
+
+    /// CREATE RelatedPerson
+    public String createRelatedPerson(CreateRelatedPersonRequestDTO dto) {
+
+        RelatedPerson rp = mapper.toRelatedPerson(dto);
+
+        MethodOutcome outcome = fhirClient.create()
+                .resource(rp)
+                .execute();
+
+        return outcome.getId().getIdPart();
+    }
+
+    /// UPDATE RelatedPerson
+    public void updateRelatedPerson(String relatedPersonId, UpdateRelatedPersonRequestDTO dto) {
+
+        RelatedPerson rp = fhirClient.read()
+                .resource(RelatedPerson.class)
+                .withId(relatedPersonId)
+                .execute();
+
+        mapper.updateRelatedPerson(rp, dto);
+
+        fhirClient.update()
+                .resource(rp)
+                .execute();
     }
 
     // ─────────────────────────────────────────────────────────
-    // EXISTING METHOD – leave as-is
+    // PRACTITIONER - PATIENT OVERVIEW (encounters + immunizations + obs + allergies)
     // ─────────────────────────────────────────────────────────
     public PatientClinicalOverviewDTO getPatientClinicalOverview(String patientId) {
 
@@ -58,7 +278,7 @@ public class PractitionerDashboardService {
             EncounterBlockDTO block = new EncounterBlockDTO();
 
             // 3a) Encounter core data
-            block.setEncounter(mapper.toEncounter(encounter));
+            block.setEncounter(overviewMapper.toEncounter(encounter));
 
             String encId = encounter.getIdElement().getIdPart();
 
@@ -74,7 +294,7 @@ public class PractitionerDashboardService {
                         .resource(Organization.class)
                         .withId(orgId)
                         .execute();
-                block.setOrganization(mapper.toOrganization(org));
+                block.setOrganization(overviewMapper.toOrganization(org));
             }
 
             // 3c) Location (first Encounter.location) + its managing organization
@@ -101,7 +321,7 @@ public class PractitionerDashboardService {
                                 .execute();
                     }
 
-                    block.setLocation(mapper.toLocation(loc, managingOrg));
+                    block.setLocation(overviewMapper.toLocation(loc, managingOrg));
                 }
             }
 
@@ -127,7 +347,7 @@ public class PractitionerDashboardService {
                 }
 
                 ImmunizationBlockDTO immBlock = new ImmunizationBlockDTO();
-                immBlock.setImmunization(mapper.toImmunization(imm));
+                immBlock.setImmunization(overviewMapper.toImmunization(imm));
 
                 // Practitioner who performed it
                 PractitionerDTO pracDto = null;
@@ -139,7 +359,7 @@ public class PractitionerDashboardService {
                                 .resource(Practitioner.class)
                                 .withId(pracId)
                                 .execute();
-                        pracDto = mapper.toPractitioner(practitioner);
+                        pracDto = practitionerMapper.toPractitioner(practitioner);
                     }
                 }
                 immBlock.setPractitioner(pracDto);
@@ -158,7 +378,7 @@ public class PractitionerDashboardService {
 
             for (Bundle.BundleEntryComponent obsEntry : obsBundle.getEntry()) {
                 Observation obs = (Observation) obsEntry.getResource();
-                obsDtos.add(mapper.toObservation(obs, null));
+                obsDtos.add(overviewMapper.toObservation(obs, null));
             }
             block.setObservations(obsDtos);
 
@@ -169,7 +389,6 @@ public class PractitionerDashboardService {
         return overview;
     }
 
-    // ===== NEW METHODS FOR PRACTITIONER DASHBOARD =====
     public PatientDetailsDTO getPatientDetails(String patientId) {
         Patient patient = fhirClient.read()
                 .resource(Patient.class)
@@ -196,7 +415,7 @@ public class PractitionerDashboardService {
             String encId = encounter.getIdElement().getIdPart();
 
             // —— Encounter core data ——
-            block.setEncounter(mapper.toEncounter(encounter));
+            block.setEncounter(overviewMapper.toEncounter(encounter));
 
             // —— Organization (serviceProvider) ——
             if (encounter.hasServiceProvider() &&
@@ -209,7 +428,7 @@ public class PractitionerDashboardService {
                         .withId(orgId)
                         .execute();
 
-                block.setOrganization(mapper.toOrganization(org));
+                block.setOrganization(overviewMapper.toOrganization(org));
             }
 
             // —— Location + managing organization ——
@@ -241,7 +460,7 @@ public class PractitionerDashboardService {
                                 .execute();
                     }
 
-                    block.setLocation(mapper.toLocation(loc, managingOrg));
+                    block.setLocation(overviewMapper.toLocation(loc, managingOrg));
                 }
             }
 
@@ -265,7 +484,7 @@ public class PractitionerDashboardService {
                 }
 
                 ImmunizationBlockDTO immBlock = new ImmunizationBlockDTO();
-                immBlock.setImmunization(mapper.toImmunization(imm));
+                immBlock.setImmunization(overviewMapper.toImmunization(imm));
 
                 // Practitioner
                 PractitionerDTO pracDto = null;
@@ -277,7 +496,7 @@ public class PractitionerDashboardService {
                                 .resource(Practitioner.class)
                                 .withId(pracId)
                                 .execute();
-                        pracDto = mapper.toPractitioner(practitioner);
+                        pracDto = practitionerMapper.toPractitioner(practitioner);
                     }
                 }
                 immBlock.setPractitioner(pracDto);
@@ -298,7 +517,7 @@ public class PractitionerDashboardService {
 
             for (Bundle.BundleEntryComponent obsEntry : obsBundle.getEntry()) {
                 Observation obs = (Observation) obsEntry.getResource();
-                obsDtos.add(mapper.toObservation(obs, null));
+                obsDtos.add(overviewMapper.toObservation(obs, null));
             }
 
             block.setObservations(obsDtos);
@@ -321,161 +540,50 @@ public class PractitionerDashboardService {
 
         for (Bundle.BundleEntryComponent entry : bundle.getEntry()) {
             AllergyIntolerance ai = (AllergyIntolerance) entry.getResource();
-            result.add(mapper.toAllergyIntoleranceDTO(ai));
+            result.add(overviewMapper.toAllergyIntolerance(ai));
         }
 
         return result;
     }
 
+    /// GET Immunization for patient
 
-    /** Helper: current username from Spring Security (e.g. "dr.smith"). */
-    private String getCurrentUsername() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return auth != null ? auth.getName() : null;
-    }
-
-    /** Helper: find Practitioner resource for currently logged-in user using identifier = username. */
-    private Practitioner getCurrentPractitioner() {
-        String username = getCurrentUsername();
-        if (username == null) {
-            throw new RuntimeException("No authenticated user found in security context.");
-        }
-
-        Bundle bundle = fhirClient.search()
-                .forResource(Practitioner.class)
-                .where(Practitioner.IDENTIFIER.exactly().identifier(username))
-                .returnBundle(Bundle.class)
-                .execute();
-
-        if (!bundle.hasEntry() || bundle.getEntry().isEmpty()) {
-            throw new RuntimeException("No Practitioner found with identifier = " + username);
-        }
-
-        return (Practitioner) bundle.getEntryFirstRep().getResource();
-    }
-
-    // ── 1) List patients assigned to this practitioner ────────────────────────
-
-    public List<PatientDetailsDTO> getMyPatients() {
-        Practitioner practitioner = getCurrentPractitioner();
-        String practitionerId = practitioner.getIdElement().getIdPart();  // e.g. "123"
-
-        Bundle bundle = fhirClient.search()
-                .forResource(Patient.class)
-                .where(Patient.GENERAL_PRACTITIONER.hasId("Practitioner/" + practitionerId))
-                .returnBundle(Bundle.class)
-                .execute();
-
-        return bundle.getEntry().stream()
-                .map(e -> (Patient) e.getResource())
-                .map(this::toPatientSummaryDTO)
-                .collect(Collectors.toList());
-    }
-    // ── REGISTER NEW PATIENT ────────────────────────────────────────
-
-    public PatientDetailsDTO registerPatient(RegisterPatientRequestDTO request) {
-        Practitioner practitioner = getCurrentPractitioner();
-        String practitionerId = practitioner.getIdElement().getIdPart();
-
-        Patient patient = new Patient();
-        //patient.setId(request.getIdentifier());
-
-        //  patient.addIdentifier()
-        //     .setSystem("http://hospital.smarthealthit.org/patients")
-        //   .setValue(request.getIdentifier());
-
-        patient.addName()
-                .addGiven(request.getFirstName())
-                .setFamily(request.getLastName());
-
-        if (request.getBirthDate() != null) {
-            patient.setBirthDate(Date.from(
-                    LocalDate.parse(request.getBirthDate())
-                            .atStartOfDay(ZoneId.systemDefault())
-                            .toInstant()
-            ));
-        }
-
-        if (request.getGender() != null) {
-            patient.setGender(Enumerations.AdministrativeGender.fromCode(request.getGender()));
-        }
-
-        patient.addGeneralPractitioner()
-                .setReference("Practitioner/" + practitionerId);
-
-        MethodOutcome outcome = fhirClient.create()
-                .resource(patient)
-                .execute();
-
-        Patient created = (Patient) outcome.getResource();
-        return toPatientSummaryDTO(created);
-    }
-
-    private PatientDetailsDTO toPatientSummaryDTO(Patient patient) {
-        PatientDetailsDTO dto = new PatientDetailsDTO();
-        dto.setPatientId(patient.getIdElement().getIdPart());
-
-        if (patient.hasName() && !patient.getName().isEmpty()) {
-            HumanName name = patient.getNameFirstRep();
-            String given = name.getGivenAsSingleString();
-            String family = name.getFamily();
-            dto.setFirstName(given);
-            dto.setLastName(family);
-        }
-
-        if (patient.hasBirthDate()) {
-            LocalDate birth = patient.getBirthDate().toInstant()
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDate();
-            dto.setBirthDate(birth.toString());
-
-        }
-
-        if (patient.hasGender()) {
-            dto.setGender(patient.getGender().toCode());
-        }
-
-        return dto;
-    }
-
-    // ── 2) Immunizations for a patient ───────────────────────────────────────
-
-    public List<ImmunizationDTO> getImmunizationsForPatient(String patientId) {
+    public List<ImmunizationDTO> getImmunizationsForPatient (String patientId) {
         Bundle immBundle = fhirClient.search()
                 .forResource(Immunization.class)
-                .where(Immunization.PATIENT.hasId("Patient/" + patientId))
+                .where(Immunization.PATIENT.hasId("Patient/"+patientId))
                 .returnBundle(Bundle.class)
                 .execute();
-
         return immBundle.getEntry().stream()
-                .map(e -> (Immunization) e.getResource())
-                .map(this::toImmunizationDTO)
+                .map(e->(Immunization) e.getResource())
+                .map(overviewMapper::toImmunization)
                 .collect(Collectors.toList());
     }
 
-    public ImmunizationDTO createImmunizationForPatient(String patientId,
-                                                        CreateImmunizationRequest request) {
+    /// PUT - Create Immunization for patient
+    public ImmunizationDTO createImmunizationForPatient(
+            String patientId,
+            CreateImmunizationRequest request){
 
         Immunization imm = new Immunization();
 
         imm.setStatus(Immunization.ImmunizationStatusCodes.COMPLETED);
-        imm.setPatient(new Reference("Patient/" + patientId));
+        imm.setPatient(new Reference("Patient/"+ patientId));
 
-        // Vaccine code
+        //Vaccine code
         CodeableConcept cc = new CodeableConcept();
         Coding coding = cc.addCoding();
-        coding.setSystem("http://example.org/vaccine-codes");
+        coding.setSystem("http://hl7.org/fhir/sid/cvx");
         coding.setCode(request.getVaccineCode());
         coding.setDisplay(request.getVaccineDisplay());
         imm.setVaccineCode(cc);
 
-        // Date
-        if (request.getDate() != null) {
+        //Date
+        if(request.getDate() != null){
             imm.setOccurrence(new DateTimeType(java.util.Date.from(
                     request.getDate().atStartOfDay(ZoneId.systemDefault()).toInstant()
             )));
         }
-
         // Performer = logged-in practitioner
         Practitioner practitioner = getCurrentPractitioner();
         String pracId = practitioner.getIdElement().getIdPart();
@@ -485,7 +593,6 @@ public class PractitionerDashboardService {
         imm.addPerformer(performer);
 
         MethodOutcome outcome;
-
         // CUSTOM IMMUNIZATION ID SUPPORT — PUT instead of POST
         if (request.getImmunizationId() != null && !request.getImmunizationId().isBlank()) {
 
@@ -504,53 +611,10 @@ public class PractitionerDashboardService {
         }
 
         Immunization created = (Immunization) outcome.getResource();
-        return toImmunizationDTO(created);
+        return overviewMapper.toImmunization(created);
     }
 
-    private ImmunizationDTO toImmunizationDTO(Immunization imm) {
-        ImmunizationDTO dto = new ImmunizationDTO();
-        dto.setImmunizationId(imm.getIdElement().getIdPart());
-
-        if (imm.hasPatient() && imm.getPatient().getReferenceElement().hasIdPart()) {
-            dto.setPatientId(imm.getPatient().getReferenceElement().getIdPart());
-        }
-
-        if (imm.hasVaccineCode() && imm.getVaccineCode().hasCoding()) {
-            Coding first = imm.getVaccineCode().getCodingFirstRep();
-            dto.setVaccineCode(first.getCode());
-            dto.setVaccineDisplay(first.getDisplay());
-        }
-
-        if (imm.hasOccurrenceDateTimeType()) {
-            LocalDate date = imm.getOccurrenceDateTimeType().getValue().toInstant()
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDate();
-
-            dto.setOccurrenceDateTime(date.toString());
-        }
-
-        if (imm.hasStatus()) {
-            dto.setStatus(imm.getStatus().toCode());
-        }
-
-
-        if (imm.hasPerformer() && !imm.getPerformer().isEmpty()) {
-            Reference actorRef = imm.getPerformerFirstRep().getActor();
-            if (actorRef != null && actorRef.getReferenceElement().hasIdPart()) {
-                String pracId = actorRef.getReferenceElement().getIdPart();
-                Practitioner prac = fhirClient.read()
-                        .resource(Practitioner.class)
-                        .withId(pracId)
-                        .execute();
-
-            }
-        }
-
-        return dto;
-    }
-
-    // ── 3) Immunization recommendations ──────────────────────────────────────
-
+    /// GET Immunization recommendation for patient
     public List<ImmunizationRecommendationDTO> getRecommendationsForPatient(String patientId) {
         Bundle recBundle = fhirClient.search()
                 .forResource(ImmunizationRecommendation.class)
@@ -566,13 +630,14 @@ public class PractitionerDashboardService {
 
             for (ImmunizationRecommendation.ImmunizationRecommendationRecommendationComponent comp
                     : rec.getRecommendation()) {
-                result.add(toRecommendationDTO(recId, patientId, comp));
+                result.add(overviewMapper.toRecommendationDTO(recId, patientId, comp));
             }
         }
 
         return result;
     }
 
+    /// PUT Immunization recommendation for patient
     public ImmunizationRecommendationDTO createRecommendationForPatient(
             String patientId,
             CreateImmunizationRecommendationRequest request
@@ -623,57 +688,8 @@ public class PractitionerDashboardService {
 
         ImmunizationRecommendation created = (ImmunizationRecommendation) outcome.getResource();
         String recId = created.getIdElement().getIdPart();
-        return toRecommendationDTO(recId, patientId, created.getRecommendationFirstRep());
+        return overviewMapper.toRecommendationDTO(recId, patientId, created.getRecommendationFirstRep());
     }
-
-    private ImmunizationRecommendationDTO toRecommendationDTO(
-            String recId,
-            String patientId,
-            ImmunizationRecommendation.ImmunizationRecommendationRecommendationComponent comp
-    ) {
-        ImmunizationRecommendationDTO dto = new ImmunizationRecommendationDTO();
-        dto.setId(recId);
-        dto.setPatientId(patientId);
-
-        if (comp.hasVaccineCode()) {
-            CodeableConcept cc = comp.getVaccineCodeFirstRep();
-            if (cc.hasCoding()) {
-                Coding first = cc.getCodingFirstRep();
-                dto.setVaccineCode(first.getCode());
-                dto.setVaccineDisplay(first.getDisplay());
-            }
-        }
-
-        if (comp.hasDateCriterion() && !comp.getDateCriterion().isEmpty()) {
-            var dc = comp.getDateCriterionFirstRep();
-            if (dc.hasValue()) {
-                LocalDate due = dc.getValue().toInstant()
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalDate();
-                dto.setDueDate(due);
-            }
-        }
-
-        if (comp.hasForecastStatus()) {
-            dto.setStatus(comp.getForecastStatus().getText());
-        }
-
-        if (comp.hasSeries()) {
-            dto.setSeries(comp.getSeries());
-        }
-
-        if (comp.hasDoseNumber()) {
-            try {
-                dto.setDoseNumber(Integer.valueOf(comp.getDoseNumber()));
-            } catch (NumberFormatException e) {
-                // leave null or handle error
-            }
-        }
-        return dto;
-    }
-
-    // ── 4) Appointments ──────────────────────────────────────────────────────
-
     public List<AppointmentDTO> getAppointmentsForPatient(String patientId) {
         Bundle bundle = fhirClient.search()
                 .forResource(Appointment.class)
@@ -684,7 +700,7 @@ public class PractitionerDashboardService {
         List<AppointmentDTO> result = new ArrayList<>();
         for (Bundle.BundleEntryComponent entry : bundle.getEntry()) {
             Appointment appt = (Appointment) entry.getResource();
-            result.add(toAppointmentDTO(appt));
+            result.add(overviewMapper.toAppointmentDTO(appt));
         }
         return result;
     }
@@ -736,7 +752,7 @@ public class PractitionerDashboardService {
                 .execute();
 
         Appointment created = (Appointment) outcome.getResource();
-        return toAppointmentDTO(created);
+        return overviewMapper.toAppointmentDTO(created);
     }
 
     public AppointmentDTO updateAppointmentStatus(String appointmentId, String newStatusCode) {
@@ -754,190 +770,129 @@ public class PractitionerDashboardService {
                 .execute();
 
         Appointment updated = (Appointment) outcome.getResource();
-        return toAppointmentDTO(updated);
+        return overviewMapper.toAppointmentDTO(updated);
     }
 
-    private AppointmentDTO toAppointmentDTO(Appointment appt) {
-        AppointmentDTO dto = new AppointmentDTO();
-        dto.setId(appt.getIdElement().getIdPart());
+    public void createFullEncounter(
+            CreateFullEncounterRequest request,
+            String patientId
+    ) {
+        Practitioner practitioner = getCurrentPractitioner();
+        String practitionerId = practitioner.getIdElement().getIdPart();
 
-        // Start / end
-        if (appt.hasStart()) {
-            LocalDateTime start = appt.getStart().toInstant()
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDateTime();
-            dto.setStart(start);
-        }
-        if (appt.hasEnd()) {
-            LocalDateTime end = appt.getEnd().toInstant()
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDateTime();
-            dto.setEnd(end);
-        }
+        Encounter encounter = overviewMapper.toEncounter(
+                request,
+                patientId,
+                practitionerId
+        );
 
-        if (appt.hasStatus()) {
-            dto.setStatus(appt.getStatus().toCode());
-        }
+        MethodOutcome outcome = fhirClient.create()
+                .resource(encounter)
+                .execute();
 
-        // Reason (very simplified)
-        if (appt.hasReason() && !appt.getReason().isEmpty()) {
-            CodeableReference ref = appt.getReasonFirstRep();
-            if (ref.hasConcept() && ref.getConcept().hasText()) {
-                dto.setReason(ref.getConcept().getText());
+        Encounter savedEncounter = (Encounter) outcome.getResource();
+        String encounterId = savedEncounter.getIdElement().getIdPart();
+
+        if (request.getImmunizations() != null) {
+            for (CreateFullEncounterRequest.FullImmunizationInput immDto
+                    : request.getImmunizations()) {
+
+                Immunization imm = overviewMapper.toImmunization(
+                        immDto,
+                        patientId,
+                        encounterId
+                );
+
+                fhirClient.create().resource(imm).execute();
             }
         }
 
-        // Location: we stored as description above
-        if (appt.hasDescription()) {
-            dto.setLocation(appt.getDescription());
+        if (request.getObservations() != null) {
+            for (CreateFullEncounterRequest.FullObservationInput obsDto
+                    : request.getObservations()) {
+
+                Observation obs = overviewMapper.toObservation(
+                        obsDto,
+                        patientId,
+                        encounterId
+                );
+
+                fhirClient.create().resource(obs).execute();
+            }
+        }
+    }
+
+    //List  ALL ADVERSE EVENTS
+    public List<AdverseEventDTO> getAdverseEventsForPatient(String patientId) {
+
+        Bundle bundle = fhirClient.search()
+                .forResource(AdverseEvent.class)
+                .where(AdverseEvent.SUBJECT.hasId("Patient/" + patientId))
+                .returnBundle(Bundle.class)
+                .execute();
+
+        List<AdverseEventDTO> result = new ArrayList<>();
+
+        for (Bundle.BundleEntryComponent entry : bundle.getEntry()) {
+            AdverseEvent ae = (AdverseEvent) entry.getResource();
+            result.add(overviewMapper.toAdverseEvent(ae));
         }
 
-        // Get patient & practitioner names if available
-        for (Appointment.AppointmentParticipantComponent part : appt.getParticipant()) {
-            if (!part.hasActor() || !part.getActor().getReferenceElement().hasIdPart()) {
+        return result;
+    }
+
+    //List  ALL ADVERSE EVENTS FOR A SPECIFIC ENCOUNTER
+    public List<AdverseEventDTO> getAdverseEventsForEncounter(
+            String patientId,
+            String encounterId
+    ) {
+        Bundle bundle = fhirClient.search()
+                .forResource(AdverseEvent.class)
+                .where(AdverseEvent.SUBJECT.hasId("Patient/" + patientId))
+                .returnBundle(Bundle.class)
+                .execute();
+
+        List<AdverseEventDTO> result = new ArrayList<>();
+
+        for (Bundle.BundleEntryComponent entry : bundle.getEntry()) {
+            AdverseEvent ae = (AdverseEvent) entry.getResource();
+
+            if (!ae.hasEncounter()
+                    || !ae.getEncounter().getReferenceElement().hasIdPart()
+                    || !encounterId.equals(
+                    ae.getEncounter().getReferenceElement().getIdPart())) {
                 continue;
             }
-            Reference actorRef = part.getActor();
-            String ref = actorRef.getReference();
 
-            if (ref != null) {
-                if (ref.startsWith("Patient/")) {
-                    String patientId = actorRef.getReferenceElement().getIdPart();
-                    dto.setPatientId(patientId);
-
-                    Patient patient = fhirClient.read()
-                            .resource(Patient.class)
-                            .withId(patientId)
-                            .execute();
-                    if (patient.hasName()) {
-                        HumanName name = patient.getNameFirstRep();
-                        String fullName = (name.getGivenAsSingleString() + " " + name.getFamily()).trim();
-                        dto.setPatientName(fullName);
-                    }
-                } else if (ref.startsWith("Practitioner/")) {
-                    String pracId = actorRef.getReferenceElement().getIdPart();
-                    dto.setPractitionerId(pracId);
-
-                    Practitioner prac = fhirClient.read()
-                            .resource(Practitioner.class)
-                            .withId(pracId)
-                            .execute();
-                    if (prac.hasName()) {
-                        HumanName name = prac.getNameFirstRep();
-                        String fullName = (name.getGivenAsSingleString() + " " + name.getFamily()).trim();
-                        dto.setPractitionerName(fullName);
-                    }
-                }
-            }
+            result.add(overviewMapper.toAdverseEvent(ae));
         }
 
-        return dto;
+        return result;
     }
 
-    public void createFullEncounter(String patientId, CreateFullEncounterRequest request) {
-
-        // ----------------------------------------
-        // 1) CREATE ENCOUNTER
-        // ----------------------------------------
-        Encounter encounter = new Encounter();
-
-        encounter.setId("Encounter/" + request.getEncounterId());
-        encounter.setStatus(Enumerations.EncounterStatus.COMPLETED);
-        encounter.setSubject(new Reference("Patient/" + patientId));
-
-        // Encounter date
-        if (request.getEncounterDate() != null) {
-            Period period = new Period();
-            period.setStart(Date.from(
-                    LocalDateTime.parse(request.getEncounterDate())
-                            .atZone(ZoneId.systemDefault())
-                            .toInstant()
-            ));
-
-            encounter.setActualPeriod(period);
+    public void createAdverseEvent(
+            String patientId,
+            CreateAdverseEventRequestDTO dto
+    ) {
+        if (patientId == null || patientId.isBlank()) {
+            throw new IllegalArgumentException("patientId is required");
         }
 
-        // Organization
-        if (request.getOrganizationId() != null) {
-            encounter.setServiceProvider(
-                    new Reference("Organization/" + request.getOrganizationId())
-            );
-        }
+        // Map DTO → FHIR AdverseEvent
+        AdverseEvent adverseEvent = overviewMapper.toAdverseEvent(
+                dto,
+                patientId
+        );
 
-        // Location
-        if (request.getLocationId() != null) {
-            encounter.addLocation().setLocation(
-                    new Reference("Location/" + request.getLocationId())
-            );
-        }
-
-        fhirClient.update().resource(encounter).execute();
-
-
-        // ----------------------------------------
-        // 2) CREATE IMMUNIZATIONS
-        // ----------------------------------------
-        if (request.getImmunizations() != null) {
-            for (var immInput : request.getImmunizations()) {
-
-                Immunization imm = new Immunization();
-
-                imm.setId("Immunization/" + immInput.getImmunizationId());
-                imm.setStatus(Immunization.ImmunizationStatusCodes.COMPLETED);
-                imm.setPatient(new Reference("Patient/" + patientId));
-                imm.setEncounter(new Reference("Encounter/" + request.getEncounterId()));
-
-                imm.setVaccineCode(
-                        new CodeableConcept().addCoding(
-                                new Coding()
-                                        .setSystem("http://hl7.org/fhir/sid/cvx")
-                                        .setCode(immInput.getVaccineCode())
-                                        .setDisplay(immInput.getVaccineDisplay())
-                        )
-                );
-
-                if (immInput.getOccurrenceDateTime() != null) {
-                    imm.setOccurrence(
-                            new DateTimeType(immInput.getOccurrenceDateTime())
-                    );
-                }
-
-                fhirClient.update().resource(imm).execute();
-            }
-        }
-
-
-        // ----------------------------------------
-        // 3) CREATE OBSERVATIONS
-        // ----------------------------------------
-        if (request.getObservations() != null) {
-            for (var obsInput : request.getObservations()) {
-
-                Observation obs = new Observation();
-                obs.setId("Observation/" + obsInput.getObservationId());
-
-                obs.setStatus(Enumerations.ObservationStatus.FINAL);
-                obs.setSubject(new Reference("Patient/" + patientId));
-                obs.setEncounter(new Reference("Encounter/" + request.getEncounterId()));
-
-                obs.setCode(new CodeableConcept().addCoding(
-                        new Coding()
-                                .setCode(obsInput.getCode())
-                                .setDisplay(obsInput.getDisplay())
-                ));
-
-                obs.setValue(new Quantity()
-                        .setValue(Double.parseDouble(obsInput.getValue()))
-                        .setUnit(obsInput.getUnit())
-                );
-
-                if (obsInput.getEffectiveDateTime() != null) {
-                    obs.setEffective(new DateTimeType(obsInput.getEffectiveDateTime()));
-                }
-
-                fhirClient.update().resource(obs).execute();
-            }
-        }
+        // Persist AdverseEvent
+        fhirClient.create()
+                .resource(adverseEvent)
+                .execute();
     }
+
+
+
+
+
 
 }
