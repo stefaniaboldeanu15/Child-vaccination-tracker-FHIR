@@ -1,6 +1,11 @@
 {
   "resourceType": "RelatedPerson",
-  "id": "rp-mother-noah",
+  "id": "rp-noah-mother",
+  "meta": {
+    "profile": [
+      "http://example.org/fhir/StructureDefinition/relatedperson-guardian"
+    ]
+  },
   "patient": {
     "reference": "Patient/patient-noah"
   },
@@ -17,7 +22,7 @@
   ],
   "name": [
     {
-      "family": "Bauer",
+      "family": "Gruber",
       "given": ["Anna"]
     }
   ]
