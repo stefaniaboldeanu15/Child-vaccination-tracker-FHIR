@@ -22,4 +22,4 @@ Upload "Location" "locations"
 Upload "Encounter" "encounters"
 
 
-Write-Host " Mock data uploaded successfully"
+Write-Host "uploaded successfully"
