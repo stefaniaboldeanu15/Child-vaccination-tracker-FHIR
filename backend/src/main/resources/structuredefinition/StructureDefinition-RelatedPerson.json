@@ -12,20 +12,21 @@
   "derivation": "constraint",
   "differential": {
     "element": [
-      { "path": "RelatedPerson.patient", "min": 1 },
-
-      { "path": "RelatedPerson.relationship", "min": 1 },
       {
-        "path": "RelatedPerson.relationship",
-        "binding": {
-          "strength": "required",
-          "valueSet": "http://example.org/fhir/ValueSet/guardian-relationship"
-        }
+        "id": "RelatedPerson.patient",
+        "path": "RelatedPerson.patient",
+        "min": 1
       },
-
-      { "path": "RelatedPerson.name", "min": 1 },
-      { "path": "RelatedPerson.name.family", "min": 1 },
-      { "path": "RelatedPerson.name.given", "min": 1 }
+      {
+        "id": "RelatedPerson.relationship",
+        "path": "RelatedPerson.relationship",
+        "min": 1
+      },
+      {
+        "id": "RelatedPerson.name",
+        "path": "RelatedPerson.name",
+        "min": 1
+      }
     ]
   }
 }
