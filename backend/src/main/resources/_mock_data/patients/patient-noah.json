@@ -1,15 +1,14 @@
 {
   "resourceType": "Patient",
   "id": "patient-noah",
-  "identifier": [
-    {
-      "system": "https://elga.gv.at/svnr",
-      "value": "0987654321"
-    }
-  ],
+  "meta": {
+    "profile": [
+      "http://example.org/fhir/StructureDefinition/patient-child"
+    ]
+  },
   "name": [
     {
-      "family": "Bauer",
+      "family": "Gruber",
       "given": ["Noah"]
     }
   ],

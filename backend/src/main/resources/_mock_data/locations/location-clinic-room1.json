@@ -1,8 +1,9 @@
 {
   "resourceType": "Location",
-  "id": "loc-room-1",
-  "name": "Pediatric Vaccination Room 1",
+  "id": "loc-vienna-room1",
+  "status": "active",
+  "name": "Vienna Pediatric Clinic-Room 1",
   "managingOrganization": {
-    "reference": "Organization/org-city-clinic"
+    "reference": "Organization/org-vienna-peds"
   }
 }
