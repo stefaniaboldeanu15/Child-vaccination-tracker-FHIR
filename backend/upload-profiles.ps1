@@ -16,4 +16,4 @@ Get-ChildItem "src/main/resources/structuredefinition/*.json" | ForEach-Object {
         -Body (Get-Content $_ -Raw)
 }
 
-Write-Host "✅ StructureDefinitions uploaded"
+Write-Host "StructureDefinitions uploaded"
