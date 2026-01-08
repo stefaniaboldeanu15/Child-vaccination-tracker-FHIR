@@ -1,0 +1,19 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "location-pediatric",
+  "url": "http://example.org/fhir/StructureDefinition/location-pediatric",
+  "version": "1.0.0",
+  "name": "LocationPediatric",
+  "status": "active",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Location",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Location",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      { "path": "Location.status", "min": 1 },
+      { "path": "Location.name", "min": 1 }
+    ]
+  }
+}
