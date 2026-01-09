@@ -1,0 +1,22 @@
+{
+  "resourceType": "ValueSet",
+  "id": "practitioner-role",
+  "url": "http://example.org/fhir/ValueSet/practitioner-role",
+  "version": "1.0.0",
+  "name": "PractitionerRole",
+  "title": "Practitioner Role",
+  "status": "active",
+  "publisher": "Vaccination Tracking App",
+  "description": "Roles of healthcare practitioners.",
+  "compose": {
+    "include": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/practitioner-role",
+        "concept": [
+          { "code": "doctor", "display": "Doctor" },
+          { "code": "nurse", "display": "Nurse" }
+        ]
+      }
+    ]
+  }
+}

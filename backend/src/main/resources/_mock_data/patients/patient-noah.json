@@ -1,0 +1,22 @@
+{
+  "resourceType": "Patient",
+  "id": "patient-noah",
+  "meta": {
+    "profile": [
+      "http://example.org/fhir/StructureDefinition/patient-child"
+    ]
+  },
+  "name": [
+    {
+      "family": "Gruber",
+      "given": ["Noah"]
+    }
+  ],
+  "gender": "male",
+  "birthDate": "2024-03-15",
+  "generalPractitioner": [
+    {
+      "reference": "Practitioner/pract-smith"
+    }
+  ]
+}

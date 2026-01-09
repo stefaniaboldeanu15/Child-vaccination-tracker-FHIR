@@ -1,0 +1,23 @@
+{
+  "resourceType": "ValueSet",
+  "id": "guardian-relationship",
+  "url": "http://example.org/fhir/ValueSet/guardian-relationship",
+  "version": "1.0.0",
+  "name": "GuardianRelationship",
+  "title": "Guardian Relationship",
+  "status": "active",
+  "publisher": "Vaccination Tracking App",
+  "description": "Relationship of a related person to a child patient.",
+  "compose": {
+    "include": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
+        "concept": [
+          { "code": "MTH", "display": "Mother" },
+          { "code": "FTH", "display": "Father" },
+          { "code": "GPAR", "display": "Legal guardian" }
+        ]
+      }
+    ]
+  }
+}

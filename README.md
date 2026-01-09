@@ -1,9 +1,4 @@
-# PRT - FHIR - based vaccination tracking app
 
----
-
-```markdown
-```
 # Vaccination Tracking Made Easy: A FHIR-Based Registry for Patients and Providers
 
 ##  Project Overview
@@ -11,9 +6,7 @@ This project presents a FHIR-based Vaccination Registry designed to improve how 
 The system demonstrates how HL7 FHIR standards can be applied to achieve interoperability, scalability, and data security in modern healthcare applications.
 
 ---
-
 ##  Project Goals
-
 ### Main Objective
 To build a functional FHIR-based Vaccination Registry that provides secure, standardized, and user-friendly management of immunization data.
 
@@ -26,64 +19,28 @@ To build a functional FHIR-based Vaccination Registry that provides secure, stan
     - `Practitioner`
     - `Observation`
     - `Consent`
-4. Connect the frontend (Vue.js) and backend (FastAPI + Java) with a public FHIR server.
+4. Connect the Vue.js-based frontend and a Java developed backend (Spring Boot) using HAPI FHIR client.
 5. Integrate vaccination schedules and automatic reminders.
 6. Evaluate usability, performance, and data compliance.
 7. Promote digital health literacy and patient empowerment.
 
 ---
-##  System Architecture
-
-### Example of OpenAPI FHIR Endpoint
-
-Below is a sample from the `openapi.yaml` file showing how the `Patient` resource endpoints are defined:
-
-```yaml
-paths:
-  /Patient:
-
-  get:
-    summary: Search Patient
-    parameters:
-      - name: _id
-        in: query
-        schema: { type: string }
-      - name: _count
-        in: query
-        schema: { type: integer }
-    responses:
-      '200':
-        description: Bundle of Patient
-  post:
-    summary: Create Patient
-    requestBody:
-      required: true
-      content:
-        application/fhir+json:
-          schema:
-            type: object
-    responses:
-      '201':
-        description: Created
-  /Patient/{id}:
-```
-
----
-
 ### Components
-| Component   | Description |
-|------------ |-------------|
-| Frontend    | Built with Vue.js and TailwindCSS for responsive, user-friendly interfaces. |
-| Backend     | Developed in Java + FastAPI, responsible for handling API requests and connecting to the FHIR server. |
-| FHIR Server | Public HAPI FHIR R4 server storing structured immunization data. |
-| Database    | SQL schema used to support CDA data export and prototype persistence. |
-| Version Control | Managed via Git and GitHub. |
-
+| Component   | Description                                                                                         |
+|------------ |-----------------------------------------------------------------------------------------------------|
+| Frontend    | Built with Vue.js, user-friendly interfaces.                                                        |
+| Backend     | Java 17 Spring Boot application, build with Apache Maven, using REST APIs for server data transfers |
+| FHIR Server | Public HAPI FHIR R5 server storing structured data.                                                 |
+| Version Control | Managed via Git and GitHub.                                                                         |
+---
 ### Data Flow
-1. User interacts with the web frontend.
-2. Frontend sends REST API requests to the backend.
-3. Backend processes and queries the FHIR server.
-4. Data is returned and displayed to the user.
+1. User interacts with the web frontend (practitioner/related person of the patient)
+2. Frontend sends REST API requests (JSON) to the backend.
+3. Backend validates the request and maps it to FHIR resources. 
+4. Backend communicates with the FHIR server via HAPI FHIR. 
+5. FHIR server stores or retrieves the data. 
+6. FHIR server returns standardized FHIR resources. 
+7. Backend maps FHIR data to DTOs and responds to the frontend.
 
 ---
 
@@ -101,42 +58,36 @@ paths:
 ##  Installation & Setup
 
 ### Prerequisites
-- Node.js (v18+)
-- Python 3.10+
+- Vue.js (v18+)
 - Java 17+
 - Git
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/Yusrasf/PRT-main.git
-cd PRT-main
+git clone https://github.com/stefaniaboldeanu15/Child-vaccination-tracker-FHIR.git
 ````
 
-### 2. Backend (FastAPI)
+### 2. Backend (REST API)
 
 ```bash
 cd backend
-pip install -r requirements.txt
-uvicorn main:app --reload
+mvn clean install
+mvn spring-boot:run
 ```
 
 ### 3. Frontend (Vue.js)
 
 ```bash
-cd frontend
-npm install
-npm run dev
+
 ```
 
-### 4. FHIR Server Connection
+### 4. HAPI FHIR Server Connection
 
 The system is configured to connect to:
 
 ```
-https://hapi.fhir.org/baseR4
+https://hapi.fhir.org/baseR5
 ```
-
-You can modify this in the `.env` configuration or `apiService.js`.
 
 ---
 
@@ -157,28 +108,19 @@ Unit and integration testing performed for backend endpoints and FHIR resource t
 ## Project Structure
 
 ```
-PRT-main/
-├── frontend/            # Vue.js interface
-│   ├── components/
-│   ├── pages/
-│   ├── assets/
-│   └── package.json
-│
-├── backend/             # FastAPI + Java backend logic
-│   ├── main.py
-│   ├── controllers/
-│   ├── services/
-│   ├── models/
-│   └── requirements.txt
-│
-├── database/            # SQL schema and CDA templates
-│   └── immunization.sql
-│
-├── openapi/             # OpenAPI YAML specification for FHIR endpoints
-│   └── vaccination-api.yaml
-│
-├── README.md
-└── ProjectDocumentation.pdf
+Child-vaccination-tracker-FHIR/│
+├── backend/src/main/java/org.prt.prtvaccinationtracking_fhir  # REST APIs + Java (SpringBoot)
+│   ├── auth/ 
+│   ├── config/
+│   ├── controllers/ #for practitioner & related person users
+│   ├── dto/
+│   ├── mapper/
+│   ├── service/
+│   └── PrtVaccinationTrackingFhirApplication.java
+│ 
+├── frontend/
+├── server/
+└── README.md 
 ```
 
 ---
@@ -194,11 +136,11 @@ PRT-main/
 ---
 
 ##  Team Members
-| Name                        |                                                | Email                                                           |
-| --------------------------- | --------------------------------------------- | --------------------------------------------------------------- |
-| Stefania-Diana Boldeanu     |    | [me25m028@technikum-wien.at](mailto:me25m028@technikum-wien.at) |
-| Lena Stadlinger             |  | [me25m031@technikum-wien.at](mailto:me25m031@technikum-wien.at) |
-| Yusra Sefef                 |   | [me25m030@technikum-wien.at](mailto:me25m030@technikum-wien.at) |
+| Name                        |                                | Email                                                           |
+| --------------------------- |--------------------------------| --------------------------------------------------------------- |
+| Stefania-Diana Boldeanu     | backend - practitioner user    | [me25m028@technikum-wien.at](mailto:me25m028@technikum-wien.at) |
+| Lena Stadlinger             | frontend                       | [me25m031@technikum-wien.at](mailto:me25m031@technikum-wien.at) |
+| Yusra Sefef                 | backend - related person user  | [me25m030@technikum-wien.at](mailto:me25m030@technikum-wien.at) |
 
 
 ---

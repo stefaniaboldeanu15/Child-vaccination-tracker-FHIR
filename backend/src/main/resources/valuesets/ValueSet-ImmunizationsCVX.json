@@ -1,0 +1,54 @@
+{
+  "resourceType": "ValueSet",
+  "id": "austria-pediatric-vaccines",
+  "url": "http://example.org/fhir/ValueSet/austria-pediatric-vaccines",
+  "version": "1.0.0",
+  "name": "AustriaPediatricVaccines",
+  "title": "Austria Pediatric Vaccines (Under 18)",
+  "status": "active",
+  "experimental": false,
+  "publisher": "PRT Vaccination Tracking Project",
+  "description": "Vaccines recommended and administered to children and adolescents under 18 years of age in Austria, aligned with the Austrian National Immunisation Programme and encoded using CDC CVX codes.",
+  "compose": {
+    "include": [
+      {
+        "system": "http://hl7.org/fhir/sid/cvx",
+        "concept": [
+          { "code": "122", "display": "Rotavirus" },
+
+          { "code": "20",  "display": "DTaP" },
+          { "code": "106", "display": "DTaP-IPV" },
+          { "code": "120", "display": "DTaP-HepB-IPV" },
+
+          { "code": "10",  "display": "Polio (IPV)" },
+
+          { "code": "48",  "display": "Hib (PRP-T)" },
+          { "code": "49",  "display": "Hib-HepB" },
+
+          { "code": "08",  "display": "Hepatitis B" },
+
+          { "code": "133", "display": "Pneumococcal conjugate (PCV13)" },
+          { "code": "152", "display": "Pneumococcal conjugate (PCV15)" },
+
+          { "code": "114", "display": "Meningococcal C" },
+          { "code": "136", "display": "Meningococcal B" },
+          { "code": "147", "display": "Meningococcal ACWY" },
+
+          { "code": "03",  "display": "MMR" },
+          { "code": "94",  "display": "MMRV" },
+
+          { "code": "21",  "display": "Varicella" },
+
+          { "code": "62",  "display": "HPV (bivalent)" },
+          { "code": "118", "display": "HPV (quadrivalent)" },
+          { "code": "165", "display": "HPV (9-valent)" },
+
+          { "code": "141", "display": "Influenza, injectable" },
+          { "code": "111", "display": "Influenza, live attenuated" },
+
+          { "code": "37",  "display": "Tick-borne encephalitis (FSME)" }
+        ]
+      }
+    ]
+  }
+}
