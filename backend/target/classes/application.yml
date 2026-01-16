@@ -1,0 +1,33 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: vax-registry-backend
+
+# Target FHIR server (R4)
+fhir:
+  base-url: ${FHIR_BASE_URL:https://hapi.fhir.org/baseR4}
+
+# External immunization decision support (ICE/OpenCDS DSS SOAP)
+ice:
+  # HLN's public demo host (same host as the ICE Client web app). Override for your own ICE install.
+  endpoint-url: ${ICE_ENDPOINT_URL:http://cds.hln.com/opencds-decision-support-service/evaluate}
+
+  # DSS Knowledge Module ID for the built-in ICE ruleset
+  km:
+    scoping-entity-id: ${ICE_KM_SCOPE:org.nyc.cir}
+    business-id: ${ICE_KM_BUSINESS:ICE}
+    version: ${ICE_KM_VERSION:1.0.0}
+  connect-timeout-ms: ${ICE_CONNECT_TIMEOUT_MS:10000}
+  read-timeout-ms: ${ICE_READ_TIMEOUT_MS:30000}
+
+springdoc:
+  api-docs:
+    path: /openapi
+  swagger-ui:
+    path: /swagger
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000}

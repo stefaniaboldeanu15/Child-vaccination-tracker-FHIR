@@ -1,0 +1,17 @@
+### Create Immunization (full FHIR JSON)
+POST http://localhost:8080/Immunization
+Content-Type: application/fhir+json
+
+{
+  "resourceType": "Immunization",
+  "status": "completed",
+  "patient": { "reference": "Patient/REPLACE_PATIENT_ID" },
+  "occurrenceDateTime": "2025-01-31",
+  "vaccineCode": {
+    "coding": [{ "system": "http://hl7.org/fhir/sid/cvx", "code": "207", "display": "COVID-19, mRNA, LNP-S, PF, 30 mcg/0.3 mL dose" }]
+  }
+}
+
+### Search Immunization by patient
+GET http://localhost:8080/Immunization?patient=Patient/REPLACE_PATIENT_ID
+Accept: application/fhir+json
