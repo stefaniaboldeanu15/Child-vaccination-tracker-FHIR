@@ -1,0 +1,165 @@
+openapi: 3.0.3
+info:
+  title: FHIR-Based Vaccination Registry API (proxy)
+  version: 0.1.0
+  description: |
+    Minimal REST interface exposing CRUD operations for key FHIR resources
+    and convenience endpoints for the patient/physician user flows.
+
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /Patient:
+    get:
+      summary: Search Patient
+      parameters:
+        - in: query
+          name: name
+          schema: { type: string }
+      responses:
+        '200': { description: FHIR Bundle, content: { application/fhir+json: { schema: { type: object } } } }
+    post:
+      summary: Create Patient
+      requestBody:
+        required: true
+        content:
+          application/fhir+json:
+            schema: { type: object }
+      responses:
+        '201': { description: Created Patient, content: { application/fhir+json: { schema: { type: object } } } }
+
+  /Patient/{id}:
+    get:
+      summary: Read Patient
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Patient, content: { application/fhir+json: { schema: { type: object } } } }
+    put:
+      summary: Update Patient
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/fhir+json:
+            schema: { type: object }
+      responses:
+        '200': { description: Updated Patient, content: { application/fhir+json: { schema: { type: object } } } }
+    patch:
+      summary: Patch Patient (JSON Patch)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json-patch+json:
+            schema: { type: array, items: { type: object } }
+      responses:
+        '200': { description: Updated Patient, content: { application/fhir+json: { schema: { type: object } } } }
+    delete:
+      summary: Delete Patient
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204': { description: Deleted }
+
+  /Practitioner:
+    get:
+      summary: Search Practitioner
+      responses:
+        '200': { description: FHIR Bundle, content: { application/fhir+json: { schema: { type: object } } } }
+    post:
+      summary: Create Practitioner
+      requestBody:
+        required: true
+        content:
+          application/fhir+json:
+            schema: { type: object }
+      responses:
+        '201': { description: Created, content: { application/fhir+json: { schema: { type: object } } } }
+
+  /Organization:
+    get:
+      summary: Search Organization
+      responses:
+        '200': { description: FHIR Bundle, content: { application/fhir+json: { schema: { type: object } } } }
+    post:
+      summary: Create Organization
+      requestBody:
+        required: true
+        content:
+          application/fhir+json:
+            schema: { type: object }
+      responses:
+        '201': { description: Created, content: { application/fhir+json: { schema: { type: object } } } }
+
+  /Immunization:
+    get:
+      summary: Search Immunization
+      parameters:
+        - in: query
+          name: patient
+          schema: { type: string }
+      responses:
+        '200': { description: FHIR Bundle, content: { application/fhir+json: { schema: { type: object } } } }
+    post:
+      summary: Create Immunization
+      requestBody:
+        required: true
+        content:
+          application/fhir+json:
+            schema: { type: object }
+      responses:
+        '201': { description: Created, content: { application/fhir+json: { schema: { type: object } } } }
+
+  /ImmunizationRecommendation:
+    get:
+      summary: Search ImmunizationRecommendation
+      responses:
+        '200': { description: FHIR Bundle, content: { application/fhir+json: { schema: { type: object } } } }
+    post:
+      summary: Create ImmunizationRecommendation
+      requestBody:
+        required: true
+        content:
+          application/fhir+json:
+            schema: { type: object }
+      responses:
+        '201': { description: Created, content: { application/fhir+json: { schema: { type: object } } } }
+
+  /api/patient/{patientId}/immunizations:
+    get:
+      summary: Patient vaccination history (convenience)
+      parameters:
+        - in: path
+          name: patientId
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Immunization Bundle, content: { application/fhir+json: { schema: { type: object } } } }
+
+  /api/patient/{patientId}/certificate:
+    get:
+      summary: Download digital certificate PDF with QR
+      parameters:
+        - in: path
+          name: patientId
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: PDF, content: { application/pdf: { schema: { type: string, format: binary } } } }
+

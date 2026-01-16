@@ -1,0 +1,16 @@
+### Create Consent
+POST http://localhost:8080/Consent
+Content-Type: application/fhir+json
+
+{
+  "resourceType": "Consent",
+  "status": "active",
+  "scope": { "coding": [{ "system": "http://terminology.hl7.org/CodeSystem/consentscope", "code": "patient-privacy" }] },
+  "category": [{ "coding": [{ "system": "http://loinc.org", "code": "59284-0", "display": "Patient Consent" }] }],
+  "patient": { "reference": "Patient/REPLACE_PATIENT_ID" },
+  "dateTime": "2025-01-31T10:00:00Z"
+}
+
+### Revoke Consent (convenience endpoint)
+POST http://localhost:8080/api/patient/REPLACE_PATIENT_ID/consents/REPLACE_CONSENT_ID/revoke
+Accept: application/fhir+json

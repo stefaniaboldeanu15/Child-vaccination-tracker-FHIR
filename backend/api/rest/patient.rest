@@ -1,0 +1,14 @@
+### Create Patient
+POST http://localhost:8080/Patient
+Content-Type: application/fhir+json
+
+{
+  "resourceType": "Patient",
+  "name": [{ "family": "Doe", "given": ["Jane"] }],
+  "gender": "female",
+  "birthDate": "1990-01-01"
+}
+
+### Search Patient by name
+GET http://localhost:8080/Patient?name=Doe
+Accept: application/fhir+json
