@@ -1,0 +1,53 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "relatedperson",
+  "url": "http://example.org/fhir/StructureDefinition/relatedperson-guardian",
+  "version": "1.0.0",
+  "name": "RelatedPersonGuardian",
+  "title": "RelatedPerson (Parent/Guardian)",
+  "status": "active",
+  "date": "2025-01-01",
+  "publisher": "Vaccination Tracking App",
+  "description": "Profile for parents or legal guardians of a child.",
+  "fhirVersion": "5.0.0",
+  "kind": "resource",
+  "abstract": false,
+  "type": "RelatedPerson",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/RelatedPerson",
+  "derivation": "constraint",
+
+  "differential": {
+    "element": [
+      {
+        "id": "RelatedPerson.patient",
+        "path": "RelatedPerson.patient",
+        "min": 1
+      },
+      {
+        "id": "RelatedPerson.identifier",
+        "path": "RelatedPerson.identifier",
+        "min": 1
+      },
+      {
+        "id": "RelatedPerson.identifier.system",
+        "path": "RelatedPerson.identifier.system",
+        "fixedUri": "https://elga.gv.at/svnr"
+      },
+      {
+        "id": "RelatedPerson.identifier.value",
+        "path": "RelatedPerson.identifier.value",
+        "min": 1
+      },
+      {
+        "id": "RelatedPerson.relationship",
+        "path": "RelatedPerson.relationship",
+        "min": 1
+      },
+      {
+        "id": "RelatedPerson.name",
+        "path": "RelatedPerson.name",
+        "min": 1
+      }
+    ]
+  }
+}
