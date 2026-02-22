@@ -31,7 +31,7 @@ public class FhirClientConfig {
     @Bean
     public IGenericClient fhirClient(FhirContext fhirContext) {
 
-        String baseUrl = "http://localhost:8080/fhir";
+        String baseUrl = "https://hapi.fhir.org/baseR4";
         return fhirContext.newRestfulGenericClient(baseUrl);
     }
 }
