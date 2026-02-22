@@ -1,12 +1,10 @@
 package org.prt.prtvaccinationtracking_fhir.controller.practitioner;
 
 import jakarta.annotation.PostConstruct;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.CreatePractitionerRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.LoginRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.LoginResponseDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.auth.LoginRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.auth.LoginResponseDTO;
 //import org.prt.prtvaccinationtracking_fhir.dto.practitioner.RegistrationRequestDTO;
 //import org.prt.prtvaccinationtracking_fhir.dto.practitioner.RegistrationResponseDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.PractitionerDTO;
 import org.prt.prtvaccinationtracking_fhir.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

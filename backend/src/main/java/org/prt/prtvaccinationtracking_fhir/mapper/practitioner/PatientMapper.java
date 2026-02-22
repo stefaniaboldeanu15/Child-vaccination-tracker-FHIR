@@ -2,8 +2,8 @@ package org.prt.prtvaccinationtracking_fhir.mapper.practitioner;
 
 import org.hl7.fhir.r5.model.Enumerations;
 import org.hl7.fhir.r5.model.Patient;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.CreatePatientRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.UpdatePatientRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.patient.CreatePatientRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.patient.UpdatePatientRequestDTO;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;

@@ -2,7 +2,7 @@ package org.prt.prtvaccinationtracking_fhir.mapper.practitioner;
 
 import org.hl7.fhir.r5.model.*;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.CreatePractitionerRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.PractitionerDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.practitioner.PractitionerDTO;
 import org.springframework.stereotype.Component;
 
 @Component

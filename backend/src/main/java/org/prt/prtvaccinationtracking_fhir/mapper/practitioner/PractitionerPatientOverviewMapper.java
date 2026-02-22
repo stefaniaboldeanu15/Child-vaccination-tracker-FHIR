@@ -151,9 +151,9 @@ public class PractitionerPatientOverviewMapper {
         return dto;
     }
 
-    public AllergyIntoleranceDTO toAllergyIntolerance(AllergyIntolerance ai) {
+    public CreateFullEncounterRequest.AllergyIntoleranceDTO toAllergyIntolerance(AllergyIntolerance ai) {
 
-        AllergyIntoleranceDTO dto = new AllergyIntoleranceDTO();
+        CreateFullEncounterRequest.AllergyIntoleranceDTO dto = new CreateFullEncounterRequest.AllergyIntoleranceDTO();
 
         dto.setAllergyId(ai.getIdElement().getIdPart());
 
@@ -418,9 +418,9 @@ public class PractitionerPatientOverviewMapper {
     }
 
     //----------------- Adverse events --------------------------
-    public AdverseEventDTO toAdverseEvent(AdverseEvent ae) {
+    public AppointmentDTO.AdverseEventDTO toAdverseEvent(AdverseEvent ae) {
 
-        AdverseEventDTO dto = new AdverseEventDTO();
+        AppointmentDTO.AdverseEventDTO dto = new AppointmentDTO.AdverseEventDTO();
         dto.setAdverseEventId(ae.getIdElement().getIdPart());
 
         if (ae.hasSubject()) {
@@ -460,7 +460,7 @@ public class PractitionerPatientOverviewMapper {
     }
 
     public AdverseEvent toAdverseEvent(
-            CreateAdverseEventRequestDTO dto,
+            AppointmentDTO.CreateAdverseEventRequestDTO dto,
             String patientId
     ) {
         AdverseEvent ae = new AdverseEvent();
