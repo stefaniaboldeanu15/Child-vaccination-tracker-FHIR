@@ -1,8 +1,15 @@
 package org.prt.prtvaccinationtracking_fhir.config;
 
+<<<<<<< HEAD
 import org.prt.prtvaccinationtracking_fhir.auth.CredentialStore;
 import org.prt.prtvaccinationtracking_fhir.auth.PractitionerCredential;
 
+=======
+import java.util.List;
+
+import org.prt.prtvaccinationtracking_fhir.auth.CredentialStore;
+import org.prt.prtvaccinationtracking_fhir.auth.PractitionerCredential;
+>>>>>>> origin/dev
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -18,8 +25,11 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+<<<<<<< HEAD
 import java.util.List;
 
+=======
+>>>>>>> origin/dev
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -75,6 +85,12 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         // Practitioner endpoints require PRACTITIONER role
                         .requestMatchers("/api/practitioner/**").hasRole("PRACTITIONER")
+<<<<<<< HEAD
+=======
+
+                        .requestMatchers("/api/related-person/auth/**").permitAll()
+
+>>>>>>> origin/dev
                         // Everything else is open for now
                         .anyRequest().permitAll()
                 )
