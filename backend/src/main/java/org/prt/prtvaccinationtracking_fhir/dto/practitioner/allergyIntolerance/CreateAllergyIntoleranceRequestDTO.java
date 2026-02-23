@@ -3,10 +3,12 @@ package org.prt.prtvaccinationtracking_fhir.dto.practitioner.allergyIntolerance;
 import java.time.LocalDate;
 
 public record CreateAllergyIntoleranceRequestDTO(
+        String patientId,
+        AllergyIntoleranceDTO.AllergyClinicalStatus clinicalStatus,
+        AllergyIntoleranceDTO.AllergyType type,
+        AllergyIntoleranceDTO.AllergyIntoleranceCategory category,
+        AllergyIntoleranceDTO.AllergyCriticality criticality,
         String code,
-        String display,
-        String severity,
-        LocalDate onsetDate,
-        String reactionDescription
+        String encounterId
 ) {
 }

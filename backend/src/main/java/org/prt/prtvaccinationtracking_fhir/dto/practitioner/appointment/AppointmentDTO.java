@@ -4,12 +4,12 @@ import java.time.LocalDateTime;
 
 public record AppointmentDTO(
         String id,
-        String patientId,
+        String status,
         LocalDateTime start,
         LocalDateTime end,
-        String status,          // booked, cancelled, fulfilled
         String reason,
-        String locationName,
-        String practitionerName
+        String practitionerName,
+        String patientId,
+        String locationId
 ) {
 }

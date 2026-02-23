@@ -1,6 +1,6 @@
 package org.prt.prtvaccinationtracking_fhir.dto.practitioner.immunization;
 
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.adeverseEvent.AdverseEventDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.adverseEvent.AdverseEventDTO;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.location.LocationDTO;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.observation.ObservationDTO;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.organization.OrganizationDTO;
