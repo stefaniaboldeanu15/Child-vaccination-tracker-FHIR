@@ -5,7 +5,7 @@ import java.time.LocalDate;
 public record CreateCarePlanRequestDTO(
         String patientId,
         String title,              // e.g. "Austrian Pediatric Vaccination Plan"
-        String description,
+        String note,
         LocalDate startDate,
         LocalDate endDate,
         String status

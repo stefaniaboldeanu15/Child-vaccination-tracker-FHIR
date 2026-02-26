@@ -7,10 +7,11 @@ public record CarePlanDTO(
         String id,
         String patientId,
         String title,
-        String description,
+        String note,
         LocalDate startDate,
         LocalDate endDate,
         String status,
+        String intent,
         List<String> goalIds
 ) {
 }
