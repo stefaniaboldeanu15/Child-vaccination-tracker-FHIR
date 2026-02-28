@@ -5,6 +5,7 @@ public record UpdateLocationRequestDTO(
         String name,
         String description,
         String address,
-        String phone
+        String phone,
+        String type
 
 ) {}

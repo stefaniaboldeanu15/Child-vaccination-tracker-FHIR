@@ -3,7 +3,6 @@ package org.prt.prtvaccinationtracking_fhir.dto.practitioner.immunization;
 import java.time.LocalDate;
 
 public record ImmunizationDTO(
-
         String id,
         String patientId,
         String vaccineCode,
@@ -12,9 +11,8 @@ public record ImmunizationDTO(
         Integer doseNumber,
         String lotNumber,
         String site,
-        String status,
+        ImmunizationStatusDTO status,
         String practitionerName,
         String encounterId,
         boolean hasAdverseEvent
-
 ) {}

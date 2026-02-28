@@ -8,7 +8,6 @@ public record ConsentDTO(
         String relatedPersonId,
         String scope,
         String status,
-        LocalDate dateGiven,
-        String recorderName
+        LocalDate dateGiven
 ) {
 }

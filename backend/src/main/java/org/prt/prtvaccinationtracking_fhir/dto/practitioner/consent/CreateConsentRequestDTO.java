@@ -7,7 +7,6 @@ public record CreateConsentRequestDTO(
         String relatedPersonId,
         String scope,          // vaccination
         String status,         // active, rejected, withdrawn
-        LocalDate dateGiven,
-        String policyText      // optional
+        LocalDate dateGiven
 ) {
 }
