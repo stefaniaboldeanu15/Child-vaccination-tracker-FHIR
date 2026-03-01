@@ -78,7 +78,8 @@ mvn spring-boot:run
 ### 3. Frontend (Vue.js)
 
 ```bash
-
+npm i
+npm run dev
 ```
 
 ### 4. HAPI FHIR Server Connection
@@ -89,6 +90,22 @@ The system is configured to connect to:
 https://hapi.fhir.org/baseR5
 ```
 
+### Dev Script
+Starts and runs all services for dev environment
+First run (seeds localFHIR server db):
+```
+./dev-up.sh --seed
+```
+
+Start all services (keeps the seeded data via the prt-hapi-data Docker volume, and does not reseed):
+```
+./dev-up.sh
+```
+
+Optional reset (wipe DB + reseed):
+```
+./dev-up.sh --reset-fhir --seed
+```
 ---
 
 ##  Testing

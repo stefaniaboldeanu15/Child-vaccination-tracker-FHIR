@@ -4,6 +4,7 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  * Spring configuration for the HAPI FHIR client.
@@ -14,6 +15,9 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class FhirClientConfig {
+
+    @Value("${fhir.server.base-url}")
+    private String baseUrl;
 
     @Bean
     public FhirContext fhirContext() {
@@ -31,7 +35,7 @@ public class FhirClientConfig {
     @Bean
     public IGenericClient fhirClient(FhirContext fhirContext) {
 
-        String baseUrl = "https://hapi.fhir.org/baseR5";
+        //String baseUrl = ${"fhir.server.base-url}";
         return fhirContext.newRestfulGenericClient(baseUrl);
     }
 }
