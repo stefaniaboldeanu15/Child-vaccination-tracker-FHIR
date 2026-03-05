@@ -4,7 +4,7 @@ import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import org.hl7.fhir.r5.model.Practitioner;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.CreatePractitionerRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.PractitionerDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.practitioner.PractitionerDTO;
 import org.prt.prtvaccinationtracking_fhir.mapper.practitioner.PractitionerMapper;
 import org.springframework.stereotype.Service;
 

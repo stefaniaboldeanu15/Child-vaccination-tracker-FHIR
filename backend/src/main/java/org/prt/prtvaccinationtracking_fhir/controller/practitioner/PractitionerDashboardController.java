@@ -1,6 +1,10 @@
 package org.prt.prtvaccinationtracking_fhir.controller.practitioner;
 
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.*;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.patient.CreatePatientRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.patient.UpdatePatientRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.relatedPerson.CreateRelatedPersonRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.relatedPerson.UpdateRelatedPersonRequestDTO;
 import org.prt.prtvaccinationtracking_fhir.service.practitioner.PractitionerDashboardService;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,13 +33,13 @@ public class PractitionerDashboardController {
 
     /// Search a patient by SVNR
     @GetMapping("/search")
-    public List<PatientDashboardRowDTO> searchPatientBySvnr(@RequestParam String svnr) {
+    public List<CreateFullEncounterRequest.PatientDashboardRowDTO> searchPatientBySvnr(@RequestParam String svnr) {
         return service.searchBySvnr(svnr);
     }
 
     /// Lists all patients
     @GetMapping("/patients")
-    public List<PatientDashboardRowDTO> getDashboard() {
+    public List<CreateFullEncounterRequest.PatientDashboardRowDTO> getDashboard() {
         return service.getMyPatients();
     }
 

@@ -26,7 +26,7 @@ public class PractitionerPatientDashboardController {
         dashboardService.createFullEncounter(request, patientId);
     }
     @GetMapping("/patients/{patientId}/overview")
-    public PatientClinicalOverviewDTO getOverview(@PathVariable String patientId) {
+    public CreateFullEncounterRequest.PatientClinicalOverviewDTO getOverview(@PathVariable String patientId) {
         return dashboardService.getPatientClinicalOverview(patientId);
     }
     // LIST -IMMUNIZATIONS
@@ -51,7 +51,7 @@ public class PractitionerPatientDashboardController {
 
     ///ALLERGIES
     @GetMapping("patients/{patientId}/get-allergies")
-    public List<AllergyIntoleranceDTO> getAllergiesForPatient(
+    public List<CreateFullEncounterRequest.AllergyIntoleranceDTO> getAllergiesForPatient(
             @PathVariable String patientId) {
         return dashboardService.getAllergiesForPatient(patientId);
     }
@@ -99,7 +99,7 @@ public class PractitionerPatientDashboardController {
     }
     /// all adverse events for a patient
     @GetMapping("/patients/{patientId}/adverse-events")
-    public List<AdverseEventDTO> getAdverseEventsForPatient(
+    public List<AppointmentDTO.AdverseEventDTO> getAdverseEventsForPatient(
             @PathVariable String patientId
     ) {
         return dashboardService
@@ -107,7 +107,7 @@ public class PractitionerPatientDashboardController {
     }
     ///  Get adverse events for a specific encounter
     @GetMapping("/patients/{patientId}/encounters/{encounterId}/adverse-events")
-    public List<AdverseEventDTO> getAdverseEventsForEncounter(
+    public List<AppointmentDTO.AdverseEventDTO> getAdverseEventsForEncounter(
             @PathVariable String patientId,
             @PathVariable String encounterId
     ) {
@@ -119,7 +119,7 @@ public class PractitionerPatientDashboardController {
     @ResponseStatus(HttpStatus.CREATED)
     public void createAdverseEvent(
             @PathVariable String patientId,
-            @RequestBody CreateAdverseEventRequestDTO request
+            @RequestBody AppointmentDTO.CreateAdverseEventRequestDTO request
     ) {
         dashboardService.createAdverseEvent(patientId, request);
     }

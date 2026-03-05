@@ -1,34 +1,43 @@
 package org.prt.prtvaccinationtracking_fhir.config;
 
-import java.util.List;
-
-import org.prt.prtvaccinationtracking_fhir.auth.CredentialStore;
-import org.prt.prtvaccinationtracking_fhir.auth.PractitionerCredential;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    /**
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+        http
+                .csrf(AbstractHttpConfigurer::disable)   // ✅ new syntax
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll()   // 🔥 allow everything
+                );
+
+        return http.build();
+    }
+}
+
+/// OLD CODE FOR LOGIN
+
+/**
+@Configuration
+
+public class SecurityConfig {
+
+
      * UserDetailsService that reads users from practitioner-credentials.json
      * via CredentialStore.
      * Username == "identifier" field from JSON.
      * Password == "password" field from JSON (stored in plain text for DEV).
-     */
+
     @Bean
     public UserDetailsService userDetailsService(CredentialStore credentialStore) {
         return username -> {
@@ -74,9 +83,12 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         // Practitioner endpoints require PRACTITIONER role
                         .requestMatchers("/api/practitioner/**").hasRole("PRACTITIONER")
+<<<<<<< HEAD
+=======
 
                         .requestMatchers("/api/related-person/auth/**").permitAll()
 
+>>>>>>> origin/dev
                         // Everything else is open for now
                         .anyRequest().permitAll()
                 )
@@ -88,5 +100,5 @@ public class SecurityConfig {
         return http.build();
     }
 }
-
+        */
 

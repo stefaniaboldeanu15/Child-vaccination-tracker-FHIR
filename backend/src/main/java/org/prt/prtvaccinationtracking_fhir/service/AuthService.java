@@ -1,7 +1,7 @@
 package org.prt.prtvaccinationtracking_fhir.service;
 
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.LoginRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.LoginResponseDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.auth.LoginRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.auth.LoginResponseDTO;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.RegistrationRequestDTO;
 
 /**

@@ -4,6 +4,12 @@ import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import org.hl7.fhir.r5.model.*;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.*;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.patient.CreatePatientRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.patient.PatientDetailsDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.patient.UpdatePatientRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.practitioner.PractitionerDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.relatedPerson.CreateRelatedPersonRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.relatedPerson.UpdateRelatedPersonRequestDTO;
 import org.prt.prtvaccinationtracking_fhir.mapper.practitioner.PractitionerDashboardMapper;
 import org.prt.prtvaccinationtracking_fhir.mapper.practitioner.PractitionerMapper;
 import org.prt.prtvaccinationtracking_fhir.mapper.practitioner.PractitionerPatientOverviewMapper;
@@ -92,7 +98,7 @@ public class PractitionerDashboardService {
     // ─────────────────────────────────────────────────────────
 
     /// search by SVNR
-    public List<PatientDashboardRowDTO> searchBySvnr(String svnr) {
+    public List<CreateFullEncounterRequest.PatientDashboardRowDTO> searchBySvnr(String svnr) {
 
         Practitioner practitioner = getCurrentPractitioner();
         String practitionerId = practitioner.getIdElement().getIdPart();
@@ -114,9 +120,9 @@ public class PractitionerDashboardService {
     }
 
     /// builds the row of the searched patient by SVNR
-    private List<PatientDashboardRowDTO> buildDashboardRows(Bundle patientBundle) {
+    private List<CreateFullEncounterRequest.PatientDashboardRowDTO> buildDashboardRows(Bundle patientBundle) {
 
-        List<PatientDashboardRowDTO> rows = new ArrayList<>();
+        List<CreateFullEncounterRequest.PatientDashboardRowDTO> rows = new ArrayList<>();
 
         for (Bundle.BundleEntryComponent entry : patientBundle.getEntry()) {
 
@@ -132,7 +138,7 @@ public class PractitionerDashboardService {
                     .returnBundle(Bundle.class)
                     .execute();
 
-            PatientDashboardRowDTO row = new PatientDashboardRowDTO();
+            CreateFullEncounterRequest.PatientDashboardRowDTO row = new CreateFullEncounterRequest.PatientDashboardRowDTO();
             row.setPatient(mapper.toPatientDetails(patient));
             row.setRelatedPersons(
                     rpBundle.getEntry().stream()
@@ -148,9 +154,9 @@ public class PractitionerDashboardService {
     }
 
     /// DASHBOARD: list patients + related person (COMPLETE LIST -ALL PATIENTS)
-    public List<PatientDashboardRowDTO> getMyPatients() {
+    public List<CreateFullEncounterRequest.PatientDashboardRowDTO> getMyPatients() {
 
-        List<PatientDashboardRowDTO> rows = new ArrayList<>();
+        List<CreateFullEncounterRequest.PatientDashboardRowDTO> rows = new ArrayList<>();
 
         // 1) Resolve logged-in practitioner
         Practitioner practitioner = getCurrentPractitioner();
@@ -169,7 +175,7 @@ public class PractitionerDashboardService {
 
             Patient patient = (Patient) entry.getResource();
 
-            PatientDashboardRowDTO row = new PatientDashboardRowDTO();
+            CreateFullEncounterRequest.PatientDashboardRowDTO row = new CreateFullEncounterRequest.PatientDashboardRowDTO();
             row.setPatient(mapper.toPatientDetails(patient));
 
             // 3) Get related person (guardian)
@@ -255,9 +261,9 @@ public class PractitionerDashboardService {
     // ─────────────────────────────────────────────────────────
     // PRACTITIONER - PATIENT OVERVIEW (encounters + immunizations + obs + allergies)
     // ─────────────────────────────────────────────────────────
-    public PatientClinicalOverviewDTO getPatientClinicalOverview(String patientId) {
+    public CreateFullEncounterRequest.PatientClinicalOverviewDTO getPatientClinicalOverview(String patientId) {
 
-        PatientClinicalOverviewDTO overview = new PatientClinicalOverviewDTO();
+        CreateFullEncounterRequest.PatientClinicalOverviewDTO overview = new CreateFullEncounterRequest.PatientClinicalOverviewDTO();
 
         // 1) Patient
         Patient patient = fhirClient.read()
@@ -530,7 +536,7 @@ public class PractitionerDashboardService {
         return encounterBlocks;
     }
 
-    public List<AllergyIntoleranceDTO> getAllergiesForPatient(String patientId) {
+    public List<CreateFullEncounterRequest.AllergyIntoleranceDTO> getAllergiesForPatient(String patientId) {
 
         Bundle bundle = fhirClient.search()
                 .forResource(AllergyIntolerance.class)
@@ -538,7 +544,7 @@ public class PractitionerDashboardService {
                 .returnBundle(Bundle.class)
                 .execute();
 
-        List<AllergyIntoleranceDTO> result = new ArrayList<>();
+        List<CreateFullEncounterRequest.AllergyIntoleranceDTO> result = new ArrayList<>();
 
         for (Bundle.BundleEntryComponent entry : bundle.getEntry()) {
             AllergyIntolerance ai = (AllergyIntolerance) entry.getResource();
@@ -952,7 +958,7 @@ public class PractitionerDashboardService {
     }
 
     //List  ALL ADVERSE EVENTS
-    public List<AdverseEventDTO> getAdverseEventsForPatient(String patientId) {
+    public List<AppointmentDTO.AdverseEventDTO> getAdverseEventsForPatient(String patientId) {
 
         Bundle bundle = fhirClient.search()
                 .forResource(AdverseEvent.class)
@@ -960,7 +966,7 @@ public class PractitionerDashboardService {
                 .returnBundle(Bundle.class)
                 .execute();
 
-        List<AdverseEventDTO> result = new ArrayList<>();
+        List<AppointmentDTO.AdverseEventDTO> result = new ArrayList<>();
 
         for (Bundle.BundleEntryComponent entry : bundle.getEntry()) {
             AdverseEvent ae = (AdverseEvent) entry.getResource();
@@ -971,7 +977,7 @@ public class PractitionerDashboardService {
     }
 
     //List  ALL ADVERSE EVENTS FOR A SPECIFIC ENCOUNTER
-    public List<AdverseEventDTO> getAdverseEventsForEncounter(
+    public List<AppointmentDTO.AdverseEventDTO> getAdverseEventsForEncounter(
             String patientId,
             String encounterId
     ) {
@@ -981,7 +987,7 @@ public class PractitionerDashboardService {
                 .returnBundle(Bundle.class)
                 .execute();
 
-        List<AdverseEventDTO> result = new ArrayList<>();
+        List<AppointmentDTO.AdverseEventDTO> result = new ArrayList<>();
 
         for (Bundle.BundleEntryComponent entry : bundle.getEntry()) {
             AdverseEvent ae = (AdverseEvent) entry.getResource();
@@ -1001,7 +1007,7 @@ public class PractitionerDashboardService {
 
     public void createAdverseEvent(
             String patientId,
-            CreateAdverseEventRequestDTO dto
+            AppointmentDTO.CreateAdverseEventRequestDTO dto
     ) {
         if (patientId == null || patientId.isBlank()) {
             throw new IllegalArgumentException("patientId is required");
