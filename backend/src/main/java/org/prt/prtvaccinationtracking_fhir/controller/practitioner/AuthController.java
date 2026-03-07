@@ -1,4 +1,4 @@
-package org.prt.prtvaccinationtracking_fhir.controller.practitioner;
+/**package org.prt.prtvaccinationtracking_fhir.controller.practitioner;
 
 import jakarta.annotation.PostConstruct;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.auth.LoginRequestDTO;
@@ -10,9 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/**
+
  * LOGIN practitioner - endpoint
- */
+
 
 @RestController
 @RequestMapping("/api")
@@ -43,3 +43,4 @@ public class AuthController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
+ */
