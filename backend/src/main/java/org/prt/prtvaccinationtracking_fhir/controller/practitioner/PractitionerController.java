@@ -1,30 +1,32 @@
 package org.prt.prtvaccinationtracking_fhir.controller.practitioner;
 
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.CreatePractitionerRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.PractitionerDTO;
+import jakarta.validation.Valid;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.practitioner.*;
 import org.prt.prtvaccinationtracking_fhir.service.practitioner.PractitionerService;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * Practitioner registration endpoints
- */
 @RestController
-@RequestMapping("/api/practitioners")
+@RequestMapping("/api/practitioner/practitioners")
 public class PractitionerController {
 
-    private final PractitionerService practitionerService;
+    private final PractitionerService service;
 
-    public PractitionerController(PractitionerService practitionerService) {
-        this.practitionerService = practitionerService;
+    public PractitionerController(PractitionerService service) {
+        this.service = service;
     }
 
-    //Create a new Practitioner
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public PractitionerDTO createPractitioner(
-            @RequestBody CreatePractitionerRequestDTO request
-    ) {
-        return practitionerService.createPractitioner(request);
+    public PractitionerDTO create(@RequestBody @Valid CreatePractitionerRequestDTO dto) {
+        return service.create(dto);
+    }
+
+    @GetMapping("/{id}")
+    public PractitionerDTO getById(@PathVariable String id) {
+        return service.getById(id);
+    }
+
+    @PutMapping("/{id}")
+    public PractitionerDTO update(@PathVariable String id, @RequestBody @Valid UpdatePractitionerRequestDTO dto) {
+        return service.update(id, dto);
     }
 }
