@@ -31,9 +31,10 @@ public class GoalService {
 
     public GoalDTO update(String id, UpdateGoalRequestDTO dto) {
         Goal existing = fhir.read(Goal.class, id);
-        mapper.updateResourceFromDTO(dto, existing);
+        mapper.updateResource(dto, existing);
         fhir.ensureId(Goal.class, existing, id);
         Goal updated = fhir.update(existing);
         return mapper.toDTO(updated);
     }
+
 }

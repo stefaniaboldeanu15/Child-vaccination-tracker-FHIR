@@ -31,9 +31,10 @@ public class EncounterService {
 
     public EncounterDTO update(String id, UpdateEncounterRequestDTO dto) {
         Encounter existing = fhir.read(Encounter.class, id);
-        mapper.updateResourceFromDTO(dto, existing);
+        mapper.updateResource(dto, existing);
         fhir.ensureId(Encounter.class, existing, id);
         Encounter updated = fhir.update(existing);
         return mapper.toDTO(updated);
     }
+
 }

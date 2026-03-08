@@ -31,9 +31,11 @@ public class AllergyIntoleranceService {
 
     public AllergyIntoleranceDTO update(String id, UpdateAllergyIntoleranceRequestDTO dto) {
         AllergyIntolerance existing = fhir.read(AllergyIntolerance.class, id);
-        mapper.updateResourceFromDTO(dto, existing);
+        mapper.updateResource(dto, existing);
         fhir.ensureId(AllergyIntolerance.class, existing, id);
         AllergyIntolerance updated = fhir.update(existing);
         return mapper.toDTO(updated);
     }
+
+
 }

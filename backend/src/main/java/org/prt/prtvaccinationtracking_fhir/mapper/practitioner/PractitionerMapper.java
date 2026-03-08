@@ -1,115 +1,289 @@
 package org.prt.prtvaccinationtracking_fhir.mapper.practitioner;
 
-import org.hl7.fhir.r5.model.*;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.hl7.fhir.r5.model.CodeableConcept;
+import org.hl7.fhir.r5.model.ContactPoint;
+import org.hl7.fhir.r5.model.HumanName;
+import org.hl7.fhir.r5.model.Identifier;
+import org.hl7.fhir.r5.model.Practitioner;
+import org.hl7.fhir.r5.model.Reference;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.practitioner.CreatePractitionerRequestDTO;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.practitioner.PractitionerDTO;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.practitioner.UpdatePractitionerRequestDTO;
+import org.springframework.stereotype.Component;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
-@Mapper(config = BaseMapperConfig.class)
-public interface PractitionerMapper {
+@Component
+public class PractitionerMapper {
 
-    String LICENSE_SYSTEM = "urn:system:license";
+    private static final String LICENSE_SYSTEM = "app:practitioner-license";
+    private static final String SPECIALIZATION_SYSTEM = "app:practitioner-specialization";
+    private static final String ORGANIZATION_SYSTEM = "app:organization-id";
 
-    @Mapping(target = "id", expression = "java(resource.getIdElement().getIdPart())")
-    @Mapping(target = "fullName", expression = "java(extractFullName(resource))")
-    @Mapping(target = "identifier", expression = "java(extractLicense(resource))")
-    @Mapping(target = "firstName", expression = "java(extractGiven(resource))")
-    @Mapping(target = "lastName", expression = "java(extractFamily(resource))")
-    PractitionerDTO toDTO(Practitioner resource);
+    private final MapperSupport support;
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "identifier", expression = "java(dto.identifier() != null ? toLicenseIdentifierList(dto.identifier()) : Collections.emptyList())")
-    @Mapping(target = "name", expression = "java(toHumanName(dto.firstName(), dto.lastName()))")
-    @Mapping(target = "telecom", expression = "java(toTelecom(dto.phone(), dto.email()))")
-    @Mapping(target = "qualification", expression = "java(dto.specialization() != null ? toQualification(dto.specialization()) : Collections.emptyList())")
-    @Mapping(target = "organization", expression = "java(dto.organizationId() != null ? Collections.singletonList(new Reference(\"Organization/\" + dto.organizationId())) : Collections.emptyList())")
-    Practitioner toResource(CreatePractitionerRequestDTO dto);
-
-    @Mapping(target = "identifier", expression = "java(dto.identifier() != null ? toLicenseIdentifierList(dto.identifier()) : resource.getIdentifier())")
-    @Mapping(target = "name", expression = "java((dto.firstName() != null || dto.lastName() != null) ? toHumanName(dto.firstName() != null ? dto.firstName() : extractGiven(resource), dto.lastName() != null ? dto.lastName() : extractFamily(resource)) : resource.getName())")
-    @Mapping(target = "telecom", expression = "java((dto.phone() != null || dto.email() != null) ? toTelecom(dto.phone() != null ? dto.phone() : extractTelecom(resource, ContactPoint.ContactPointSystem.PHONE), dto.email() != null ? dto.email() : extractTelecom(resource, ContactPoint.ContactPointSystem.EMAIL)) : resource.getTelecom())")
-    @Mapping(target = "qualification", expression = "java(dto.specialization() != null ? toQualification(dto.specialization()) : resource.getQualification())")
-    @Mapping(target = "organization", expression = "java(dto.organizationId() != null ? Collections.singletonList(new Reference(\"Organization/\" + dto.organizationId())) : resource.getOrganization())")
-    void updateResourceFromDTO(UpdatePractitionerRequestDTO dto, @MappingTarget Practitioner resource);
-
-    default List<Identifier> toLicenseIdentifierList(String license) {
-        Identifier id = new Identifier();
-        id.setSystem(LICENSE_SYSTEM);
-        id.setValue(license);
-        return Collections.singletonList(id);
+    public PractitionerMapper(MapperSupport support) {
+        this.support = support;
     }
 
-    default List<HumanName> toHumanName(String firstName, String lastName) {
-        HumanName hn = new HumanName();
-        if (lastName != null) hn.setFamily(lastName);
-        if (firstName != null) hn.setGiven(Collections.singletonList(new StringType(firstName)));
-        return Collections.singletonList(hn);
-    }
-
-    default List<ContactPoint> toTelecom(String phone, String email) {
-        java.util.ArrayList<ContactPoint> out = new java.util.ArrayList<>();
-        if (phone != null) {
-            ContactPoint cp = new ContactPoint();
-            cp.setSystem(ContactPoint.ContactPointSystem.PHONE);
-            cp.setValue(phone);
-            out.add(cp);
+    public PractitionerDTO toDTO(Practitioner resource) {
+        if (resource == null) {
+            return null;
         }
-        if (email != null) {
-            ContactPoint cp = new ContactPoint();
-            cp.setSystem(ContactPoint.ContactPointSystem.EMAIL);
-            cp.setValue(email);
-            out.add(cp);
+
+        return new PractitionerDTO(
+                resource.getIdElement().getIdPart(),
+                extractFullName(resource),
+                extractIdentifier(resource),
+                extractRole(resource)
+        );
+    }
+
+    public Practitioner toResource(CreatePractitionerRequestDTO dto) {
+        if (dto == null) {
+            return null;
         }
-        return out;
-    }
 
-    default List<Practitioner.PractitionerQualificationComponent> toQualification(String specialization) {
-        Practitioner.PractitionerQualificationComponent q = new Practitioner.PractitionerQualificationComponent();
-        q.setCode(new CodeableConcept().setText(specialization));
-        return Collections.singletonList(q);
-    }
+        Practitioner resource = new Practitioner();
 
-    default String extractLicense(Practitioner resource) {
-        if (resource == null || !resource.hasIdentifier()) return null;
-        for (Identifier id : resource.getIdentifier()) {
-            if (LICENSE_SYSTEM.equals(id.getSystem()) && id.hasValue()) return id.getValue();
+        if (dto.firstName() != null || dto.lastName() != null) {
+            resource.setName(List.of(buildHumanName(dto.firstName(), dto.lastName())));
         }
-        return resource.getIdentifierFirstRep().hasValue() ? resource.getIdentifierFirstRep().getValue() : null;
+
+        List<Identifier> identifiers = new ArrayList<>();
+
+        if (dto.identifier() != null && !dto.identifier().isBlank()) {
+            identifiers.add(new Identifier()
+                    .setSystem(LICENSE_SYSTEM)
+                    .setValue(dto.identifier()));
+        }
+
+        if (dto.organizationId() != null && !dto.organizationId().isBlank()) {
+            identifiers.add(new Identifier()
+                    .setSystem(ORGANIZATION_SYSTEM)
+                    .setValue(dto.organizationId()));
+        }
+
+        if (!identifiers.isEmpty()) {
+            resource.setIdentifier(identifiers);
+        }
+
+        if (dto.specialization() != null && !dto.specialization().isBlank()) {
+            resource.setQualification(List.of(
+                    new Practitioner.PractitionerQualificationComponent()
+                            .setCode(new CodeableConcept().addCoding(
+                                    new org.hl7.fhir.r5.model.Coding()
+                                            .setSystem(SPECIALIZATION_SYSTEM)
+                                            .setCode(dto.specialization())
+                                            .setDisplay(dto.specialization())
+                            ).setText(dto.specialization()))
+            ));
+        }
+
+        List<ContactPoint> telecom = buildTelecom(dto.phone(), dto.email());
+        if (!telecom.isEmpty()) {
+            resource.setTelecom(telecom);
+        }
+
+        return resource;
     }
 
-    default String extractGiven(Practitioner resource) {
-        if (resource == null || !resource.hasName()) return null;
-        HumanName n = resource.getNameFirstRep();
-        if (!n.hasGiven() || n.getGiven().isEmpty()) return null;
-        return n.getGiven().get(0).getValue();
+    public void updateResource(UpdatePractitionerRequestDTO dto, Practitioner resource) {
+        if (dto == null || resource == null) {
+            return;
+        }
+
+        if (dto.firstName() != null || dto.lastName() != null) {
+            HumanName name = resource.hasName() ? resource.getNameFirstRep() : new HumanName();
+
+            if (dto.firstName() != null) {
+                if (dto.firstName().isBlank()) {
+                    name.setGiven(new ArrayList<>());
+                } else {
+                    name.setGiven(List.of(new org.hl7.fhir.r5.model.StringType(dto.firstName())));
+                }
+            }
+
+            if (dto.lastName() != null) {
+                name.setFamily(dto.lastName().isBlank() ? null : dto.lastName());
+            }
+
+            if (resource.hasName()) {
+                resource.getName().set(0, name);
+            } else {
+                resource.setName(List.of(name));
+            }
+        }
+
+        if (dto.specialization() != null) {
+            if (dto.specialization().isBlank()) {
+                resource.setQualification(new ArrayList<>());
+            } else {
+                resource.setQualification(List.of(
+                        new Practitioner.PractitionerQualificationComponent()
+                                .setCode(new CodeableConcept().addCoding(
+                                        new org.hl7.fhir.r5.model.Coding()
+                                                .setSystem(SPECIALIZATION_SYSTEM)
+                                                .setCode(dto.specialization())
+                                                .setDisplay(dto.specialization())
+                                ).setText(dto.specialization()))
+                ));
+            }
+        }
+
+        if (dto.phone() != null || dto.email() != null) {
+            String currentPhone = extractPhone(resource);
+            String currentEmail = extractEmail(resource);
+
+            String phone = dto.phone() != null ? dto.phone() : currentPhone;
+            String email = dto.email() != null ? dto.email() : currentEmail;
+
+            resource.setTelecom(buildTelecom(phone, email));
+        }
+
+        if (dto.organizationId() != null) {
+            upsertOrganizationIdentifier(resource, dto.organizationId());
+        }
     }
 
-    default String extractFamily(Practitioner resource) {
-        if (resource == null || !resource.hasName()) return null;
-        HumanName n = resource.getNameFirstRep();
-        return n.hasFamily() ? n.getFamily() : null;
+    private HumanName buildHumanName(String firstName, String lastName) {
+        HumanName name = new HumanName();
+
+        if (firstName != null && !firstName.isBlank()) {
+            name.setGiven(List.of(new org.hl7.fhir.r5.model.StringType(firstName)));
+        }
+
+        if (lastName != null && !lastName.isBlank()) {
+            name.setFamily(lastName);
+        }
+
+        return name;
     }
 
-    default String extractFullName(Practitioner resource) {
-        String g = extractGiven(resource);
-        String f = extractFamily(resource);
-        if (g == null && f == null) return null;
-        if (g == null) return f;
-        if (f == null) return g;
-        return g + " " + f;
+    private List<ContactPoint> buildTelecom(String phone, String email) {
+        List<ContactPoint> telecom = new ArrayList<>();
+
+        if (phone != null && !phone.isBlank()) {
+            telecom.add(new ContactPoint()
+                    .setSystem(ContactPoint.ContactPointSystem.PHONE)
+                    .setValue(phone));
+        }
+
+        if (email != null && !email.isBlank()) {
+            telecom.add(new ContactPoint()
+                    .setSystem(ContactPoint.ContactPointSystem.EMAIL)
+                    .setValue(email));
+        }
+
+        return telecom;
     }
 
-    default String extractTelecom(Practitioner resource, ContactPoint.ContactPointSystem system) {
-        if (resource == null || !resource.hasTelecom()) return null;
-        for (ContactPoint cp : resource.getTelecom()) {
-            if (cp.getSystem() == system && cp.hasValue()) return cp.getValue();
+    private String extractFullName(Practitioner resource) {
+        if (!resource.hasName()) {
+            return null;
+        }
+
+        HumanName name = resource.getNameFirstRep();
+        String firstName = null;
+        String lastName = null;
+
+        if (name.hasGiven() && !name.getGiven().isEmpty()) {
+            firstName = name.getGiven().get(0).getValue();
+        }
+
+        if (name.hasFamily()) {
+            lastName = name.getFamily();
+        }
+
+        if (firstName == null && lastName == null) {
+            return null;
+        }
+        if (firstName == null) {
+            return lastName;
+        }
+        if (lastName == null) {
+            return firstName;
+        }
+        return firstName + " " + lastName;
+    }
+
+    private String extractIdentifier(Practitioner resource) {
+        if (!resource.hasIdentifier() || resource.getIdentifier().isEmpty()) {
+            return null;
+        }
+
+        for (Identifier identifier : resource.getIdentifier()) {
+            if (identifier == null || !identifier.hasValue()) {
+                continue;
+            }
+
+            if (!identifier.hasSystem() || LICENSE_SYSTEM.equals(identifier.getSystem())) {
+                return identifier.getValue();
+            }
+        }
+
+        return null;
+    }
+
+    private String extractRole(Practitioner resource) {
+        if (resource.hasQualification() && !resource.getQualification().isEmpty()) {
+            Practitioner.PractitionerQualificationComponent qualification = resource.getQualificationFirstRep();
+            if (qualification.hasCode()) {
+                return support.codeableConceptToText(qualification.getCode());
+            }
         }
         return null;
+    }
+
+    private String extractPhone(Practitioner resource) {
+        if (!resource.hasTelecom() || resource.getTelecom().isEmpty()) {
+            return null;
+        }
+
+        for (ContactPoint telecom : resource.getTelecom()) {
+            if (telecom != null
+                    && telecom.hasSystem()
+                    && telecom.getSystem() == ContactPoint.ContactPointSystem.PHONE
+                    && telecom.hasValue()) {
+                return telecom.getValue();
+            }
+        }
+
+        return null;
+    }
+
+    private String extractEmail(Practitioner resource) {
+        if (!resource.hasTelecom() || resource.getTelecom().isEmpty()) {
+            return null;
+        }
+
+        for (ContactPoint telecom : resource.getTelecom()) {
+            if (telecom != null
+                    && telecom.hasSystem()
+                    && telecom.getSystem() == ContactPoint.ContactPointSystem.EMAIL
+                    && telecom.hasValue()) {
+                return telecom.getValue();
+            }
+        }
+
+        return null;
+    }
+
+    private void upsertOrganizationIdentifier(Practitioner resource, String organizationId) {
+        List<Identifier> identifiers = resource.hasIdentifier()
+                ? new ArrayList<>(resource.getIdentifier())
+                : new ArrayList<>();
+
+        identifiers.removeIf(identifier ->
+                identifier != null && identifier.hasSystem() && ORGANIZATION_SYSTEM.equals(identifier.getSystem()));
+
+        if (organizationId != null && !organizationId.isBlank()) {
+            identifiers.add(new Identifier()
+                    .setSystem(ORGANIZATION_SYSTEM)
+                    .setValue(organizationId));
+        }
+
+        resource.setIdentifier(identifiers);
     }
 }

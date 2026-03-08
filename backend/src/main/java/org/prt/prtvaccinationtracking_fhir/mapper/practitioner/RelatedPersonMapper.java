@@ -1,95 +1,196 @@
 package org.prt.prtvaccinationtracking_fhir.mapper.practitioner;
 
-import org.hl7.fhir.r5.model.*;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.hl7.fhir.r5.model.Address;
+import org.hl7.fhir.r5.model.CodeableConcept;
+import org.hl7.fhir.r5.model.ContactPoint;
+import org.hl7.fhir.r5.model.HumanName;
+import org.hl7.fhir.r5.model.RelatedPerson;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.relatedPerson.CreateRelatedPersonRequestDTO;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.relatedPerson.RelatedPersonDTO;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.relatedPerson.UpdateRelatedPersonRequestDTO;
+import org.springframework.stereotype.Component;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
-@Mapper(config = BaseMapperConfig.class)
-public interface RelatedPersonMapper {
+@Component
+public class RelatedPersonMapper {
 
-    @Mapping(target = "id", expression = "java(resource.getIdElement().getIdPart())")
-    @Mapping(target = "fullName", expression = "java(extractFullName(resource))")
-    @Mapping(target = "relationship", expression = "java(extractRelationship(resource))")
-    @Mapping(target = "phone", expression = "java(extractTelecom(resource, ContactPoint.ContactPointSystem.PHONE))")
-    @Mapping(target = "email", expression = "java(extractTelecom(resource, ContactPoint.ContactPointSystem.EMAIL))")
-    RelatedPersonDTO toDTO(RelatedPerson resource);
+    private final MapperSupport support;
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "patient", expression = "java(new Reference(\"Patient/\" + patientId))")
-    @Mapping(target = "name", expression = "java(toHumanName(dto.firstName(), dto.lastName()))")
-    @Mapping(target = "relationship", expression = "java(dto.relationship() != null ? toRelationship(dto.relationship()) : Collections.emptyList())")
-    @Mapping(target = "telecom", expression = "java(toTelecom(dto.phone(), dto.email()))")
-    @Mapping(target = "address", expression = "java(dto.address() != null ? toAddressList(dto.address()) : Collections.emptyList())")
-    RelatedPerson toResource(CreateRelatedPersonRequestDTO dto, String patientId);
-
-    @Mapping(target = "telecom", expression = "java((dto.phone() != null || dto.email() != null) ? toTelecom(dto.phone() != null ? dto.phone() : extractTelecom(resource, ContactPoint.ContactPointSystem.PHONE), dto.email() != null ? dto.email() : extractTelecom(resource, ContactPoint.ContactPointSystem.EMAIL)) : resource.getTelecom())")
-    @Mapping(target = "address", expression = "java(dto.address() != null ? toAddressList(dto.address()) : resource.getAddress())")
-    @Mapping(target = "patient", expression = "java(resource.getPatient())")
-    @Mapping(target = "name", expression = "java(resource.getName())")
-    @Mapping(target = "relationship", expression = "java(resource.getRelationship())")
-    void updateResourceFromDTO(UpdateRelatedPersonRequestDTO dto, @MappingTarget RelatedPerson resource);
-
-    default List<HumanName> toHumanName(String firstName, String lastName) {
-        HumanName hn = new HumanName();
-        if (lastName != null) hn.setFamily(lastName);
-        if (firstName != null) hn.setGiven(Collections.singletonList(new StringType(firstName)));
-        return Collections.singletonList(hn);
+    public RelatedPersonMapper(MapperSupport support) {
+        this.support = support;
     }
 
-    default List<CodeableConcept> toRelationship(String relationshipText) {
-        return Collections.singletonList(new CodeableConcept().setText(relationshipText));
-    }
-
-    default List<ContactPoint> toTelecom(String phone, String email) {
-        java.util.ArrayList<ContactPoint> out = new java.util.ArrayList<>();
-        if (phone != null) {
-            ContactPoint cp = new ContactPoint();
-            cp.setSystem(ContactPoint.ContactPointSystem.PHONE);
-            cp.setValue(phone);
-            out.add(cp);
+    public RelatedPersonDTO toDTO(RelatedPerson resource) {
+        if (resource == null) {
+            return null;
         }
-        if (email != null) {
-            ContactPoint cp = new ContactPoint();
-            cp.setSystem(ContactPoint.ContactPointSystem.EMAIL);
-            cp.setValue(email);
-            out.add(cp);
+
+        return new RelatedPersonDTO(
+                resource.getIdElement().getIdPart(),
+                extractFullName(resource),
+                extractRelationship(resource),
+                extractPhone(resource),
+                extractEmail(resource)
+        );
+    }
+
+    public RelatedPerson toResource(CreateRelatedPersonRequestDTO dto, String patientId) {
+        if (dto == null) {
+            return null;
         }
-        return out;
-    }
 
-    default List<Address> toAddressList(String addressText) {
-        return Collections.singletonList(new Address().setText(addressText));
-    }
+        RelatedPerson resource = new RelatedPerson();
 
-    default String extractFullName(RelatedPerson resource) {
-        if (resource == null || !resource.hasName()) return null;
-        HumanName n = resource.getNameFirstRep();
-        String given = (n.hasGiven() && !n.getGiven().isEmpty()) ? n.getGiven().get(0).getValue() : null;
-        String family = n.hasFamily() ? n.getFamily() : null;
-        if (given == null && family == null) return null;
-        if (given == null) return family;
-        if (family == null) return given;
-        return given + " " + family;
-    }
-
-    default String extractRelationship(RelatedPerson resource) {
-        if (resource == null || !resource.hasRelationship() || resource.getRelationship().isEmpty()) return null;
-        CodeableConcept cc = resource.getRelationshipFirstRep();
-        return cc.hasText() ? cc.getText() : null;
-    }
-
-    default String extractTelecom(RelatedPerson resource, ContactPoint.ContactPointSystem system) {
-        if (resource == null || !resource.hasTelecom()) return null;
-        for (ContactPoint cp : resource.getTelecom()) {
-            if (cp.getSystem() == system && cp.hasValue()) return cp.getValue();
+        if (patientId != null && !patientId.isBlank()) {
+            resource.setPatient(support.toPatientReference(patientId));
         }
+
+        if (dto.firstName() != null || dto.lastName() != null) {
+            resource.setName(List.of(buildHumanName(dto.firstName(), dto.lastName())));
+        }
+
+        if (dto.relationship() != null && !dto.relationship().isBlank()) {
+            resource.setRelationship(List.of(new CodeableConcept().setText(dto.relationship())));
+        }
+
+        List<ContactPoint> telecom = buildTelecom(dto.phone(), dto.email());
+        if (!telecom.isEmpty()) {
+            resource.setTelecom(telecom);
+        }
+
+        if (dto.address() != null && !dto.address().isBlank()) {
+            resource.setAddress(List.of(new Address().setText(dto.address())));
+        }
+
+        return resource;
+    }
+
+    public void updateResource(UpdateRelatedPersonRequestDTO dto, RelatedPerson resource) {
+        if (dto == null || resource == null) {
+            return;
+        }
+
+        if (dto.phone() != null || dto.email() != null) {
+            String currentPhone = extractPhone(resource);
+            String currentEmail = extractEmail(resource);
+
+            String phone = dto.phone() != null ? dto.phone() : currentPhone;
+            String email = dto.email() != null ? dto.email() : currentEmail;
+
+            resource.setTelecom(buildTelecom(phone, email));
+        }
+
+        if (dto.address() != null) {
+            if (dto.address().isBlank()) {
+                resource.setAddress(new ArrayList<>());
+            } else {
+                resource.setAddress(List.of(new Address().setText(dto.address())));
+            }
+        }
+    }
+
+    private HumanName buildHumanName(String firstName, String lastName) {
+        HumanName name = new HumanName();
+
+        if (firstName != null && !firstName.isBlank()) {
+            name.setGiven(List.of(new org.hl7.fhir.r5.model.StringType(firstName)));
+        }
+
+        if (lastName != null && !lastName.isBlank()) {
+            name.setFamily(lastName);
+        }
+
+        return name;
+    }
+
+    private List<ContactPoint> buildTelecom(String phone, String email) {
+        List<ContactPoint> telecom = new ArrayList<>();
+
+        if (phone != null && !phone.isBlank()) {
+            telecom.add(new ContactPoint()
+                    .setSystem(ContactPoint.ContactPointSystem.PHONE)
+                    .setValue(phone));
+        }
+
+        if (email != null && !email.isBlank()) {
+            telecom.add(new ContactPoint()
+                    .setSystem(ContactPoint.ContactPointSystem.EMAIL)
+                    .setValue(email));
+        }
+
+        return telecom;
+    }
+
+    private String extractFullName(RelatedPerson resource) {
+        if (!resource.hasName()) {
+            return null;
+        }
+
+        HumanName name = resource.getNameFirstRep();
+        String firstName = null;
+        String lastName = null;
+
+        if (name.hasGiven() && !name.getGiven().isEmpty()) {
+            firstName = name.getGiven().get(0).getValue();
+        }
+
+        if (name.hasFamily()) {
+            lastName = name.getFamily();
+        }
+
+        if (firstName == null && lastName == null) {
+            return null;
+        }
+        if (firstName == null) {
+            return lastName;
+        }
+        if (lastName == null) {
+            return firstName;
+        }
+        return firstName + " " + lastName;
+    }
+
+    private String extractRelationship(RelatedPerson resource) {
+        if (!resource.hasRelationship() || resource.getRelationship().isEmpty()) {
+            return null;
+        }
+
+        return support.codeableConceptToText(resource.getRelationshipFirstRep());
+    }
+
+    private String extractPhone(RelatedPerson resource) {
+        if (!resource.hasTelecom() || resource.getTelecom().isEmpty()) {
+            return null;
+        }
+
+        for (ContactPoint telecom : resource.getTelecom()) {
+            if (telecom != null
+                    && telecom.hasSystem()
+                    && telecom.getSystem() == ContactPoint.ContactPointSystem.PHONE
+                    && telecom.hasValue()) {
+                return telecom.getValue();
+            }
+        }
+
+        return null;
+    }
+
+    private String extractEmail(RelatedPerson resource) {
+        if (!resource.hasTelecom() || resource.getTelecom().isEmpty()) {
+            return null;
+        }
+
+        for (ContactPoint telecom : resource.getTelecom()) {
+            if (telecom != null
+                    && telecom.hasSystem()
+                    && telecom.getSystem() == ContactPoint.ContactPointSystem.EMAIL
+                    && telecom.hasValue()) {
+                return telecom.getValue();
+            }
+        }
+
         return null;
     }
 }

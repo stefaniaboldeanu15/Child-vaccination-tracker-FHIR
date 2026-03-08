@@ -31,9 +31,10 @@ public class CarePlanService {
 
     public CarePlanDTO update(String id, UpdateCarePlanRequestDTO dto) {
         CarePlan existing = fhir.read(CarePlan.class, id);
-        mapper.updateResourceFromDTO(dto, existing);
+        mapper.updateResource(dto, existing);
         fhir.ensureId(CarePlan.class, existing, id);
         CarePlan updated = fhir.update(existing);
         return mapper.toDTO(updated);
     }
+
 }

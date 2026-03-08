@@ -1,107 +1,213 @@
 package org.prt.prtvaccinationtracking_fhir.mapper.practitioner;
 
-import org.hl7.fhir.r5.model.*;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.condition.*;
+import org.hl7.fhir.r5.model.Annotation;
+import org.hl7.fhir.r5.model.CodeableConcept;
+import org.hl7.fhir.r5.model.Coding;
+import org.hl7.fhir.r5.model.Condition;
+import org.hl7.fhir.r5.model.DateTimeType;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.condition.ConditionDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.condition.CreateConditionRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.condition.UpdateConditionRequestDTO;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
+@Component
+public class ConditionMapper {
 
-@Mapper(config = BaseMapperConfig.class)
-public interface ConditionMapper {
+    private static final String CLINICAL_STATUS_SYSTEM =
+            "https://terminology.hl7.org/CodeSystem/condition-clinical";
 
-     /// FHIR → DTO
+    private static final String VERIFICATION_STATUS_SYSTEM =
+            "https://terminology.hl7.org/CodeSystem/condition-ver-status";
 
-    @Mapping(target = "id",
-            expression = "java(resource.getIdElement().getIdPart())")
-    @Mapping(target = "patientId",
-            expression = "java(resource.getSubject().getReferenceElement().getIdPart())")
-    @Mapping(target = "code",
-            expression = "java(resource.getCode() != null && resource.getCode().hasCoding() ? resource.getCode().getCodingFirstRep().getCode() : null)")
-    @Mapping(target = "display",
-            expression = "java(resource.getCode() != null && resource.getCode().hasCoding() ? resource.getCode().getCodingFirstRep().getDisplay() : null)")
-    @Mapping(target = "clinicalStatus",
-            expression = "java(resource.getClinicalStatus() != null ? resource.getClinicalStatus().getCodingFirstRep().getCode() : null)")
-    @Mapping(target = "verificationStatus",
-            expression = "java(resource.getVerificationStatus() != null ? resource.getVerificationStatus().getCodingFirstRep().getCode() : null)")
-    @Mapping(target = "onsetDate",
-            expression = "java(resource.getOnsetDateTimeType() != null ? toLocalDate(resource.getOnsetDateTimeType()) : null)")
-    @Mapping(target = "recorderName",
-            expression = "java(resource.getRecorder() != null ? resource.getRecorder().getDisplay() : null)")
-    @Mapping(target = "notes",
-            expression = "java(resource.hasNote() ? resource.getNoteFirstRep().getText() : null)")
-    ConditionDTO toDTO(Condition resource);
+    private final MapperSupport support;
 
-     ///CREATE DTO → FHIR
+    public ConditionMapper(MapperSupport support) {
+        this.support = support;
+    }
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "code",
-            expression = "java(buildCodeableConcept(dto.code(), dto.display()))")
-    @Mapping(target = "clinicalStatus",
-            expression = "java(dto.clinicalStatus() != null ? buildSimpleConcept(\"http://terminology.hl7.org/CodeSystem/condition-clinical\", dto.clinicalStatus()) : null)")
-    @Mapping(target = "verificationStatus",
-            expression = "java(dto.verificationStatus() != null ? buildSimpleConcept(\"http://terminology.hl7.org/CodeSystem/condition-ver-status\", dto.verificationStatus()) : null)")
-    @Mapping(target = "onset",
-            expression = "java(dto.onsetDate() != null ? new DateTimeType(toDate(dto.onsetDate())) : null)")
-    @Mapping(target = "note",
-            expression = "java(dto.notes() != null ? List.of(buildAnnotation(dto.notes())) : null)")
+    public ConditionDTO toDTO(Condition resource) {
+        if (resource == null) {
+            return null;
+        }
 
-    Condition toResource(CreateConditionRequestDTO dto);
+        return new ConditionDTO(
+                resource.getIdElement().getIdPart(),
+                resource.hasSubject() ? support.referenceToId(resource.getSubject()) : null,
+                extractCode(resource),
+                extractDisplay(resource),
+                extractClinicalStatus(resource),
+                extractVerificationStatus(resource),
+                extractOnsetDate(resource),
+                null,
+                extractNotes(resource)
+        );
+    }
 
-    /// UPDATE DTO → EXISTING RESOURCE
+    public Condition toResource(CreateConditionRequestDTO dto) {
+        if (dto == null) {
+            return null;
+        }
 
-    @Mapping(target = "clinicalStatus",
-            expression = "java(dto.clinicalStatus() != null ? buildSimpleConcept(\"http://terminology.hl7.org/CodeSystem/condition-clinical\", dto.clinicalStatus()) : resource.getClinicalStatus())")
-    @Mapping(target = "verificationStatus",
-            expression = "java(dto.verificationStatus() != null ? buildSimpleConcept(\"http://terminology.hl7.org/CodeSystem/condition-ver-status\", dto.verificationStatus()) : resource.getVerificationStatus())")
-    @Mapping(target = "note",
-            expression = "java(dto.notes() != null ? List.of(buildAnnotation(dto.notes())) : resource.getNote())")
-    void updateResourceFromDTO(UpdateConditionRequestDTO dto,
-                               @MappingTarget Condition resource);
+        Condition resource = new Condition();
 
-     ///HELPERS
+        if (dto.code() != null || dto.display() != null) {
+            resource.setCode(toConditionCode(dto.code(), dto.display()));
+        }
 
-    default CodeableConcept buildCodeableConcept(String code, String display) {
-        if (code == null) return null;
+        if (dto.clinicalStatus() != null && !dto.clinicalStatus().isBlank()) {
+            resource.setClinicalStatus(toClinicalStatus(dto.clinicalStatus()));
+        }
 
+        if (dto.verificationStatus() != null && !dto.verificationStatus().isBlank()) {
+            resource.setVerificationStatus(toVerificationStatus(dto.verificationStatus()));
+        }
+
+        if (dto.onsetDate() != null) {
+            resource.setOnset(new DateTimeType(support.toDate(dto.onsetDate())));
+        }
+
+        if (dto.notes() != null && !dto.notes().isBlank()) {
+            resource.setNote(List.of(new Annotation().setText(dto.notes())));
+        }
+
+        return resource;
+    }
+
+    public void updateResource(UpdateConditionRequestDTO dto, Condition resource) {
+        if (dto == null || resource == null) {
+            return;
+        }
+
+        if (dto.clinicalStatus() != null) {
+            if (dto.clinicalStatus().isBlank()) {
+                resource.setClinicalStatus(null);
+            } else {
+                resource.setClinicalStatus(toClinicalStatus(dto.clinicalStatus()));
+            }
+        }
+
+        if (dto.verificationStatus() != null) {
+            if (dto.verificationStatus().isBlank()) {
+                resource.setVerificationStatus(null);
+            } else {
+                resource.setVerificationStatus(toVerificationStatus(dto.verificationStatus()));
+            }
+        }
+
+        if (dto.notes() != null) {
+            if (dto.notes().isBlank()) {
+                resource.setNote(new ArrayList<>());
+            } else {
+                resource.setNote(List.of(new Annotation().setText(dto.notes())));
+            }
+        }
+    }
+
+    private String extractCode(Condition resource) {
+        if (!resource.hasCode() || !resource.getCode().hasCoding()) {
+            return null;
+        }
+
+        Coding coding = resource.getCode().getCodingFirstRep();
+        return coding.hasCode() ? coding.getCode() : null;
+    }
+
+    private String extractDisplay(Condition resource) {
+        if (!resource.hasCode()) {
+            return null;
+        }
+
+        CodeableConcept code = resource.getCode();
+
+        if (code.hasCoding() && code.getCodingFirstRep().hasDisplay()) {
+            return code.getCodingFirstRep().getDisplay();
+        }
+
+        return code.hasText() ? code.getText() : null;
+    }
+
+    private String extractClinicalStatus(Condition resource) {
+        if (!resource.hasClinicalStatus()) {
+            return null;
+        }
+
+        CodeableConcept concept = resource.getClinicalStatus();
+
+        if (concept.hasCoding() && concept.getCodingFirstRep().hasCode()) {
+            return concept.getCodingFirstRep().getCode();
+        }
+
+        return concept.hasText() ? concept.getText() : null;
+    }
+
+    private String extractVerificationStatus(Condition resource) {
+        if (!resource.hasVerificationStatus()) {
+            return null;
+        }
+
+        CodeableConcept concept = resource.getVerificationStatus();
+
+        if (concept.hasCoding() && concept.getCodingFirstRep().hasCode()) {
+            return concept.getCodingFirstRep().getCode();
+        }
+
+        return concept.hasText() ? concept.getText() : null;
+    }
+
+    private LocalDate extractOnsetDate(Condition resource) {
+        if (!resource.hasOnsetDateTimeType()) {
+            return null;
+        }
+
+        return support.toLocalDate(resource.getOnsetDateTimeType().getValue());
+    }
+
+    private String extractNotes(Condition resource) {
+        if (!resource.hasNote() || resource.getNote().isEmpty()) {
+            return null;
+        }
+
+        Annotation note = resource.getNoteFirstRep();
+        return note.hasText() ? note.getText() : null;
+    }
+
+    private CodeableConcept toConditionCode(String code, String display) {
         CodeableConcept concept = new CodeableConcept();
-        concept.addCoding()
-                .setSystem("http://snomed.info/sct")
-                .setCode(code)
-                .setDisplay(display);
+
+        if (code != null && !code.isBlank()) {
+            concept.addCoding(new Coding().setCode(code).setDisplay(display));
+        }
+
+        if (display != null && !display.isBlank()) {
+            concept.setText(display);
+        }
 
         return concept;
     }
 
-    default CodeableConcept buildSimpleConcept(String system, String code) {
-        CodeableConcept concept = new CodeableConcept();
-        concept.addCoding()
-                .setSystem(system)
-                .setCode(code);
-        return concept;
+    private CodeableConcept toClinicalStatus(String status) {
+        String normalized = status.trim().toLowerCase();
+
+        return new CodeableConcept()
+                .addCoding(new Coding()
+                        .setSystem(CLINICAL_STATUS_SYSTEM)
+                        .setCode(normalized)
+                        .setDisplay(normalized))
+                .setText(normalized);
     }
 
-    default Annotation buildAnnotation(String text) {
-        Annotation annotation = new Annotation();
-        annotation.setText(text);
-        return annotation;
-    }
+    private CodeableConcept toVerificationStatus(String status) {
+        String normalized = status.trim().toLowerCase();
 
-    default LocalDate toLocalDate(DateTimeType dateTime) {
-        if (dateTime == null || dateTime.getValue() == null) return null;
-
-        return dateTime.getValue().toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
-    }
-
-    default Date toDate(LocalDate localDate) {
-        if (localDate == null) return null;
-
-        return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        return new CodeableConcept()
+                .addCoding(new Coding()
+                        .setSystem(VERIFICATION_STATUS_SYSTEM)
+                        .setCode(normalized)
+                        .setDisplay(normalized))
+                .setText(normalized);
     }
 }

@@ -31,9 +31,10 @@ public class ImmunizationService {
 
     public ImmunizationDTO update(String id, UpdateImmunizationRequestDTO dto) {
         Immunization existing = fhir.read(Immunization.class, id);
-        mapper.updateResourceFromDTO(dto, existing);
+        mapper.updateResource(dto, existing);
         fhir.ensureId(Immunization.class, existing, id);
         Immunization updated = fhir.update(existing);
         return mapper.toDTO(updated);
     }
+
 }

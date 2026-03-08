@@ -1,134 +1,256 @@
 package org.prt.prtvaccinationtracking_fhir.mapper.practitioner;
 
-import org.hl7.fhir.r5.model.*;
-import org.mapstruct.*;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.allergyIntolerance.*;
+import org.hl7.fhir.r5.model.AllergyIntolerance;
+import org.hl7.fhir.r5.model.CodeableConcept;
+import org.hl7.fhir.r5.model.Coding;
+import org.hl7.fhir.r5.model.Enumeration;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.allergyIntolerance.AllergyIntoleranceDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.allergyIntolerance.CreateAllergyIntoleranceRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.allergyIntolerance.UpdateAllergyIntoleranceRequestDTO;
+import org.springframework.stereotype.Component;
 
-@Mapper
-        (config = BaseMapperConfig.class)
-public interface AllergyIntoleranceMapper {
+import java.util.List;
 
-     /// FHIR to DTO
-    @Mapping(target = "id",
-            expression = "java(resource.getIdElement().getIdPart())")
-    @Mapping(target = "clinicalStatus",
-            expression = "java(mapClinicalStatus(resource.getClinicalStatus()))")
-    @Mapping(target = "type",
-            expression = "java(mapType(resource.getType()))")
-    @Mapping(target = "category",
-            expression = "java(resource.hasCategory() ? mapCategory(resource.getCategoryFirstRep()) : null)")
-    @Mapping(target = "criticality",
-            expression = "java(mapCriticality(resource.getCriticality()))")
-    @Mapping(target = "code",
-            expression = "java(resource.getCode() != null ? resource.getCode().getText() : null)")
-    @Mapping(target = "patientId",
-            expression = "java(resource.getPatient().getReferenceElement().getIdPart())")
-    @Mapping(target = "encounterId",
-            expression = "java(resource.getEncounter() != null ? resource.getEncounter().getReferenceElement().getIdPart() : null)")
+@Component
+public class AllergyIntoleranceMapper {
 
-    AllergyIntoleranceDTO toDTO(AllergyIntolerance resource);
+    private static final String CLINICAL_STATUS_SYSTEM =
+            "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical";
 
-    /// CREATE DTO → FHIR
+    private static final String TYPE_SYSTEM =
+            "http://terminology.hl7.org/CodeSystem/allergy-intolerance-type";
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "clinicalStatus",
-            expression = "java(mapClinicalStatus(dto.clinicalStatus()))")
-    @Mapping(target = "type",
-            expression = "java(mapType(dto.type()))")
-    @Mapping(target = "category",
-            expression = "java(dto.category() != null ? java.util.Collections.singletonList(mapCategory(dto.category())) : null)")
-    @Mapping(target = "criticality",
-            expression = "java(mapCriticality(dto.criticality()))")
-    @Mapping(target = "code",
-            expression = "java(toCodeableConcept(dto.code()))")
-    @Mapping(target = "patient",
-            expression = "java(new Reference(\"Patient/\" + dto.patientId()))")
-    @Mapping(target = "encounter",
-            expression = "java(dto.encounterId() != null ? new Reference(\"Encounter/\" + dto.encounterId()) : null)")
-    AllergyIntolerance toResource(CreateAllergyIntoleranceRequestDTO dto);
+    private final MapperSupport support;
 
-    /// update DTO to FHIR resources
-    @Mapping(target = "clinicalStatus",
-            expression = "java(dto.clinicalStatus() != null ? mapClinicalStatus(dto.clinicalStatus()) : resource.getClinicalStatus())")
-    @Mapping(target = "criticality",
-            expression = "java(dto.criticality() != null ? mapCriticality(dto.criticality()) : resource.getCriticality())")
-    void updateResourceFromDTO(UpdateAllergyIntoleranceRequestDTO dto,
-                               @MappingTarget AllergyIntolerance resource);
-
-    /// helpers
-
-    default AllergyIntoleranceDTO.AllergyClinicalStatus mapClinicalStatus(CodeableConcept status) {
-        if (status == null || status.getCodingFirstRep() == null) return null;
-
-        return AllergyIntoleranceDTO.AllergyClinicalStatus
-                .valueOf(status.getCodingFirstRep().getCode().toUpperCase());
+    public AllergyIntoleranceMapper(MapperSupport support) {
+        this.support = support;
     }
 
-    default CodeableConcept mapClinicalStatus(AllergyIntoleranceDTO.AllergyClinicalStatus status) {
-        if (status == null) return null;
+    public AllergyIntoleranceDTO toDTO(AllergyIntolerance resource) {
+        if (resource == null) {
+            return null;
+        }
 
-        CodeableConcept concept = new CodeableConcept();
-        concept.addCoding()
-                .setSystem("http://hl7.org/fhir/allergyintolerance-clinical")
-                .setCode(status.name().toLowerCase());
-
-        return concept;
+        return new AllergyIntoleranceDTO(
+                resource.getIdElement().getIdPart(),
+                mapClinicalStatus(resource.getClinicalStatus()),
+                mapType(resource.getType()),
+                mapCategory(resource.getCategory()),
+                mapCriticality(resource.getCriticality()),
+                resource.hasCode() ? support.codeableConceptToText(resource.getCode()) : null,
+                resource.hasPatient() ? support.referenceToId(resource.getPatient()) : null,
+                resource.hasEncounter() ? support.referenceToId(resource.getEncounter()) : null
+        );
     }
 
+    public AllergyIntolerance toResource(CreateAllergyIntoleranceRequestDTO dto) {
+        if (dto == null) {
+            return null;
+        }
 
-    default AllergyIntoleranceDTO.AllergyType mapType(CodeableConcept type) {
-        if (type == null || type.getCodingFirstRep() == null) return null;
+        AllergyIntolerance resource = new AllergyIntolerance();
 
-        return AllergyIntoleranceDTO.AllergyType
-                .valueOf(type.getCodingFirstRep().getCode().toUpperCase());
+        if (dto.patientId() != null && !dto.patientId().isBlank()) {
+            resource.setPatient(support.toPatientReference(dto.patientId()));
+        }
+
+        if (dto.encounterId() != null && !dto.encounterId().isBlank()) {
+            resource.setEncounter(support.toEncounterReference(dto.encounterId()));
+        }
+
+        if (dto.code() != null && !dto.code().isBlank()) {
+            resource.setCode(new CodeableConcept().setText(dto.code()));
+        }
+
+        if (dto.clinicalStatus() != null) {
+            resource.setClinicalStatus(toClinicalStatusConcept(dto.clinicalStatus()));
+        }
+
+        if (dto.type() != null) {
+            resource.setType(toTypeConcept(dto.type()));
+        }
+
+        if (dto.category() != null) {
+            resource.setCategory(List.of(
+                    new Enumeration<>(
+                            new AllergyIntolerance.AllergyIntoleranceCategoryEnumFactory(),
+                            toFhirCategory(dto.category())
+                    )
+            ));
+        }
+
+        if (dto.criticality() != null) {
+            resource.setCriticality(toFhirCriticality(dto.criticality()));
+        }
+
+        return resource;
     }
 
-    default CodeableConcept mapType(AllergyIntoleranceDTO.AllergyType type) {
-        if (type == null) return null;
+    public void updateResource(UpdateAllergyIntoleranceRequestDTO dto, AllergyIntolerance resource) {
+        if (dto == null || resource == null) {
+            return;
+        }
 
-        CodeableConcept concept = new CodeableConcept();
-        concept.addCoding()
-                .setSystem("http://hl7.org/fhir/allergy-intolerance-type")
-                .setCode(type.name().toLowerCase());
+        if (dto.clinicalStatus() != null) {
+            resource.setClinicalStatus(toClinicalStatusConcept(dto.clinicalStatus()));
+        }
 
-        return concept;
+        if (dto.criticality() != null) {
+            resource.setCriticality(toFhirCriticality(dto.criticality()));
+        }
     }
 
-    default AllergyIntoleranceDTO.AllergyIntoleranceCategory mapCategory(CodeableConcept category) {
-        if (category == null || category.getCodingFirstRep() == null) return null;
+    private AllergyIntoleranceDTO.AllergyClinicalStatus mapClinicalStatus(CodeableConcept concept) {
+        if (concept == null) {
+            return null;
+        }
 
-        return AllergyIntoleranceDTO.AllergyIntoleranceCategory
-                .valueOf(category.getCodingFirstRep().getCode().toUpperCase());
+        String value = firstCodeOrText(concept);
+        if (value == null) {
+            return null;
+        }
+
+        return switch (normalize(value)) {
+            case "active" -> AllergyIntoleranceDTO.AllergyClinicalStatus.ACTIVE;
+            case "inactive" -> AllergyIntoleranceDTO.AllergyClinicalStatus.INACTIVE;
+            case "resolved" -> AllergyIntoleranceDTO.AllergyClinicalStatus.RESOLVED;
+            default -> null;
+        };
     }
 
-    default CodeableConcept mapCategory(AllergyIntoleranceDTO.AllergyIntoleranceCategory category) {
-        if (category == null) return null;
+    private CodeableConcept toClinicalStatusConcept(AllergyIntoleranceDTO.AllergyClinicalStatus status) {
+        if (status == null) {
+            return null;
+        }
 
-        CodeableConcept concept = new CodeableConcept();
-        concept.addCoding()
-                .setSystem("http://hl7.org/fhir/allergy-intolerance-category")
-                .setCode(category.name().toLowerCase());
+        String code = switch (status) {
+            case ACTIVE -> "active";
+            case INACTIVE -> "inactive";
+            case RESOLVED -> "resolved";
+        };
 
-        return concept;
+        return new CodeableConcept()
+                .addCoding(new Coding()
+                        .setSystem(CLINICAL_STATUS_SYSTEM)
+                        .setCode(code)
+                        .setDisplay(code))
+                .setText(code);
     }
 
-    default AllergyIntoleranceDTO.AllergyCriticality mapCriticality(AllergyIntolerance.AllergyIntoleranceCriticality criticality) {
-        return criticality != null
-                ? AllergyIntoleranceDTO.AllergyCriticality.valueOf(criticality.name())
-                : null;
+    private AllergyIntoleranceDTO.AllergyType mapType(CodeableConcept concept) {
+        if (concept == null) {
+            return null;
+        }
+
+        String value = firstCodeOrText(concept);
+        if (value == null) {
+            return null;
+        }
+
+        return switch (normalize(value)) {
+            case "allergy" -> AllergyIntoleranceDTO.AllergyType.ALLERGY;
+            case "intolerance" -> AllergyIntoleranceDTO.AllergyType.INTOLERANCE;
+            default -> null;
+        };
     }
 
-    default AllergyIntolerance.AllergyIntoleranceCriticality mapCriticality(AllergyIntoleranceDTO.AllergyCriticality criticality) {
-        return criticality != null
-                ? AllergyIntolerance.AllergyIntoleranceCriticality.valueOf(criticality.name())
-                : null;
+    private CodeableConcept toTypeConcept(AllergyIntoleranceDTO.AllergyType type) {
+        if (type == null) {
+            return null;
+        }
+
+        String code = switch (type) {
+            case ALLERGY -> "allergy";
+            case INTOLERANCE -> "intolerance";
+        };
+
+        return new CodeableConcept()
+                .addCoding(new Coding()
+                        .setSystem(TYPE_SYSTEM)
+                        .setCode(code)
+                        .setDisplay(code))
+                .setText(code);
     }
 
-    default CodeableConcept toCodeableConcept(String text) {
-        if (text == null) return null;
+    private AllergyIntoleranceDTO.AllergyIntoleranceCategory mapCategory(
+            List<Enumeration<AllergyIntolerance.AllergyIntoleranceCategory>> categories
+    ) {
+        if (categories == null || categories.isEmpty()) {
+            return null;
+        }
 
-        CodeableConcept concept = new CodeableConcept();
-        concept.setText(text);
-        return concept;
+        Enumeration<AllergyIntolerance.AllergyIntoleranceCategory> first = categories.get(0);
+        if (first == null || first.getValue() == null) {
+            return null;
+        }
+
+        return switch (first.getValue()) {
+            case FOOD -> AllergyIntoleranceDTO.AllergyIntoleranceCategory.FOOD;
+            case MEDICATION -> AllergyIntoleranceDTO.AllergyIntoleranceCategory.MEDICATION;
+            case ENVIRONMENT -> AllergyIntoleranceDTO.AllergyIntoleranceCategory.ENVIRONMENT;
+            case BIOLOGIC -> AllergyIntoleranceDTO.AllergyIntoleranceCategory.BIOLOGIC;
+            default -> null;
+        };
+    }
+
+    private AllergyIntolerance.AllergyIntoleranceCategory toFhirCategory(
+            AllergyIntoleranceDTO.AllergyIntoleranceCategory category
+    ) {
+        if (category == null) {
+            return null;
+        }
+
+        return switch (category) {
+            case FOOD -> AllergyIntolerance.AllergyIntoleranceCategory.FOOD;
+            case MEDICATION -> AllergyIntolerance.AllergyIntoleranceCategory.MEDICATION;
+            case ENVIRONMENT -> AllergyIntolerance.AllergyIntoleranceCategory.ENVIRONMENT;
+            case BIOLOGIC -> AllergyIntolerance.AllergyIntoleranceCategory.BIOLOGIC;
+        };
+    }
+
+    private AllergyIntoleranceDTO.AllergyCriticality mapCriticality(
+            AllergyIntolerance.AllergyIntoleranceCriticality criticality
+    ) {
+        if (criticality == null) {
+            return null;
+        }
+
+        return switch (criticality) {
+            case LOW -> AllergyIntoleranceDTO.AllergyCriticality.LOW;
+            case HIGH -> AllergyIntoleranceDTO.AllergyCriticality.HIGH;
+            case UNABLETOASSESS -> AllergyIntoleranceDTO.AllergyCriticality.UNABLE_TO_ASSESS;
+            default -> null;
+        };
+    }
+
+    private AllergyIntolerance.AllergyIntoleranceCriticality toFhirCriticality(
+            AllergyIntoleranceDTO.AllergyCriticality criticality
+    ) {
+        if (criticality == null) {
+            return null;
+        }
+
+        return switch (criticality) {
+            case LOW -> AllergyIntolerance.AllergyIntoleranceCriticality.LOW;
+            case HIGH -> AllergyIntolerance.AllergyIntoleranceCriticality.HIGH;
+            case UNABLE_TO_ASSESS -> AllergyIntolerance.AllergyIntoleranceCriticality.UNABLETOASSESS;
+        };
+    }
+
+    private String firstCodeOrText(CodeableConcept concept) {
+        if (concept == null) {
+            return null;
+        }
+        if (concept.hasCoding() && concept.getCodingFirstRep().hasCode()) {
+            return concept.getCodingFirstRep().getCode();
+        }
+        if (concept.hasText()) {
+            return concept.getText();
+        }
+        return null;
+    }
+
+    private String normalize(String value) {
+        return value == null ? null : value.trim().toLowerCase();
     }
 }

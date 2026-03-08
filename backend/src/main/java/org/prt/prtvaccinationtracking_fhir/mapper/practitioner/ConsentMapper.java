@@ -2,123 +2,109 @@ package org.prt.prtvaccinationtracking_fhir.mapper.practitioner;
 
 import org.hl7.fhir.r5.model.CodeableConcept;
 import org.hl7.fhir.r5.model.Consent;
-import org.hl7.fhir.r5.model.DateType;
-
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-
+import org.hl7.fhir.r5.model.Reference;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.consent.ConsentDTO;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.consent.CreateConsentRequestDTO;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.consent.UpdateConsentRequestDTO;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
-@Mapper(config = BaseMapperConfig.class)
-public interface ConsentMapper {
+@Component
+public class ConsentMapper {
 
+    private final MapperSupport support;
 
-    /// FHIR → DTO
-
-    @Mapping(target = "id",
-            expression = "java(resource.getIdElement().getIdPart())")
-    // Consent.subject - patientId
-    @Mapping(target = "patientId",
-            expression = "java(resource.getSubject() != null ? resource.getSubject().getReferenceElement().getIdPart() : null)")
-    // Consent.grantor - relatedPersonId
-    @Mapping(target = "relatedPersonId",
-            expression = "java(extractGrantorRelatedPersonId(resource))")
-    // Consent.category[0].text - scope
-    @Mapping(target = "scope",
-            expression = "java(resource.hasCategory() ? resource.getCategoryFirstRep().getText() : null)")
-    // Consent.status - status
-    @Mapping(target = "status",
-            expression = "java(resource.getStatus() != null ? resource.getStatus().toCode() : null)")
-    // Consent.date - dateGiven
-    @Mapping(target = "dateGiven",
-            expression = "java(toLocalDate(resource.getDateElement()))")
-    // Consent.verification.verifiedBy.display - recorderName
-    @Mapping(target = "recorderName",
-            expression = "java(extractRecorderName(resource))")
-    ConsentDTO toDTO(Consent resource);
-
-    /// CREATE DTO → FHIR
-
-    @Mapping(target = "id", ignore = true)
-
-    // Consent.status is required in R5
-    @Mapping(target = "status",
-            expression = "java(dto.status() != null ? Enumerations.ConsentState.fromCode(dto.status()) : Enumerations.ConsentState.DRAFT)")
-    // Patient
-    @Mapping(target = "subject",
-            expression = "java(dto.patientId() != null ? new Reference(\"Patient/\" + dto.patientId()) : null)")
-    // Consent.date
-    @Mapping(target = "date",
-            expression = "java(toDateType(dto.dateGiven()))")
-    //  scope as category.text
-    @Mapping(target = "category",
-            expression = "java(dto.scope() != null ? List.of(toCodeableConcept(dto.scope())) : null)")
-    // grantor = RelatedPerson/guardian
-    @Mapping(target = "grantor",
-            expression = "java(dto.relatedPersonId() != null ? List.of(new Reference(\"RelatedPerson/\" + dto.relatedPersonId())) : null)")
-
-    Consent toResource(CreateConsentRequestDTO dto);
-
-    /// UPDATE DTO → EXISTING FHIR
-
-    @Mapping(target = "status",
-            expression = "java(dto.status() != null ? Enumerations.ConsentState.fromCode(dto.status()) : resource.getStatus())")
-
-    void updateResourceFromDTO(UpdateConsentRequestDTO dto,
-                               @MappingTarget Consent resource);
-
-    /// HELPERS
-
-    default String extractGrantorRelatedPersonId(Consent resource) {
-        if (!resource.hasGrantor()) return null;
-
-        return resource.getGrantor().stream()
-                .filter(ref -> ref.getReference() != null && ref.getReference().startsWith("RelatedPerson/"))
-                .map(ref -> ref.getReferenceElement().getIdPart())
-                .findFirst()
-                .orElse(null);
+    public ConsentMapper(MapperSupport support) {
+        this.support = support;
     }
 
-    default String extractRecorderName(Consent resource) {
-        // Not a direct "recorder" field; using verification.verifiedBy.display when present
-        if (resource.hasVerification()
-                && resource.getVerificationFirstRep().hasVerifiedBy()) {
-            return resource.getVerificationFirstRep().getVerifiedBy().getDisplay();
+    public ConsentDTO toDTO(Consent resource) {
+        if (resource == null) {
+            return null;
         }
+
+        return new ConsentDTO(
+                resource.getIdElement().getIdPart(),
+                resource.hasSubject() ? support.referenceToId(resource.getSubject()) : null,
+                extractRelatedPersonId(resource),
+                extractScope(resource),
+                resource.hasStatus() ? resource.getStatus().toCode() : null,
+                extractDateGiven(resource)
+        );
+    }
+
+    public Consent toResource(CreateConsentRequestDTO dto) {
+        if (dto == null) {
+            return null;
+        }
+
+        Consent resource = new Consent();
+
+        if (dto.patientId() != null && !dto.patientId().isBlank()) {
+            resource.setSubject(support.toPatientReference(dto.patientId()));
+        }
+
+        if (dto.relatedPersonId() != null && !dto.relatedPersonId().isBlank()) {
+            resource.setGrantee(List.of(support.toRelatedPersonReference(dto.relatedPersonId())));
+        }
+
+        if (dto.scope() != null && !dto.scope().isBlank()) {
+            resource.setCategory(List.of(new CodeableConcept().setText(dto.scope())));
+        }
+
+        if (dto.status() != null && !dto.status().isBlank()) {
+            resource.setStatus(Consent.ConsentState.fromCode(dto.status()));
+        }
+
+        if (dto.dateGiven() != null) {
+            resource.setDate(support.toDate(dto.dateGiven()));
+        }
+
+        return resource;
+    }
+
+    public void updateResource(UpdateConsentRequestDTO dto, Consent resource) {
+        if (dto == null || resource == null) {
+            return;
+        }
+
+        if (dto.status() != null && !dto.status().isBlank()) {
+            resource.setStatus(Consent.ConsentState.fromCode(dto.status()));
+        }
+    }
+
+    private String extractRelatedPersonId(Consent resource) {
+        if (!resource.hasGrantee() || resource.getGrantee().isEmpty()) {
+            return null;
+        }
+
+        for (Reference grantee : resource.getGrantee()) {
+            if (grantee != null
+                    && grantee.hasReference()
+                    && grantee.getReference().startsWith("RelatedPerson/")) {
+                return support.referenceToId(grantee);
+            }
+        }
+
         return null;
     }
 
-    default LocalDate toLocalDate(DateType dateType) {
-        if (dateType == null || dateType.getValue() == null) return null;
+    private String extractScope(Consent resource) {
+        if (!resource.hasCategory() || resource.getCategory().isEmpty()) {
+            return null;
+        }
 
-        return dateType.getValue().toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
+        return support.codeableConceptToText(resource.getCategoryFirstRep());
     }
 
-    default DateType toDateType(LocalDate date) {
-        if (date == null) return null;
+    private LocalDate extractDateGiven(Consent resource) {
+        if (!resource.hasDate()) {
+            return null;
+        }
 
-        Date d = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        return new DateType(d);
-    }
-
-    default CodeableConcept toCodeableConcept(String text) {
-        CodeableConcept cc = new CodeableConcept();
-        cc.setText(text);
-        return cc;
-    }
-
-    default Consent.ConsentPolicyBasisComponent buildPolicyBasis(String policyText) {
-        Consent.ConsentPolicyBasisComponent basis = new Consent.ConsentPolicyBasisComponent();
-        basis.setUrl(policyText);
-        return basis;
+        return support.toLocalDate(resource.getDate());
     }
 }

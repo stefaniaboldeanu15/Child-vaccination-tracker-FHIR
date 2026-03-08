@@ -1,126 +1,227 @@
 package org.prt.prtvaccinationtracking_fhir.mapper.practitioner;
 
-import org.hl7.fhir.r5.model.*;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.hl7.fhir.r5.model.Annotation;
+import org.hl7.fhir.r5.model.CodeableConcept;
+import org.hl7.fhir.r5.model.DateTimeType;
+import org.hl7.fhir.r5.model.HumanName;
+import org.hl7.fhir.r5.model.Immunization;
+import org.hl7.fhir.r5.model.Practitioner;
+import org.hl7.fhir.r5.model.Reference;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.immunization.CreateImmunizationRequestDTO;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.immunization.ImmunizationDTO;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.immunization.ImmunizationStatusDTO;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.immunization.UpdateImmunizationRequestDTO;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Collections;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 
-@Mapper(config = BaseMapperConfig.class)
-public interface ImmunizationMapper {
+@Component
+public class ImmunizationMapper {
 
-    String CVX_SYSTEM = "http://hl7.org/fhir/sid/cvx";
+    private final MapperSupport support;
 
-    @Mapping(target = "id", expression = "java(resource.getIdElement().getIdPart())")
-    @Mapping(target = "patientId", expression = "java(resource.getPatient() != null ? resource.getPatient().getReferenceElement().getIdPart() : null)")
-    @Mapping(target = "vaccineCode", expression = "java(extractVaccineCode(resource))")
-    @Mapping(target = "vaccineDisplay", expression = "java(extractVaccineDisplay(resource))")
-    @Mapping(target = "administrationDate", expression = "java(toLocalDate(extractOccurrenceDateTime(resource)))")
-    @Mapping(target = "doseNumber", expression = "java(extractDoseNumber(resource))")
-    @Mapping(target = "lotNumber", expression = "java(resource.getLotNumber())")
-    @Mapping(target = "site", expression = "java(resource.hasSite() ? resource.getSite().getText() : null)")
-    @Mapping(target = "status", expression = "java(resource.getStatus() != null ? ImmunizationStatusDTO.fromFhirCode(resource.getStatus().toCode()) : null)")
-    @Mapping(target = "practitionerName", expression = "java(extractPractitionerName(resource))")
-    @Mapping(target = "encounterId", expression = "java(resource.getEncounter() != null ? resource.getEncounter().getReferenceElement().getIdPart() : null)")
-    @Mapping(target = "hasAdverseEvent", expression = "java(false)")
-    ImmunizationDTO toDTO(Immunization resource);
-
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "status", expression = "java(dto.status() != null ? Immunization.ImmunizationStatus.fromCode(dto.status().toFhirCode()) : null)")
-    @Mapping(target = "patient", expression = "java(new Reference(\"Patient/\" + dto.patientId()))")
-    @Mapping(target = "vaccineCode", expression = "java(toVaccineCode(dto.vaccineCode(), dto.vaccineDisplay()))")
-    @Mapping(target = "occurrence", expression = "java(dto.administrationDate() != null ? new DateTimeType(toDate(dto.administrationDate())) : null)")
-    @Mapping(target = "lotNumber", expression = "java(dto.lotNumber())")
-    @Mapping(target = "site", expression = "java(dto.site() != null ? new CodeableConcept().setText(dto.site()) : null)")
-    @Mapping(target = "protocolApplied", expression = "java(dto.doseNumber() != null ? toProtocolApplied(dto.doseNumber()) : Collections.emptyList())")
-    @Mapping(target = "encounter", expression = "java(dto.encounterId() != null ? new Reference(\"Encounter/\" + dto.encounterId()) : null)")
-    Immunization toResource(CreateImmunizationRequestDTO dto);
-
-    @Mapping(target = "lotNumber", expression = "java(dto.lotNumber() != null ? dto.lotNumber() : resource.getLotNumber())")
-    @Mapping(target = "site", expression = "java(dto.site() != null ? new CodeableConcept().setText(dto.site()) : resource.getSite())")
-    @Mapping(target = "status", expression = "java(dto.status() != null ? Immunization.ImmunizationStatus.fromCode(dto.status().toFhirCode()) : resource.getStatus())")
-    @Mapping(target = "note", expression = "java(dto.notes() != null ? toNotes(dto.notes()) : resource.getNote())")
-    void updateResourceFromDTO(UpdateImmunizationRequestDTO dto, @MappingTarget Immunization resource);
-
-    default CodeableConcept toVaccineCode(String code, String display) {
-        CodeableConcept cc = new CodeableConcept();
-        if (code != null) cc.addCoding(new Coding().setSystem(CVX_SYSTEM).setCode(code).setDisplay(display));
-        if (display != null) cc.setText(display);
-        return cc;
+    public ImmunizationMapper(MapperSupport support) {
+        this.support = support;
     }
 
-    default DateTimeType extractOccurrenceDateTime(Immunization resource) {
-        if (resource == null || !resource.hasOccurrence()) return null;
-        if (resource.getOccurrence() instanceof DateTimeType dt) return dt;
-        return null;
-    }
-
-    default String extractVaccineCode(Immunization resource) {
-        if (resource == null || !resource.hasVaccineCode()) return null;
-        CodeableConcept cc = resource.getVaccineCode();
-        for (Coding c : cc.getCoding()) {
-            if (CVX_SYSTEM.equals(c.getSystem()) && c.hasCode()) return c.getCode();
+    public ImmunizationDTO toDTO(Immunization resource) {
+        if (resource == null) {
+            return null;
         }
-        return cc.hasText() ? cc.getText() : null;
+
+        return new ImmunizationDTO(
+                resource.getIdElement().getIdPart(),
+                resource.hasPatient() ? support.referenceToId(resource.getPatient()) : null,
+                extractVaccineCode(resource),
+                extractVaccineDisplay(resource),
+                extractAdministrationDate(resource),
+                extractDoseNumber(resource),
+                resource.hasLotNumber() ? resource.getLotNumber() : null,
+                resource.hasSite() ? support.codeableConceptToText(resource.getSite()) : null,
+                resource.hasStatus() ? ImmunizationStatusDTO.fromFhirCode(resource.getStatus().toCode()) : null,
+                extractPractitionerName(resource),
+                resource.hasEncounter() ? support.referenceToId(resource.getEncounter()) : null,
+                resource.hasReaction() && !resource.getReaction().isEmpty()
+        );
     }
 
-    default String extractVaccineDisplay(Immunization resource) {
-        if (resource == null || !resource.hasVaccineCode()) return null;
-        CodeableConcept cc = resource.getVaccineCode();
-        for (Coding c : cc.getCoding()) {
-            if (CVX_SYSTEM.equals(c.getSystem()) && c.hasDisplay()) return c.getDisplay();
+    public Immunization toResource(CreateImmunizationRequestDTO dto) {
+        if (dto == null) {
+            return null;
         }
-        return cc.hasText() ? cc.getText() : null;
+
+        Immunization resource = new Immunization();
+
+        if (dto.patientId() != null && !dto.patientId().isBlank()) {
+            resource.setPatient(support.toPatientReference(dto.patientId()));
+        }
+
+        if (dto.status() != null) {
+            resource.setStatus(Immunization.ImmunizationStatusCodes.fromCode(dto.status().toFhirCode()));
+        }
+
+        if (dto.vaccineCode() != null || dto.vaccineDisplay() != null) {
+            resource.setVaccineCode(toVaccineCode(dto.vaccineCode(), dto.vaccineDisplay()));
+        }
+
+        if (dto.administrationDate() != null) {
+            resource.setOccurrence(new DateTimeType(support.toDate(dto.administrationDate())));
+        }
+
+        if (dto.lotNumber() != null && !dto.lotNumber().isBlank()) {
+            resource.setLotNumber(dto.lotNumber());
+        }
+
+        if (dto.site() != null && !dto.site().isBlank()) {
+            resource.setSite(new CodeableConcept().setText(dto.site()));
+        }
+
+        if (dto.doseNumber() != null) {
+            resource.setProtocolApplied(List.of(
+                    new Immunization.ImmunizationProtocolAppliedComponent()
+                            .setDoseNumber(String.valueOf(dto.doseNumber()))
+            ));
+        }
+
+        if (dto.encounterId() != null && !dto.encounterId().isBlank()) {
+            resource.setEncounter(support.toEncounterReference(dto.encounterId()));
+        }
+
+        return resource;
     }
 
-    default Integer extractDoseNumber(Immunization resource) {
-        if (resource == null || !resource.hasProtocolApplied() || resource.getProtocolApplied().isEmpty()) return null;
-        Immunization.ImmunizationProtocolAppliedComponent p = resource.getProtocolAppliedFirstRep();
-        if (!p.hasDoseNumber()) return null;
-        String v = p.getDoseNumber();
-        if (v == null) return null;
+    public void updateResource(UpdateImmunizationRequestDTO dto, Immunization resource) {
+        if (dto == null || resource == null) {
+            return;
+        }
+
+        if (dto.lotNumber() != null) {
+            resource.setLotNumber(dto.lotNumber());
+        }
+
+        if (dto.site() != null) {
+            if (dto.site().isBlank()) {
+                resource.setSite(null);
+            } else {
+                resource.setSite(new CodeableConcept().setText(dto.site()));
+            }
+        }
+
+        if (dto.status() != null) {
+            resource.setStatus(Immunization.ImmunizationStatusCodes.fromCode(dto.status().toFhirCode()));
+        }
+
+        if (dto.notes() != null) {
+            if (dto.notes().isBlank()) {
+                resource.setNote(new ArrayList<>());
+            } else {
+                resource.setNote(List.of(new Annotation().setText(dto.notes())));
+            }
+        }
+    }
+
+    private CodeableConcept toVaccineCode(String code, String display) {
+        CodeableConcept concept = new CodeableConcept();
+
+        if (display != null && !display.isBlank()) {
+            concept.setText(display);
+        }
+
+        if (code != null && !code.isBlank()) {
+            concept.addCoding().setCode(code).setDisplay(display);
+        }
+
+        return concept;
+    }
+
+    private String extractVaccineCode(Immunization resource) {
+        if (!resource.hasVaccineCode() || !resource.getVaccineCode().hasCoding()) {
+            return null;
+        }
+
+        return resource.getVaccineCode().getCodingFirstRep().hasCode()
+                ? resource.getVaccineCode().getCodingFirstRep().getCode()
+                : null;
+    }
+
+    private String extractVaccineDisplay(Immunization resource) {
+        if (!resource.hasVaccineCode()) {
+            return null;
+        }
+
+        if (resource.getVaccineCode().hasCoding() && resource.getVaccineCode().getCodingFirstRep().hasDisplay()) {
+            return resource.getVaccineCode().getCodingFirstRep().getDisplay();
+        }
+
+        return resource.getVaccineCode().hasText() ? resource.getVaccineCode().getText() : null;
+    }
+
+    private LocalDate extractAdministrationDate(Immunization resource) {
+        if (!resource.hasOccurrenceDateTimeType()) {
+            return null;
+        }
+
+        return support.toLocalDate(resource.getOccurrenceDateTimeType().getValue());
+    }
+
+    private Integer extractDoseNumber(Immunization resource) {
+        if (!resource.hasProtocolApplied() || resource.getProtocolApplied().isEmpty()) {
+            return null;
+        }
+
+        String doseNumber = resource.getProtocolAppliedFirstRep().getDoseNumber();
+        if (doseNumber == null || doseNumber.isBlank()) {
+            return null;
+        }
+
         try {
-            return Integer.parseInt(v);
-        } catch (NumberFormatException e) {
+            return Integer.parseInt(doseNumber);
+        } catch (NumberFormatException ex) {
             return null;
         }
     }
 
-    default List<Immunization.ImmunizationProtocolAppliedComponent> toProtocolApplied(Integer doseNumber) {
-        Immunization.ImmunizationProtocolAppliedComponent p = new Immunization.ImmunizationProtocolAppliedComponent();
-        p.setDoseNumber(String.valueOf(doseNumber));
-        return Collections.singletonList(p);
-    }
+    private String extractPractitionerName(Immunization resource) {
+        if (!resource.hasPerformer() || resource.getPerformer().isEmpty()) {
+            return null;
+        }
 
-    default List<Annotation> toNotes(String notes) {
-        return Collections.singletonList(new Annotation().setText(notes));
-    }
+        for (Immunization.ImmunizationPerformerComponent performer : resource.getPerformer()) {
+            if (performer == null || !performer.hasActor()) {
+                continue;
+            }
 
-    default String extractPractitionerName(Immunization resource) {
-        if (resource == null || !resource.hasPerformer() || resource.getPerformer().isEmpty()) return null;
-        Immunization.ImmunizationPerformerComponent perf = resource.getPerformerFirstRep();
-        if (perf.hasActor() && perf.getActor().hasDisplay()) return perf.getActor().getDisplay();
+            Reference actor = performer.getActor();
+
+            if (actor.getResource() instanceof Practitioner practitioner && practitioner.hasName()) {
+                HumanName name = practitioner.getNameFirstRep();
+                String given = name.hasGiven() && !name.getGiven().isEmpty()
+                        ? name.getGiven().get(0).getValue()
+                        : null;
+                String family = name.hasFamily() ? name.getFamily() : null;
+
+                if (given != null && family != null) {
+                    return given + " " + family;
+                }
+                if (given != null) {
+                    return given;
+                }
+                if (family != null) {
+                    return family;
+                }
+            }
+
+            if (actor.hasDisplay()) {
+                return actor.getDisplay();
+            }
+
+            if (actor.hasReference()) {
+                return support.referenceToId(actor);
+            }
+        }
+
         return null;
-    }
-
-    default LocalDate toLocalDate(DateTimeType type) {
-        if (type == null || type.getValue() == null) return null;
-        return type.getValue().toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
-    }
-
-    default Date toDate(LocalDate date) {
-        if (date == null) return null;
-        return Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 }

@@ -31,12 +31,10 @@ public class RelatedPersonService {
 
     public RelatedPersonDTO update(String id, UpdateRelatedPersonRequestDTO dto) {
         RelatedPerson existing = fhir.read(RelatedPerson.class, id);
-
-        mapper.updateResourceFromDTO(dto, existing);
-
+        mapper.updateResource(dto, existing);
         fhir.ensureId(RelatedPerson.class, existing, id);
-
         RelatedPerson updated = fhir.update(existing);
         return mapper.toDTO(updated);
     }
+
 }

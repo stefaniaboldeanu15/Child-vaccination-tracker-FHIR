@@ -31,9 +31,10 @@ public class AppointmentService {
 
     public AppointmentDTO update(String id, UpdateAppointmentRequestDTO dto) {
         Appointment existing = fhir.read(Appointment.class, id);
-        mapper.updateResourceFromDTO(dto, existing);
+        mapper.updateResource(dto, existing);
         fhir.ensureId(Appointment.class, existing, id);
         Appointment updated = fhir.update(existing);
         return mapper.toDTO(updated);
     }
+
 }

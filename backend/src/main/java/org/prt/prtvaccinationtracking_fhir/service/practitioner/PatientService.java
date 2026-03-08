@@ -22,18 +22,19 @@ public class PatientService {
     public PatientDetailsDTO create(CreatePatientRequestDTO dto) {
         Patient resource = mapper.toResource(dto);
         Patient created = fhir.create(resource);
-        return mapper.toDTO(created);
+        return mapper.toDetailsDTO(created);
     }
 
     public PatientDetailsDTO getById(String id) {
-        return mapper.toDTO(fhir.read(Patient.class, id));
+        return mapper.toDetailsDTO(fhir.read(Patient.class, id));
     }
 
     public PatientDetailsDTO update(String id, UpdatePatientRequestDTO dto) {
         Patient existing = fhir.read(Patient.class, id);
-        mapper.updateResourceFromDTO(dto, existing);
+        mapper.updateResource(dto, existing);
         fhir.ensureId(Patient.class, existing, id);
         Patient updated = fhir.update(existing);
-        return mapper.toDTO(updated);
+        return mapper.toDetailsDTO(updated);
     }
+
 }

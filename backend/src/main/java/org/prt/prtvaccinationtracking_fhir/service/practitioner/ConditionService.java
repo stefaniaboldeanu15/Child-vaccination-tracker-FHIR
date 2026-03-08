@@ -31,9 +31,10 @@ public class ConditionService {
 
     public ConditionDTO update(String id, UpdateConditionRequestDTO dto) {
         Condition existing = fhir.read(Condition.class, id);
-        mapper.updateResourceFromDTO(dto, existing);
+        mapper.updateResource(dto, existing);
         fhir.ensureId(Condition.class, existing, id);
         Condition updated = fhir.update(existing);
         return mapper.toDTO(updated);
     }
+
 }

@@ -31,9 +31,10 @@ public class PractitionerService {
 
     public PractitionerDTO update(String id, UpdatePractitionerRequestDTO dto) {
         Practitioner existing = fhir.read(Practitioner.class, id);
-        mapper.updateResourceFromDTO(dto, existing);
+        mapper.updateResource(dto, existing);
         fhir.ensureId(Practitioner.class, existing, id);
         Practitioner updated = fhir.update(existing);
         return mapper.toDTO(updated);
     }
+
 }

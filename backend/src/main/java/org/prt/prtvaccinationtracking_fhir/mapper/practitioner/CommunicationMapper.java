@@ -1,113 +1,188 @@
 package org.prt.prtvaccinationtracking_fhir.mapper.practitioner;
 
-import org.hl7.fhir.r5.model.*;
-import org.mapstruct.*;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.communication.*;
+import org.hl7.fhir.r5.model.CodeableConcept;
+import org.hl7.fhir.r5.model.CodeableReference;
+import org.hl7.fhir.r5.model.Communication;
+import org.hl7.fhir.r5.model.Enumerations;
+import org.hl7.fhir.r5.model.Reference;
+import org.hl7.fhir.r5.model.StringType;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.communication.CommunicationDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.communication.CreateCommunicationRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.communication.UpdateCommunicationRequestDTO;
+import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
-@Mapper(config = BaseMapperConfig.class)
-public interface CommunicationMapper {
+@Component
+public class CommunicationMapper {
 
-     ///FHIR → DTO
+    private final MapperSupport support;
 
-    @Mapping(target = "id",
-            expression = "java(resource.getIdElement().getIdPart())")
-    @Mapping(target = "patientId",
-            expression = "java(resource.getSubject() != null ? resource.getSubject().getReferenceElement().getIdPart() : null)")
-    @Mapping(target = "relatedPersonId",
-            expression = "java(extractRecipient(resource))")
-    @Mapping(target = "recommendationId",
-            expression = "java(resource.hasBasedOn() ? resource.getBasedOnFirstRep().getReferenceElement().getIdPart() : null)")
-    @Mapping(target = "medium",
-            expression = "java(resource.hasMedium() ? resource.getMediumFirstRep().getText() : null)")
-    @Mapping(target = "message",
-            expression = "java(resource.hasPayload() ? resource.getPayloadFirstRep().getContentStringType().getValue() : null)")
-    @Mapping(target = "status",
-            expression = "java(resource.getStatus() != null ? resource.getStatus().toCode() : null)")
-    @Mapping(target = "sentDate",
-            expression = "java(toLocalDateTime(resource.getSentElement()))")
-    @Mapping(target = "receivedDate",
-            expression = "java(toLocalDateTime(resource.getReceivedElement()))")
-
-    CommunicationDTO toDTO(Communication resource);
-
-     /// CREATE DTO → FHIR
-
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "status",
-            expression = "java(org.hl7.fhir.r5.model.Enumerations.CommunicationStatus.COMPLETED)")
-    @Mapping(target = "subject",
-            expression = "java(new Reference(\"Patient/\" + dto.patientId()))")
-    @Mapping(target = "recipient",
-            expression = "java(buildRecipient(dto.relatedPersonId()))")
-    @Mapping(target = "basedOn",
-            expression = "java(dto.recommendationId() != null ? List.of(new Reference(\"ImmunizationRecommendation/\" + dto.recommendationId())) : null)")
-    @Mapping(target = "medium",
-            expression = "java(dto.medium() != null ? List.of(toCodeableConcept(dto.medium())) : null)")
-    @Mapping(target = "payload",
-            expression = "java(buildPayload(dto.message()))")
-    @Mapping(target = "sent",
-            expression = "java(toDate(dto.sentDate()))")
-
-    Communication toResource(CreateCommunicationRequestDTO dto);
-
-     /// UPDATE DTO → EXISTING RESOURCE
-
-    @Mapping(target = "status",
-            expression = "java(dto.status() != null ? org.hl7.fhir.r5.model.Enumerations.CommunicationStatus.fromCode(dto.status()) : resource.getStatus())")
-    void updateResourceFromDTO(UpdateCommunicationRequestDTO dto,
-                               @MappingTarget Communication resource);
-
-    /// HELPERS
-
-    default String extractRecipient(Communication resource) {
-        if (resource.getRecipient() == null) return null;
-
-        return resource.getRecipient().stream()
-                .filter(r -> r.getReference() != null && r.getReference().startsWith("RelatedPerson"))
-                .map(r -> r.getReferenceElement().getIdPart())
-                .findFirst()
-                .orElse(null);
+    public CommunicationMapper(MapperSupport support) {
+        this.support = support;
     }
 
-    default List<Reference> buildRecipient(String relatedPersonId) {
-        if (relatedPersonId == null) return null;
-        return List.of(new Reference("RelatedPerson/" + relatedPersonId));
+    public CommunicationDTO toDTO(Communication resource) {
+        if (resource == null) {
+            return null;
+        }
+
+        return new CommunicationDTO(
+                resource.getIdElement().getIdPart(),
+                extractPatientId(resource),
+                extractRelatedPersonId(resource),
+                extractRecommendationId(resource),
+                extractMedium(resource),
+                extractMessage(resource),
+                resource.hasStatus() ? resource.getStatus().toCode() : null,
+                toLocalDateTime(resource.hasSent() ? resource.getSent() : null),
+                toLocalDateTime(resource.hasReceived() ? resource.getReceived() : null)
+        );
     }
 
-    default List<Communication.CommunicationPayloadComponent> buildPayload(String message) {
-        if (message == null) return null;
+    public Communication toResource(CreateCommunicationRequestDTO dto) {
+        if (dto == null) {
+            return null;
+        }
 
-        Communication.CommunicationPayloadComponent payload =
-                new Communication.CommunicationPayloadComponent();
+        Communication resource = new Communication();
 
-        payload.setContent(new StringType(message));
+        if (dto.patientId() != null && !dto.patientId().isBlank()) {
+            resource.setSubject(support.toPatientReference(dto.patientId()));
+        }
 
-        return List.of(payload);
+        if (dto.relatedPersonId() != null && !dto.relatedPersonId().isBlank()) {
+            resource.setRecipient(List.of(support.toRelatedPersonReference(dto.relatedPersonId())));
+        }
+
+        if (dto.recommendationId() != null && !dto.recommendationId().isBlank()) {
+            resource.setAbout(List.of(new Reference("ImmunizationRecommendation/" + dto.recommendationId())));
+        }
+
+        if (dto.medium() != null && !dto.medium().isBlank()) {
+            resource.setMedium(List.of(new CodeableConcept().setText(dto.medium())));
+        }
+
+        if (dto.message() != null && !dto.message().isBlank()) {
+            Communication.CommunicationPayloadComponent payload =
+                    new Communication.CommunicationPayloadComponent();
+            payload.setContent(new StringType(dto.message()));
+            resource.setPayload(List.of(payload));
+        }
+
+        if (dto.sentDate() != null) {
+            resource.setSent(toDate(dto.sentDate()));
+        }
+
+        resource.setStatus(Enumerations.EventStatus.COMPLETED);
+        return resource;
     }
 
-    default CodeableConcept toCodeableConcept(String text) {
-        CodeableConcept concept = new CodeableConcept();
-        concept.setText(text);
-        return concept;
+    public void updateResource(UpdateCommunicationRequestDTO dto, Communication resource) {
+        if (dto == null || resource == null) {
+            return;
+        }
+
+        if (dto.status() != null && !dto.status().isBlank()) {
+            resource.setStatus(Enumerations.EventStatus.fromCode(dto.status()));
+        }
     }
 
-    default LocalDateTime toLocalDateTime(DateTimeType dateTime) {
-        if (dateTime == null || dateTime.getValue() == null) return null;
+    private String extractPatientId(Communication resource) {
+        if (!resource.hasSubject()) {
+            return null;
+        }
+        return support.referenceToId(resource.getSubject());
+    }
 
-        return dateTime.getValue().toInstant()
+    private String extractRelatedPersonId(Communication resource) {
+        if (!resource.hasRecipient() || resource.getRecipient().isEmpty()) {
+            return null;
+        }
+
+        for (Reference recipient : resource.getRecipient()) {
+            if (recipient != null && recipient.hasReference() && recipient.getReference().startsWith("RelatedPerson/")) {
+                return support.referenceToId(recipient);
+            }
+        }
+
+        return null;
+    }
+
+    private String extractRecommendationId(Communication resource) {
+        if (!resource.hasAbout() || resource.getAbout().isEmpty()) {
+            return null;
+        }
+
+        for (Reference about : resource.getAbout()) {
+            if (about != null
+                    && about.hasReference()
+                    && about.getReference().startsWith("ImmunizationRecommendation/")) {
+                return support.referenceToId(about);
+            }
+        }
+
+        return null;
+    }
+
+    private String extractMedium(Communication resource) {
+        if (!resource.hasMedium() || resource.getMedium().isEmpty()) {
+            return null;
+        }
+        return support.codeableConceptToText(resource.getMediumFirstRep());
+    }
+
+    private String extractMessage(Communication resource) {
+        if (!resource.hasPayload() || resource.getPayload().isEmpty()) {
+            return null;
+        }
+
+        Communication.CommunicationPayloadComponent payload = resource.getPayloadFirstRep();
+        if (payload == null || !payload.hasContent()) {
+            return null;
+        }
+
+        if (payload.getContent() instanceof StringType stringType) {
+            return stringType.getValue();
+        }
+
+        if (payload.getContent() instanceof Reference reference) {
+            return support.referenceToId(reference);
+        }
+
+        if (payload.getContent() instanceof CodeableConcept concept) {
+            return support.codeableConceptToText(concept);
+        }
+
+        if (payload.getContent() instanceof CodeableReference codeableReference) {
+            if (codeableReference.hasConcept()) {
+                return support.codeableConceptToText(codeableReference.getConcept());
+            }
+            if (codeableReference.hasReference()) {
+                return support.referenceToId(codeableReference.getReference());
+            }
+        }
+
+        return payload.getContent().primitiveValue();
+    }
+
+    private Date toDate(LocalDateTime value) {
+        if (value == null) {
+            return null;
+        }
+        return Date.from(value.atZone(ZoneId.systemDefault()).toInstant());
+    }
+
+    private LocalDateTime toLocalDateTime(Date value) {
+        if (value == null) {
+            return null;
+        }
+        return Instant.ofEpochMilli(value.getTime())
                 .atZone(ZoneId.systemDefault())
                 .toLocalDateTime();
-    }
-
-    default Date toDate(LocalDateTime dateTime) {
-        if (dateTime == null) return null;
-
-        return Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
     }
 }

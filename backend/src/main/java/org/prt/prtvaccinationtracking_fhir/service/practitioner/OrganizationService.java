@@ -31,9 +31,10 @@ public class OrganizationService {
 
     public OrganizationDTO update(String id, UpdateOrganizationRequestDTO dto) {
         Organization existing = fhir.read(Organization.class, id);
-        mapper.updateResourceFromDTO(dto, existing);
+        mapper.updateResource(dto, existing);
         fhir.ensureId(Organization.class, existing, id);
         Organization updated = fhir.update(existing);
         return mapper.toDTO(updated);
     }
+
 }

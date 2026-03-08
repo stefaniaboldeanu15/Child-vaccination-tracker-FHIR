@@ -31,9 +31,10 @@ public class CommunicationService {
 
     public CommunicationDTO update(String id, UpdateCommunicationRequestDTO dto) {
         Communication existing = fhir.read(Communication.class, id);
-        mapper.updateResourceFromDTO(dto, existing);
+        mapper.updateResource(dto, existing);
         fhir.ensureId(Communication.class, existing, id);
         Communication updated = fhir.update(existing);
         return mapper.toDTO(updated);
     }
+
 }

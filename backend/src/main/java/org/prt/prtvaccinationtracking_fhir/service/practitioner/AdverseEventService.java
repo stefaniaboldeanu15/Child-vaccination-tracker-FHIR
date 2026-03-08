@@ -31,9 +31,11 @@ public class AdverseEventService {
 
     public AdverseEventDTO update(String id, UpdateAdverseEventRequestDTO dto) {
         AdverseEvent existing = fhir.read(AdverseEvent.class, id);
-        mapper.updateResourceFromDTO(dto, existing);
+        mapper.updateResource(dto, existing);
         fhir.ensureId(AdverseEvent.class, existing, id);
         AdverseEvent updated = fhir.update(existing);
         return mapper.toDTO(updated);
     }
+
+
 }

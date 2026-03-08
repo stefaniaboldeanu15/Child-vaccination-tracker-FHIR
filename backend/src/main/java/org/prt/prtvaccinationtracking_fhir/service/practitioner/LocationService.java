@@ -31,9 +31,10 @@ public class LocationService {
 
     public LocationDTO update(String id, UpdateLocationRequestDTO dto) {
         Location existing = fhir.read(Location.class, id);
-        mapper.updateResourceFromDTO(dto, existing);
+        mapper.updateResource(dto, existing);
         fhir.ensureId(Location.class, existing, id);
         Location updated = fhir.update(existing);
         return mapper.toDTO(updated);
     }
+
 }

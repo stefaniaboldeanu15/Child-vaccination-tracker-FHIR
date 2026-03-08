@@ -31,9 +31,10 @@ public class ObservationService {
 
     public ObservationDTO update(String id, UpdateObservationRequestDTO dto) {
         Observation existing = fhir.read(Observation.class, id);
-        mapper.updateResourceFromDTO(dto, existing);
+        mapper.updateResource(dto, existing);
         fhir.ensureId(Observation.class, existing, id);
         Observation updated = fhir.update(existing);
         return mapper.toDTO(updated);
     }
+
 }

@@ -31,9 +31,10 @@ public class ConsentService {
 
     public ConsentDTO update(String id, UpdateConsentRequestDTO dto) {
         Consent existing = fhir.read(Consent.class, id);
-        mapper.updateResourceFromDTO(dto, existing);
+        mapper.updateResource(dto, existing);
         fhir.ensureId(Consent.class, existing, id);
         Consent updated = fhir.update(existing);
         return mapper.toDTO(updated);
     }
+
 }
