@@ -87,13 +87,14 @@ const canSubmit = computed(() => {
   return !!(givenName.value.trim() || familyName.value.trim())
 })
 
-watch(
-  () => props.open,
-  (v) => {
+watch(() => props.open, (v) => {
     if (!v) return
     error.value = null
-  },
-)
+    givenName.value = ''
+    familyName.value = ''
+    birthDate.value = ''
+    gender.value = ''
+})
 
 async function create() {
   error.value = null

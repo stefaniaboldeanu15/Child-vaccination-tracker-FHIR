@@ -149,6 +149,7 @@ async function handleSubmit() {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
+      vaccineSystem: vaccineSystem.value.trim() || undefined,
       vaccineCode: vaccineCode.value.trim(),
       vaccineDisplay: vaccineDisplay.value.trim() || undefined,
       date: date.value, // YYYY-MM-DD

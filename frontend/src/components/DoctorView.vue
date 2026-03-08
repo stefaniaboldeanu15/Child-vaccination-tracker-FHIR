@@ -136,6 +136,7 @@
 
     <PatientDetailsDialog
       v-if="selectedPatientId"
+      :key="detailsReloadKey"
       :patient-id="selectedPatientId"
       :open="isDetailsDialogOpen"
       @update:open="isDetailsDialogOpen = $event"
@@ -206,9 +207,9 @@ const props = defineProps<{ doctorId: string }>()
 
 const { state } = useAuth()
 
-
-const doctorLoading = ref(false)
-const doctorError = ref<string | null>(null)
+// Practitioner header info comes from login response/auth store (backend has no frontend-safe Practitioner FHIR fetch endpoint here)
+//const doctorLoading = ref(false)
+//const doctorError = ref<string | null>(null)
 
 const doctorDisplayName = computed(() => {
   const p = state.practitioner
@@ -297,6 +298,7 @@ watch(
 const selectedPatientId = ref<string | null>(null)
 const isAddDialogOpen = ref(false)
 const isDetailsDialogOpen = ref(false)
+const detailsReloadKey = ref(0)
 
 // create patient
 const createOpen = ref(false)
@@ -318,12 +320,8 @@ function handleViewDetails(patientId: string) {
 }
 
 function handleSaved() {
-  // Refresh details dialog if open (it loads on open)
   if (isDetailsDialogOpen.value) {
-    isDetailsDialogOpen.value = false
-    requestAnimationFrame(() => {
-      isDetailsDialogOpen.value = true
-    })
+    detailsReloadKey.value++
   }
 }
 </script>
