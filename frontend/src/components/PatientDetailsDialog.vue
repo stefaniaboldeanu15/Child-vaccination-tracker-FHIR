@@ -108,7 +108,6 @@
             <Card class="bg-white shadow-sm">
               <CardHeader class="border-b">
                 <CardTitle>Patient Overview</CardTitle>
-                <CardDescription>Data from /api/practitioner/patients/{id}/overview</CardDescription>
               </CardHeader>
               <CardContent class="pt-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -222,7 +221,6 @@
             <Card class="bg-white shadow-sm">
               <CardHeader class="border-b">
                 <CardTitle>Immunizations</CardTitle>
-                <CardDescription>Data from /get-immunizations</CardDescription>
               </CardHeader>
               <CardContent class="pt-6">
                 <div class="flex flex-wrap gap-2 mb-4">
@@ -274,7 +272,6 @@
             <Card class="bg-white shadow-sm">
               <CardHeader class="border-b">
                 <CardTitle>Encounters</CardTitle>
-                <CardDescription>Data from /get-encounters</CardDescription>
               </CardHeader>
               <CardContent class="pt-6">
                 <div v-if="encounters.length === 0" class="text-gray-500">No encounters found.</div>
@@ -307,7 +304,6 @@
             <Card class="bg-white shadow-sm">
               <CardHeader class="border-b">
                 <CardTitle>Recommendations</CardTitle>
-                <CardDescription>Data from /get-recommendations</CardDescription>
               </CardHeader>
               <CardContent class="pt-6">
                 <div v-if="recommendations.length === 0" class="text-gray-500">No recommendations found.</div>
@@ -346,7 +342,6 @@
             <Card class="bg-white shadow-sm">
               <CardHeader class="border-b">
                 <CardTitle>Appointments</CardTitle>
-                <CardDescription>Data from /get-appointments</CardDescription>
               </CardHeader>
               <CardContent class="pt-6">
                 <div v-if="appointments.length === 0" class="text-gray-500">No appointments found.</div>
@@ -386,7 +381,6 @@
             <Card class="bg-white shadow-sm">
               <CardHeader class="border-b">
                 <CardTitle>Allergies</CardTitle>
-                <CardDescription>Data from /get-allergies</CardDescription>
               </CardHeader>
               <CardContent class="pt-6">
                 <div v-if="allergies.length === 0" class="text-gray-500">No allergies found.</div>
@@ -432,7 +426,6 @@
             <Card class="bg-white shadow-sm">
               <CardHeader class="border-b">
                 <CardTitle>Adverse Events</CardTitle>
-                <CardDescription>Data from /adverse-events</CardDescription>
               </CardHeader>
               <CardContent class="pt-6">
                 <div v-if="adverseEvents.length === 0" class="text-gray-500">No adverse events found.</div>

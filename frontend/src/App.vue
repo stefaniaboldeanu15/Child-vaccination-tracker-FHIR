@@ -40,8 +40,8 @@ const roleLabel = computed(() => {
   return name ? `Doctor: ${name}` : `Doctor: ${p.practitionerIdentifier}`
 })
 
-function handleLogout() {
+async function handleLogout() {
   logout()
-  router.push('/login')
+  await router.push('/login')
 }
 </script>

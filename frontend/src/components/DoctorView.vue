@@ -206,7 +206,7 @@ const props = defineProps<{ doctorId: string }>()
 
 const { state } = useAuth()
 
-// Practitioner header info comes from login response/auth store (backend has no frontend-safe Practitioner FHIR fetch endpoint here)
+
 const doctorLoading = ref(false)
 const doctorError = ref<string | null>(null)
 
@@ -286,7 +286,8 @@ async function runSearch() {
 // Initial load + reload if practitioner context changes
 watch(
   () => props.doctorId,
-  () => {
+  (id) => {
+    if (!id) return
     void loadPatients()
   },
   { immediate: true },
