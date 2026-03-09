@@ -10,35 +10,10 @@ import java.util.List;
  *  - the practitioner who performed it
  *  - observations related to this immunization
  */
-public class ImmunizationBlockDTO {
-
-    private ImmunizationDTO immunization;   // main immunization data
-    private PractitionerDTO practitioner;   // who performed it
-    private List<ObservationDTO> observations; // related observations
-
-    // --- getters & setters ---
-
-    public ImmunizationDTO getImmunization() {
-        return immunization;
-    }
-
-    public void setImmunization(ImmunizationDTO immunization) {
-        this.immunization = immunization;
-    }
-
-    public PractitionerDTO getPractitioner() {
-        return practitioner;
-    }
-
-    public void setPractitioner(PractitionerDTO practitioner) {
-        this.practitioner = practitioner;
-    }
-
-    public List<ObservationDTO> getObservations() {
-        return observations;
-    }
-
-    public void setObservations(List<ObservationDTO> observations) {
-        this.observations = observations;
-    }
+public record ImmunizationBlockDTO(
+        ImmunizationDTO immunization,
+        PractitionerDTO practitioner,
+        List<ObservationDTO> observations
+) {
 }
+

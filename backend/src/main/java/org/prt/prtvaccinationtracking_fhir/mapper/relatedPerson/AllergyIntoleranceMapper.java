@@ -36,8 +36,11 @@ public interface AllergyIntoleranceMapper {
         if (resource == null || !resource.hasReaction() || resource.getReaction().isEmpty()) return null;
         AllergyIntolerance.AllergyIntoleranceReactionComponent r = resource.getReactionFirstRep();
         if (r.hasDescription()) return r.getDescription();
-        if (r.hasManifestation() && r.getManifestationFirstRep().hasText()) {
-            return r.getManifestationFirstRep().getText();
+        if (r.hasManifestation() && !r.getManifestation().isEmpty()) {
+            CodeableReference ref = r.getManifestationFirstRep();
+            if (ref.hasConcept() && ref.getConcept().hasText()) {
+                return ref.getConcept().getText();
+            }
         }
         return null;
     }

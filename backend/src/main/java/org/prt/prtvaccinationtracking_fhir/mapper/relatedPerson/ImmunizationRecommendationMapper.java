@@ -52,11 +52,9 @@ public interface ImmunizationRecommendationMapper {
         ImmunizationRecommendation.ImmunizationRecommendationRecommendationComponent rec = resource.getRecommendationFirstRep();
         if (!rec.hasDateCriterion()) return null;
         for (ImmunizationRecommendation.ImmunizationRecommendationRecommendationDateCriterionComponent dc : rec.getDateCriterion()) {
-            if (dc.hasValue()) {
-                Date d = dc.getValue().getValue();
-                if (d != null) {
-                    return d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                }
+            if (dc.hasValue() && dc.getValue() != null) {
+                Date d = dc.getValue();
+                return d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             }
         }
         return null;
@@ -79,7 +77,8 @@ public interface ImmunizationRecommendationMapper {
         ImmunizationRecommendation.ImmunizationRecommendationRecommendationComponent rec = resource.getRecommendationFirstRep();
         if (!rec.hasDoseNumber()) return null;
         try {
-            return Integer.parseInt(rec.getDoseNumberStringType().getValue());
+            String value = rec.getDoseNumber();
+            return value != null ? Integer.parseInt(value) : null;
         } catch (NumberFormatException e) {
             return null;
         }

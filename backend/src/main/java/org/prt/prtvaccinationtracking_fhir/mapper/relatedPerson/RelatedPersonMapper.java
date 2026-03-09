@@ -17,32 +17,36 @@ public interface RelatedPersonMapper {
 
     String IDENTIFIER_SYSTEM = "urn:system:related-person-identifier";
 
-    @Mapping(target = "id", expression = "java(resource.getIdElement().getIdPart())")
-    @Mapping(target = "fullName", expression = "java(extractFullName(resource))")
-    @Mapping(target = "identifier", expression = "java(extractIdentifier(resource))")
+    // FHIR → DTO (guardian view)
+    @Mapping(target = "relatedPersonId", expression = "java(resource.getIdElement().getIdPart())")
+    @Mapping(target = "relatedPersonIdentifier", expression = "java(extractIdentifier(resource))")
     @Mapping(target = "relationship", expression = "java(extractRelationship(resource))")
+    @Mapping(target = "fullName", expression = "java(extractFullName(resource))")
     @Mapping(target = "phone", expression = "java(extractTelecom(resource, ContactPoint.ContactPointSystem.PHONE))")
     @Mapping(target = "email", expression = "java(extractTelecom(resource, ContactPoint.ContactPointSystem.EMAIL))")
     @Mapping(target = "address", expression = "java(extractAddress(resource))")
-    @Mapping(target = "patientId", expression = "java(resource.hasPatient() ? resource.getPatient().getReferenceElement().getIdPart() : null)")
     RelatedPersonDTO toDTO(RelatedPerson resource);
 
+    // CREATE DTO → FHIR
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "identifier", expression = "java(dto.identifier() != null ? toIdentifierList(dto.identifier()) : Collections.emptyList())")
-    @Mapping(target = "name", expression = "java(toHumanName(dto.firstName(), dto.lastName()))")
+    @Mapping(target = "identifier", expression = "java(dto.relatedPersonIdentifier() != null ? toIdentifierList(dto.relatedPersonIdentifier()) : Collections.emptyList())")
+    @Mapping(target = "name", expression = "java(dto.fullName() != null ? toHumanNameFromFullName(dto.fullName()) : Collections.emptyList())")
     @Mapping(target = "relationship", expression = "java(dto.relationship() != null ? toRelationship(dto.relationship()) : Collections.emptyList())")
     @Mapping(target = "telecom", expression = "java(toTelecom(dto.phone(), dto.email()))")
     @Mapping(target = "address", expression = "java(dto.address() != null ? toAddressList(dto.address()) : Collections.emptyList())")
     @Mapping(target = "patient", expression = "java(dto.patientId() != null ? new Reference(\"Patient/\" + dto.patientId()) : null)")
     RelatedPerson toResource(CreateRelatedPersonRequestDTO dto);
 
+    // UPDATE DTO → existing FHIR
     @Mapping(target = "identifier", expression = "java(resource.getIdentifier())")
-    @Mapping(target = "name", expression = "java((dto.firstName() != null || dto.lastName() != null) ? toHumanName(dto.firstName() != null ? dto.firstName() : extractGiven(resource), dto.lastName() != null ? dto.lastName() : extractFamily(resource)) : resource.getName())")
+    @Mapping(target = "name", expression = "java(dto.fullName() != null ? toHumanNameFromFullName(dto.fullName()) : resource.getName())")
     @Mapping(target = "relationship", expression = "java(dto.relationship() != null ? toRelationship(dto.relationship()) : resource.getRelationship())")
     @Mapping(target = "telecom", expression = "java((dto.phone() != null || dto.email() != null) ? toTelecom(dto.phone() != null ? dto.phone() : extractTelecom(resource, ContactPoint.ContactPointSystem.PHONE), dto.email() != null ? dto.email() : extractTelecom(resource, ContactPoint.ContactPointSystem.EMAIL)) : resource.getTelecom())")
     @Mapping(target = "address", expression = "java(dto.address() != null ? toAddressList(dto.address()) : resource.getAddress())")
     @Mapping(target = "patient", expression = "java(resource.getPatient())")
     void updateResourceFromDTO(UpdateRelatedPersonRequestDTO dto, @MappingTarget RelatedPerson resource);
+
+    // Helpers
 
     default List<Identifier> toIdentifierList(String identifier) {
         Identifier id = new Identifier();
@@ -84,26 +88,18 @@ public interface RelatedPersonMapper {
         return resource.getIdentifierFirstRep().hasValue() ? resource.getIdentifierFirstRep().getValue() : null;
     }
 
-    default String extractGiven(RelatedPerson resource) {
-        if (resource == null || !resource.hasName()) return null;
-        HumanName n = resource.getNameFirstRep();
-        if (!n.hasGiven() || n.getGiven().isEmpty()) return null;
-        return n.getGiven().get(0).getValue();
-    }
-
-    default String extractFamily(RelatedPerson resource) {
-        if (resource == null || !resource.hasName()) return null;
-        HumanName n = resource.getNameFirstRep();
-        return n.hasFamily() ? n.getFamily() : null;
-    }
-
     default String extractFullName(RelatedPerson resource) {
-        String g = extractGiven(resource);
-        String f = extractFamily(resource);
-        if (g == null && f == null) return null;
-        if (g == null) return f;
-        if (f == null) return g;
-        return g + " " + f;
+        if (resource == null || !resource.hasName()) return null;
+        HumanName n = resource.getNameFirstRep();
+        if (n.hasText()) {
+            return n.getText();
+        }
+        String given = (n.hasGiven() && !n.getGiven().isEmpty()) ? n.getGiven().get(0).getValue() : null;
+        String family = n.hasFamily() ? n.getFamily() : null;
+        if (given == null && family == null) return null;
+        if (given == null) return family;
+        if (family == null) return given;
+        return given + " " + family;
     }
 
     default String extractRelationship(RelatedPerson resource) {
@@ -125,6 +121,10 @@ public interface RelatedPersonMapper {
         Address addr = resource.getAddressFirstRep();
         return addr.hasText() ? addr.getText() : null;
     }
+
+    default List<HumanName> toHumanNameFromFullName(String fullName) {
+        HumanName hn = new HumanName();
+        hn.setText(fullName);
+        return Collections.singletonList(hn);
+    }
 }
-
-

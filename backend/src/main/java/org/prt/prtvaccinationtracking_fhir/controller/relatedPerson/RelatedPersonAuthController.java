@@ -1,8 +1,8 @@
 package org.prt.prtvaccinationtracking_fhir.controller.relatedPerson;
 
-import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.RelatedPersonLoginRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.RelatedPersonLoginResponseDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.RelatedPersonRegistrationRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.relatedPerson.RelatedPersonLoginRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.relatedPerson.RelatedPersonLoginResponseDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.relatedPerson.RelatedPersonRegistrationRequestDTO;
 import org.prt.prtvaccinationtracking_fhir.service.relatedPerson.RelatedPersonAuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
