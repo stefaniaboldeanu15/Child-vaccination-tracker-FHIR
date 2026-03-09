@@ -1,4 +1,4 @@
-package org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.relatedPerson;
+package org.prt.prtvaccinationtracking_fhir.dto.relatedPerson;
 
 /**
  * Data Transfer Object for returning key related person details after successful login.

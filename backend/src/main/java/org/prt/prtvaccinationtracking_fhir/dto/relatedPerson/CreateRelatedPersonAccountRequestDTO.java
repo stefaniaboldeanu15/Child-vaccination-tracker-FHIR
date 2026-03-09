@@ -1,4 +1,4 @@
-package org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.relatedPerson;
+package org.prt.prtvaccinationtracking_fhir.dto.relatedPerson;
 
 /**
  * DTO used to create a new RelatedPerson (account).
