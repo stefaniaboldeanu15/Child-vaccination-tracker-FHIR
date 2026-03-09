@@ -32,7 +32,7 @@ public interface AllergyIntoleranceMapper {
         return r.hasSeverity() ? r.getSeverity().toCode() : null;
     }
 
-    default String extractReactionText(AllergyIntolerance resource) {
+                            default String extractReactionText(AllergyIntolerance resource) {
         if (resource == null || !resource.hasReaction() || resource.getReaction().isEmpty()) return null;
         AllergyIntolerance.AllergyIntoleranceReactionComponent r = resource.getReactionFirstRep();
         if (r.hasDescription()) return r.getDescription();

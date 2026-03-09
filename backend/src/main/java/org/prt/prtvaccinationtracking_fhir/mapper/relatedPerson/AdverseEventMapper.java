@@ -31,10 +31,12 @@ public interface AdverseEventMapper {
     default String extractPrimaryImmunizationId(AdverseEvent resource) {
         if (resource == null || !resource.hasSuspectEntity()) return null;
         for (AdverseEvent.AdverseEventSuspectEntityComponent comp : resource.getSuspectEntity()) {
-            if (comp.hasInstance()
-                    && comp.getInstance().getReferenceElement() != null
-                    && "Immunization".equals(comp.getInstance().getReferenceElement().getResourceType())) {
-                return comp.getInstance().getReferenceElement().getIdPart();
+            if (!comp.hasInstance()) continue;
+            DataType instance = comp.getInstance();
+            if (instance instanceof Reference ref
+                    && ref.getReference() != null
+                    && ref.getReference().startsWith("Immunization/")) {
+                return ref.getReferenceElement().getIdPart();
             }
         }
         return null;
@@ -44,10 +46,12 @@ public interface AdverseEventMapper {
         List<String> result = new ArrayList<>();
         if (resource == null || !resource.hasSuspectEntity()) return result;
         for (AdverseEvent.AdverseEventSuspectEntityComponent comp : resource.getSuspectEntity()) {
-            if (comp.hasInstance()
-                    && comp.getInstance().getReference() != null
-                    && comp.getInstance().getReference().startsWith("Immunization/")) {
-                result.add(comp.getInstance().getReferenceElement().getIdPart());
+            if (!comp.hasInstance()) continue;
+            DataType instance = comp.getInstance();
+            if (instance instanceof Reference ref
+                    && ref.getReference() != null
+                    && ref.getReference().startsWith("Immunization/")) {
+                result.add(ref.getReferenceElement().getIdPart());
             }
         }
         return result;

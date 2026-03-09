@@ -4,7 +4,7 @@ import org.hl7.fhir.r5.model.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.relatedPerson.UpdateRelatedPersonRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.UpdateRelatedPersonRequestDTO;
 import org.prt.prtvaccinationtracking_fhir.mapper.practitioner.BaseMapperConfig;
 
 import java.util.Collections;
