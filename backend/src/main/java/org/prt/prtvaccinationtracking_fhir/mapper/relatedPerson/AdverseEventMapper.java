@@ -1,68 +1,135 @@
 package org.prt.prtvaccinationtracking_fhir.mapper.relatedPerson;
 
-import org.hl7.fhir.r5.model.*;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.AdverseEventDTO;
-import org.prt.prtvaccinationtracking_fhir.mapper.practitioner.BaseMapperConfig;
+import org.hl7.fhir.r5.model.AdverseEvent;
+import org.hl7.fhir.r5.model.CodeableConcept;
+import org.hl7.fhir.r5.model.Reference;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.adverseEvent.AdverseEventDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.adverseEvent.CreateAdverseEventRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.adverseEvent.UpdateAdverseEventRequestDTO;
+import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
 
-@Mapper(config = BaseMapperConfig.class)
-public interface AdverseEventMapper {
+@Component
+public class AdverseEventMapper {
 
-    @Mapping(target = "adverseEventId", expression = "java(resource.getIdElement().getIdPart())")
-    @Mapping(target = "patientId", expression = "java(resource.getSubject() != null ? resource.getSubject().getReferenceElement().getIdPart() : null)")
-    @Mapping(target = "encounterId", expression = "java(resource.getEncounter() != null ? resource.getEncounter().getReferenceElement().getIdPart() : null)")
-    @Mapping(target = "immunizationId", expression = "java(extractPrimaryImmunizationId(resource))")
-    @Mapping(target = "category", expression = "java(resource.hasCategory() ? resource.getCategoryFirstRep().getText() : null)")
-    @Mapping(target = "severity", expression = "java(resource.hasSeverity() && resource.getSeverity().hasText() ? resource.getSeverity().getText() : null)")
-    @Mapping(target = "outcome", expression = "java(resource.hasOutcome() && resource.getOutcome().hasText() ? resource.getOutcome().getText() : null)")
-    @Mapping(target = "date", expression = "java(toLocalDateTime(resource.getDateElement()))")
-    @Mapping(target = "code", expression = "java(resource.hasEvent() && resource.getEvent().hasCoding() && !resource.getEvent().getCoding().isEmpty() ? resource.getEvent().getCodingFirstRep().getCode() : null)")
-    @Mapping(target = "display", expression = "java(resource.hasEvent() ? resource.getEvent().getText() : null)")
-    @Mapping(target = "description", expression = "java(resource.hasDescription() ? resource.getDescription() : null)")
-    @Mapping(target = "suspectImmunizationIds", expression = "java(extractSuspectImmunizationIds(resource))")
-    AdverseEventDTO toDTO(AdverseEvent resource);
+    private final MapperSupport support;
 
-    default String extractPrimaryImmunizationId(AdverseEvent resource) {
-        if (resource == null || !resource.hasSuspectEntity()) return null;
-        for (AdverseEvent.AdverseEventSuspectEntityComponent comp : resource.getSuspectEntity()) {
-            if (!comp.hasInstance()) continue;
-            DataType instance = comp.getInstance();
-            if (instance instanceof Reference ref
-                    && ref.getReference() != null
-                    && ref.getReference().startsWith("Immunization/")) {
-                return ref.getReferenceElement().getIdPart();
-            }
-        }
-        return null;
+    public AdverseEventMapper(MapperSupport support) {
+        this.support = support;
     }
 
-    default List<String> extractSuspectImmunizationIds(AdverseEvent resource) {
-        List<String> result = new ArrayList<>();
-        if (resource == null || !resource.hasSuspectEntity()) return result;
-        for (AdverseEvent.AdverseEventSuspectEntityComponent comp : resource.getSuspectEntity()) {
-            if (!comp.hasInstance()) continue;
-            DataType instance = comp.getInstance();
-            if (instance instanceof Reference ref
-                    && ref.getReference() != null
-                    && ref.getReference().startsWith("Immunization/")) {
-                result.add(ref.getReferenceElement().getIdPart());
-            }
+    public AdverseEventDTO toDTO(AdverseEvent resource) {
+        if (resource == null) {
+            return null;
         }
-        return result;
+
+        return new AdverseEventDTO(
+                resource.getIdElement().getIdPart(),
+                resource.hasStatus() ? resource.getStatus() : null,
+                resource.hasActuality() ? resource.getActuality() : null,
+                extractCategory(resource),
+                resource.hasRecordedDate() ? support.toLocalDate(resource.getRecordedDate()) : null,
+                resource.hasEncounter() ? support.referenceToId(resource.getEncounter()) : null
+        );
     }
 
-    default LocalDateTime toLocalDateTime(DateTimeType type) {
-        if (type == null || type.getValue() == null) return null;
-        return type.getValue().toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
+    public AdverseEvent toResource(CreateAdverseEventRequestDTO dto) {
+        if (dto == null) {
+            return null;
+        }
+
+        AdverseEvent resource = new AdverseEvent();
+
+        if (dto.status() != null) {
+            resource.setStatus(mapStatus(dto.status()));
+        }
+
+        if (dto.actuality() != null) {
+            resource.setActuality(mapActuality(dto.actuality()));
+        }
+
+        if (dto.patientId() != null && !dto.patientId().isBlank()) {
+            resource.setSubject(support.toPatientReference(dto.patientId()));
+        }
+
+        if (dto.category() != null && !dto.category().isBlank()) {
+            resource.setCategory(List.of(new CodeableConcept().setText(dto.category())));
+        }
+
+        if (dto.recordedDate() != null) {
+            resource.setRecordedDate(support.toDate(dto.recordedDate()));
+        }
+
+        if (dto.encounter() != null && !dto.encounter().isBlank()) {
+            resource.setEncounter(support.toEncounterReference(dto.encounter()));
+        }
+
+        return resource;
+    }
+
+    public void updateResource(UpdateAdverseEventRequestDTO dto, AdverseEvent resource) {
+        if (dto == null || resource == null) {
+            return;
+        }
+
+        if (dto.status() != null) {
+            resource.setStatus(mapStatus(dto.status()));
+        }
+
+        if (dto.actuality() != null) {
+            resource.setActuality(mapActuality(dto.actuality()));
+        }
+
+        if (dto.category() != null) {
+            if (dto.category().isBlank()) {
+                resource.setCategory(List.of());
+            } else {
+                resource.setCategory(List.of(new CodeableConcept().setText(dto.category())));
+            }
+        }
+
+        if (dto.recordedDate() != null) {
+            resource.setRecordedDate(support.toDate(dto.recordedDate()));
+        }
+
+        if (dto.encounter() != null) {
+            if (dto.encounter().isBlank()) {
+                resource.setEncounter((Reference) null);
+            } else {
+                resource.setEncounter(support.toEncounterReference(dto.encounter()));
+            }
+        }
+    }
+
+    private String extractCategory(AdverseEvent resource) {
+        if (!resource.hasCategory() || resource.getCategory().isEmpty()) {
+            return null;
+        }
+        return support.codeableConceptToText(resource.getCategoryFirstRep());
+    }
+
+    private AdverseEvent.AdverseEventStatus mapStatus(AdverseEventDTO.AdverseEventStatus status) {
+        if (status == null) {
+            return null;
+        }
+
+        return switch (status) {
+            case IN_PROGRESS -> AdverseEvent.AdverseEventStatus.INPROGRESS;
+            case COMPLETED -> AdverseEvent.AdverseEventStatus.COMPLETED;
+            case ENTERED_IN_ERROR -> AdverseEvent.AdverseEventStatus.ENTEREDINERROR;
+            case UNKNOWN -> AdverseEvent.AdverseEventStatus.UNKNOWN;
+        };
+    }
+
+    private AdverseEvent.AdverseEventActuality mapActuality(AdverseEventDTO.AdverseEventActuality actuality) {
+        if (actuality == null) {
+            return null;
+        }
+
+        return switch (actuality) {
+            case ACTUAL -> AdverseEvent.AdverseEventActuality.ACTUAL;
+            case POTENTIAL -> AdverseEvent.AdverseEventActuality.POTENTIAL;
+        };
     }
 }
-
-

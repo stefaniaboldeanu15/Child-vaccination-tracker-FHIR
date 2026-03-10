@@ -1,55 +1,284 @@
 package org.prt.prtvaccinationtracking_fhir.mapper.relatedPerson;
 
 import org.hl7.fhir.r5.model.*;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.PatientDetailsDTO;
-import org.prt.prtvaccinationtracking_fhir.mapper.practitioner.BaseMapperConfig;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.patient.CreatePatientRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.patient.PatientDetailsDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.patient.UpdatePatientRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.relatedPerson.RelatedPersonDTO;
+import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 
-@Mapper(config = BaseMapperConfig.class)
-public interface PatientMapper {
+@Component
+public class PatientMapper {
 
-    String SVNR_SYSTEM = "urn:oid:1.2.40.0.10.1.4.3.1";
+    private static final String SVNR_SYSTEM = "app:svnr";
 
-    @Mapping(target = "patientId", expression = "java(resource.getIdElement().getIdPart())")
-    @Mapping(target = "patientIdentifier", expression = "java(extractSvnr(resource))")
-    @Mapping(target = "firstName", expression = "java(extractGiven(resource))")
-    @Mapping(target = "lastName", expression = "java(extractFamily(resource))")
-    @Mapping(target = "birthDate", expression = "java(resource.hasBirthDate() ? toDateString(resource.getBirthDate()) : null)")
-    @Mapping(target = "gender", expression = "java(resource.getGender() != null ? resource.getGender().toCode() : null)")
-    PatientDetailsDTO toDTO(Patient resource);
+    private final MapperSupport support;
 
-    default String extractSvnr(Patient resource) {
-        if (resource == null || !resource.hasIdentifier()) return null;
-        for (Identifier id : resource.getIdentifier()) {
-            if (SVNR_SYSTEM.equals(id.getSystem()) && id.hasValue()) return id.getValue();
+    public PatientMapper(MapperSupport support) {
+        this.support = support;
+    }
+
+    public PatientDetailsDTO toDetailsDTO(Patient resource) {
+        if (resource == null) {
+            return null;
         }
+
+        String firstName = extractFirstName(resource);
+        String lastName = extractLastName(resource);
+
+        return new PatientDetailsDTO(
+                resource.getIdElement().getIdPart(),
+                extractSvnr(resource),
+                firstName,
+                lastName,
+                buildFullName(firstName, lastName),
+                resource.hasBirthDate() ? support.toLocalDate(resource.getBirthDate()) : null,
+                extractGender(resource),
+                extractPhone(resource),
+                extractEmail(resource),
+                extractAddress(resource),
+                null
+        );
+    }
+
+    public Patient toResource(CreatePatientRequestDTO dto) {
+        if (dto == null) {
+            return null;
+        }
+
+        Patient resource = new Patient();
+
+        if (dto.svnr() != null && !dto.svnr().isBlank()) {
+            resource.setIdentifier(List.of(
+                    new Identifier()
+                            .setSystem(SVNR_SYSTEM)
+                            .setValue(dto.svnr())
+            ));
+        }
+
+        if (dto.firstName() != null || dto.lastName() != null) {
+            resource.setName(List.of(buildHumanName(dto.firstName(), dto.lastName())));
+        }
+
+        if (dto.birthDate() != null) {
+            resource.setBirthDate(support.toDate(dto.birthDate()));
+        }
+
+        if (dto.gender() != null) {
+            resource.setGender(toAdministrativeGender(dto.gender()));
+        }
+
+        return resource;
+    }
+
+    public void updateResource(UpdatePatientRequestDTO dto, Patient resource) {
+        if (dto == null || resource == null) {
+            return;
+        }
+
+        if (dto.firstName() != null || dto.lastName() != null) {
+            HumanName name = resource.hasName() ? resource.getNameFirstRep() : new HumanName();
+
+            if (dto.firstName() != null) {
+                if (dto.firstName().isBlank()) {
+                    name.setGiven(new ArrayList<>());
+                } else {
+                    name.setGiven(List.of(new org.hl7.fhir.r5.model.StringType(dto.firstName())));
+                }
+            }
+
+            if (dto.lastName() != null) {
+                name.setFamily(dto.lastName().isBlank() ? null : dto.lastName());
+            }
+
+            if (resource.hasName()) {
+                resource.getName().set(0, name);
+            } else {
+                resource.setName(List.of(name));
+            }
+        }
+
+        if (dto.phone() != null || dto.email() != null) {
+            List<ContactPoint> telecom = new ArrayList<>();
+
+            if (dto.phone() != null && !dto.phone().isBlank()) {
+                telecom.add(new ContactPoint()
+                        .setSystem(ContactPoint.ContactPointSystem.PHONE)
+                        .setValue(dto.phone()));
+            }
+
+            if (dto.email() != null && !dto.email().isBlank()) {
+                telecom.add(new ContactPoint()
+                        .setSystem(ContactPoint.ContactPointSystem.EMAIL)
+                        .setValue(dto.email()));
+            }
+
+            resource.setTelecom(telecom);
+        }
+
+        if (dto.address() != null) {
+            if (dto.address().isBlank()) {
+                resource.setAddress(new ArrayList<>());
+            } else {
+                resource.setAddress(List.of(new Address().setText(dto.address())));
+            }
+        }
+    }
+
+    private HumanName buildHumanName(String firstName, String lastName) {
+        HumanName name = new HumanName();
+
+        if (firstName != null && !firstName.isBlank()) {
+            name.setGiven(List.of(new org.hl7.fhir.r5.model.StringType(firstName)));
+        }
+
+        if (lastName != null && !lastName.isBlank()) {
+            name.setFamily(lastName);
+        }
+
+        return name;
+    }
+
+    private String extractSvnr(Patient resource) {
+        if (!resource.hasIdentifier() || resource.getIdentifier().isEmpty()) {
+            return null;
+        }
+
+        for (Identifier identifier : resource.getIdentifier()) {
+            if (identifier == null || !identifier.hasValue()) {
+                continue;
+            }
+
+            if (!identifier.hasSystem() || SVNR_SYSTEM.equals(identifier.getSystem())) {
+                return identifier.getValue();
+            }
+        }
+
         return null;
     }
 
-    default String extractGiven(Patient resource) {
-        if (resource == null || !resource.hasName()) return null;
-        HumanName n = resource.getNameFirstRep();
-        if (!n.hasGiven() || n.getGiven().isEmpty()) return null;
-        return n.getGiven().get(0).getValue();
+    private String extractFirstName(Patient resource) {
+        if (!resource.hasName()) {
+            return null;
+        }
+
+        HumanName name = resource.getNameFirstRep();
+        if (!name.hasGiven() || name.getGiven().isEmpty()) {
+            return null;
+        }
+
+        return name.getGiven().get(0).getValue();
     }
 
-    default String extractFamily(Patient resource) {
-        if (resource == null || !resource.hasName()) return null;
-        HumanName n = resource.getNameFirstRep();
-        return n.hasFamily() ? n.getFamily() : null;
+    private String extractLastName(Patient resource) {
+        if (!resource.hasName()) {
+            return null;
+        }
+
+        HumanName name = resource.getNameFirstRep();
+        return name.hasFamily() ? name.getFamily() : null;
     }
 
-    default String toDateString(Date date) {
-        if (date == null) return null;
-        LocalDate local = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        return local.toString();
+    private String buildFullName(String firstName, String lastName) {
+        if (firstName == null && lastName == null) {
+            return null;
+        }
+        if (firstName == null) {
+            return lastName;
+        }
+        if (lastName == null) {
+            return firstName;
+        }
+        return firstName + " " + lastName;
+    }
+
+    private CreatePatientRequestDTO.Gender extractGender(Patient resource) {
+        if (!resource.hasGender()) {
+            return null;
+        }
+
+        return switch (resource.getGender()) {
+            case MALE -> CreatePatientRequestDTO.Gender.male;
+            case FEMALE -> CreatePatientRequestDTO.Gender.female;
+            case OTHER -> CreatePatientRequestDTO.Gender.other;
+            case UNKNOWN -> CreatePatientRequestDTO.Gender.unknown;
+            default -> null;
+        };
+    }
+
+    private Enumerations.AdministrativeGender toAdministrativeGender(CreatePatientRequestDTO.Gender gender) {
+        return switch (gender) {
+            case male -> Enumerations.AdministrativeGender.MALE;
+            case female -> Enumerations.AdministrativeGender.FEMALE;
+            case other -> Enumerations.AdministrativeGender.OTHER;
+            case unknown -> Enumerations.AdministrativeGender.UNKNOWN;
+        };
+    }
+
+    private String extractPhone(Patient resource) {
+        if (!resource.hasTelecom() || resource.getTelecom().isEmpty()) {
+            return null;
+        }
+
+        for (ContactPoint telecom : resource.getTelecom()) {
+            if (telecom != null
+                    && telecom.hasSystem()
+                    && telecom.getSystem() == ContactPoint.ContactPointSystem.PHONE
+                    && telecom.hasValue()) {
+                return telecom.getValue();
+            }
+        }
+
+        return null;
+    }
+
+    private String extractEmail(Patient resource) {
+        if (!resource.hasTelecom() || resource.getTelecom().isEmpty()) {
+            return null;
+        }
+
+        for (ContactPoint telecom : resource.getTelecom()) {
+            if (telecom != null
+                    && telecom.hasSystem()
+                    && telecom.getSystem() == ContactPoint.ContactPointSystem.EMAIL
+                    && telecom.hasValue()) {
+                return telecom.getValue();
+            }
+        }
+
+        return null;
+    }
+
+    private String extractAddress(Patient resource) {
+        if (!resource.hasAddress() || resource.getAddress().isEmpty()) {
+            return null;
+        }
+
+        Address address = resource.getAddressFirstRep();
+        return address.hasText() ? address.getText() : null;
+    }
+
+    public PatientDetailsDTO toDetailsDTO(Patient resource, RelatedPersonDTO parent) {
+        PatientDetailsDTO base = toDetailsDTO(resource);
+        if (base == null) {
+            return null;
+        }
+
+        return new PatientDetailsDTO(
+                base.id(),
+                base.svnr(),
+                base.firstName(),
+                base.lastName(),
+                base.fullName(),
+                base.birthDate(),
+                base.gender(),
+                base.phone(),
+                base.email(),
+                base.address(),
+                parent
+        );
     }
 }
-
-

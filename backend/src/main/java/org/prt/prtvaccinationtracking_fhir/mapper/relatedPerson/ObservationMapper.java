@@ -1,56 +1,197 @@
 package org.prt.prtvaccinationtracking_fhir.mapper.relatedPerson;
 
 import org.hl7.fhir.r5.model.*;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.ObservationDTO;
-import org.prt.prtvaccinationtracking_fhir.mapper.practitioner.BaseMapperConfig;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.observation.CreateObservationRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.observation.ObservationDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.observation.UpdateObservationRequestDTO;
+import org.springframework.stereotype.Component;
 
-@Mapper(config = BaseMapperConfig.class)
-public interface ObservationMapper {
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 
-    String LOINC_SYSTEM = "http://loinc.org";
+@Component
+public class ObservationMapper {
 
-    @Mapping(target = "observationId", expression = "java(resource.getIdElement().getIdPart())")
-    @Mapping(target = "immunizationId", expression = "java(resource.getEncounter() != null ? resource.getEncounter().getReferenceElement().getIdPart() : null)")
-    @Mapping(target = "code", expression = "java(extractCode(resource))")
-    @Mapping(target = "display", expression = "java(extractDisplay(resource))")
-    @Mapping(target = "value", expression = "java(extractValue(resource))")
-    @Mapping(target = "unit", expression = "java(extractUnit(resource))")
-    @Mapping(target = "effectiveDateTime", expression = "java(resource.hasEffective() ? resource.getEffective().primitiveValue() : null)")
-    ObservationDTO toDTO(Observation resource);
+    private final MapperSupport support;
 
-    default String extractCode(Observation resource) {
-        if (resource == null || !resource.hasCode()) return null;
-        CodeableConcept cc = resource.getCode();
-        for (Coding c : cc.getCoding()) {
-            if (LOINC_SYSTEM.equals(c.getSystem()) && c.hasCode()) return c.getCode();
+    public ObservationMapper(MapperSupport support) {
+        this.support = support;
+    }
+
+    public ObservationDTO toDTO(Observation resource) {
+        if (resource == null) {
+            return null;
         }
-        return cc.hasText() ? cc.getText() : null;
+
+        return new ObservationDTO(
+                resource.getIdElement().getIdPart(),
+                extractCode(resource),
+                extractDisplay(resource),
+                extractValue(resource),
+                extractUnit(resource),
+                extractEffectiveDateTime(resource)
+        );
     }
 
-    default String extractDisplay(Observation resource) {
-        if (resource == null || !resource.hasCode()) return null;
-        CodeableConcept cc = resource.getCode();
-        for (Coding c : cc.getCoding()) {
-            if (LOINC_SYSTEM.equals(c.getSystem()) && c.hasDisplay()) return c.getDisplay();
+    public Observation toResource(CreateObservationRequestDTO dto) {
+        if (dto == null) {
+            return null;
         }
-        return cc.hasText() ? cc.getText() : null;
+
+        Observation resource = new Observation();
+
+        if (dto.code() != null || dto.display() != null) {
+            resource.setCode(toCodeableConcept(dto.code(), dto.display()));
+        }
+
+        if (dto.value() != null || dto.unit() != null) {
+            resource.setValue(toQuantity(dto.value(), dto.unit()));
+        }
+
+        if (dto.effectiveDateTime() != null) {
+            resource.setEffective(new DateTimeType(toDate(dto.effectiveDateTime())));
+        }
+
+        if (dto.encounterId() != null && !dto.encounterId().isBlank()) {
+            resource.setEncounter(support.toEncounterReference(dto.encounterId()));
+        }
+
+        resource.setStatus(Enumerations.ObservationStatus.FINAL);
+        return resource;
     }
 
-    default String extractValue(Observation resource) {
-        if (resource == null || !resource.hasValue()) return null;
-        if (resource.getValue() instanceof Quantity q && q.hasValue()) return q.getValue().toPlainString();
-        if (resource.getValue() instanceof StringType s && s.hasValue()) return s.getValue();
-        if (resource.getValue() instanceof CodeableConcept cc && cc.hasText()) return cc.getText();
-        return null;
+    public void updateResource(UpdateObservationRequestDTO dto, Observation resource) {
+        if (dto == null || resource == null) {
+            return;
+        }
+
+        if (dto.value() != null || dto.unit() != null) {
+            resource.setValue(updateQuantity(resource.hasValueQuantity() ? resource.getValueQuantity() : null, dto.value(), dto.unit()));
+        }
     }
 
-    default String extractUnit(Observation resource) {
-        if (resource == null || !resource.hasValue()) return null;
-        if (resource.getValue() instanceof Quantity q && q.hasUnit()) return q.getUnit();
-        return null;
+    private org.hl7.fhir.r5.model.CodeableConcept toCodeableConcept(String code, String display) {
+        org.hl7.fhir.r5.model.CodeableConcept concept = new org.hl7.fhir.r5.model.CodeableConcept();
+
+        if (display != null && !display.isBlank()) {
+            concept.setText(display);
+        }
+
+        if (code != null && !code.isBlank()) {
+            concept.addCoding(new Coding().setCode(code).setDisplay(display));
+        }
+
+        return concept;
+    }
+
+    private Quantity toQuantity(String value, String unit) {
+        Quantity quantity = new Quantity();
+
+        if (value != null && !value.isBlank()) {
+            try {
+                quantity.setValue(Double.parseDouble(value));
+            } catch (NumberFormatException ignored) {
+                quantity.setValueElement(null);
+            }
+        }
+
+        if (unit != null && !unit.isBlank()) {
+            quantity.setUnit(unit);
+        }
+
+        return quantity;
+    }
+
+    private Quantity updateQuantity(Quantity existing, String value, String unit) {
+        Quantity quantity = existing != null ? existing : new Quantity();
+
+        if (value != null) {
+            if (value.isBlank()) {
+                quantity.setValueElement(null);
+            } else {
+                try {
+                    quantity.setValue(Double.parseDouble(value));
+                } catch (NumberFormatException ignored) {
+                    quantity.setValueElement(null);
+                }
+            }
+        }
+
+        if (unit != null) {
+            if (unit.isBlank()) {
+                quantity.setUnit(null);
+            } else {
+                quantity.setUnit(unit);
+            }
+        }
+
+        return quantity;
+    }
+
+    private String extractCode(Observation resource) {
+        if (!resource.hasCode() || !resource.getCode().hasCoding()) {
+            return null;
+        }
+
+        Coding coding = resource.getCode().getCodingFirstRep();
+        return coding.hasCode() ? coding.getCode() : null;
+    }
+
+    private String extractDisplay(Observation resource) {
+        if (!resource.hasCode()) {
+            return null;
+        }
+
+        if (resource.getCode().hasCoding() && resource.getCode().getCodingFirstRep().hasDisplay()) {
+            return resource.getCode().getCodingFirstRep().getDisplay();
+        }
+
+        return resource.getCode().hasText() ? resource.getCode().getText() : null;
+    }
+
+    private String extractValue(Observation resource) {
+        if (!resource.hasValueQuantity()) {
+            return null;
+        }
+
+        Quantity quantity = resource.getValueQuantity();
+        return quantity.hasValue() ? quantity.getValue().toPlainString() : null;
+    }
+
+    private String extractUnit(Observation resource) {
+        if (!resource.hasValueQuantity()) {
+            return null;
+        }
+
+        Quantity quantity = resource.getValueQuantity();
+        return quantity.hasUnit() ? quantity.getUnit() : null;
+    }
+
+    private LocalDateTime extractEffectiveDateTime(Observation resource) {
+        if (!resource.hasEffectiveDateTimeType()) {
+            return null;
+        }
+
+        return toLocalDateTime(resource.getEffectiveDateTimeType().getValue());
+    }
+
+    private Date toDate(LocalDateTime value) {
+        if (value == null) {
+            return null;
+        }
+
+        return Date.from(value.atZone(ZoneId.systemDefault()).toInstant());
+    }
+
+    private LocalDateTime toLocalDateTime(Date value) {
+        if (value == null) {
+            return null;
+        }
+
+        return Instant.ofEpochMilli(value.getTime())
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
     }
 }
-
-
