@@ -1,4 +1,4 @@
-import { getPractitionerBasicAuthHeader } from '@/auth/auth'
+import { getPractitionerBasicAuthHeader, getRelatedPersonBearerHeader } from '@/auth/auth'
 
 const BASE = (import.meta.env.VITE_BACKEND_URL as string | undefined) ?? ''
 
@@ -13,6 +13,9 @@ export async function backendFetch(path: string, init: RequestInit = {}) {
 
         if (path.startsWith('/api/practitioner')) {
             const auth = getPractitionerBasicAuthHeader()
+            if (auth) headers.set('Authorization', auth)
+        } else if (path.startsWith('/api/related-person')) {
+            const auth = getRelatedPersonBearerHeader()
             if (auth) headers.set('Authorization', auth)
         }
 

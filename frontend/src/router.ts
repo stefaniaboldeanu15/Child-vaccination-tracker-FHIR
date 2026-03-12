@@ -3,7 +3,8 @@ import { useAuth } from '@/auth/auth'
 
 import LoginView from '@/views/LoginView.vue'
 import DoctorPortalView from '@/views/DoctorPortalView.vue'
-import DebugView from '@/views/DebugView.vue'
+//import DebugView from '@/views/DebugView.vue'
+import RelatedPersonView from '@/views/RelatedPersonView.vue'
 
 const routes: RouteRecordRaw[] = [
     {
@@ -15,7 +16,8 @@ const routes: RouteRecordRaw[] = [
     },
 { path: '/login', name: 'login', component: LoginView },
 { path: '/doctor', name: 'doctor', component: DoctorPortalView, meta: { requiresAuth: true } },
-{ path: '/debug', name: 'debug', component: DebugView, meta: { requiresAuth: true } },
+//{ path: '/debug', name: 'debug', component: DebugView, meta: { requiresAuth: true } },
+{ path: '/related-person', name: 'related-person', component: RelatedPersonView },
 { path: '/:pathMatch(.*)*', redirect: '/' },
 ]
 

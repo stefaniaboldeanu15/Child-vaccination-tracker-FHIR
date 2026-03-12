@@ -141,8 +141,8 @@
 
                 <div v-else class="space-y-3">
                   <div
-                    v-for="block in overviewEncounterBlocks"
-                    :key="block.encounter?.encounterId || Math.random().toString(36).slice(2)"
+                    v-for="(block, blockIdx) in overviewEncounterBlocks"
+                    :key="block.encounter?.encounterId || blockIdx"
                     class="rounded-lg border p-4"
                   >
                     <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
@@ -185,8 +185,8 @@
                       <div class="text-sm font-medium text-gray-700">Nested Immunizations</div>
                       <div class="space-y-2">
                         <div
-                          v-for="ib in block.immunizations"
-                          :key="ib.immunization?.immunizationId || Math.random().toString(36).slice(2)"
+                          v-for="(ib, ibIdx) in block.immunizations"
+                          :key="ib.immunization?.immunizationId || ibIdx"
                           class="rounded-md border bg-gray-50 p-3"
                         >
                           <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
@@ -205,7 +205,7 @@
                           </div>
 
                           <div v-if="(ib.observations?.length ?? 0) > 0" class="mt-2 text-xs text-gray-600">
-                            {{ ib.observations.length }} observation(s)
+                            {{ ib.observations!.length }} observation(s)
                           </div>
                         </div>
                       </div>
@@ -270,8 +270,9 @@
           <!-- Encounters -->
           <TabsContent value="encounters" class="mt-6 space-y-4">
             <Card class="bg-white shadow-sm">
-              <CardHeader class="border-b">
+              <CardHeader class="border-b flex flex-row items-center justify-between">
                 <CardTitle>Encounters</CardTitle>
+                <Button size="sm" variant="outline" @click="createEncOpen = true">+ New Encounter</Button>
               </CardHeader>
               <CardContent class="pt-6">
                 <div v-if="encounters.length === 0" class="text-gray-500">No encounters found.</div>
@@ -302,11 +303,34 @@
           <!-- Recommendations -->
           <TabsContent value="recommendations" class="mt-6 space-y-4">
             <Card class="bg-white shadow-sm">
-              <CardHeader class="border-b">
+              <CardHeader class="border-b flex flex-row items-center justify-between">
                 <CardTitle>Recommendations</CardTitle>
+                <Button size="sm" variant="outline" @click="createRecOpen = true">+ Add</Button>
               </CardHeader>
               <CardContent class="pt-6">
-                <div v-if="recommendations.length === 0" class="text-gray-500">No recommendations found.</div>
+                <!-- Age-based recommendations -->
+                <div v-if="ageBasedRecommendations.length > 0" class="mb-5">
+                  <div class="text-sm text-gray-700 mb-2">Age-based suggestions</div>
+                  <div class="space-y-2">
+                    <div
+                      v-for="rec in ageBasedRecommendations"
+                      :key="rec.id"
+                      class="flex items-center justify-between rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 gap-3"
+                    >
+                      <div class="space-y-0.5">
+                        <div class="text-gray-900">{{ rec.vaccineDisplay || rec.vaccineCode || 'Recommendation' }}</div>
+                        <div class="text-xs text-gray-600">
+                          Due: {{ rec.dueDate ? formatDate(rec.dueDate) : '—' }}
+                          <span v-if="typeof rec.doseNumber === 'number'"> · Dose {{ rec.doseNumber }}</span>
+                        </div>
+                      </div>
+                      <Badge variant="outline" :class="statusBadgeClass(rec.status)">{{ rec.status || 'suggested' }}</Badge>
+                    </div>
+                  </div>
+                  <Separator class="mt-4" />
+                </div>
+
+                <div v-if="recommendations.length === 0" class="text-gray-500">No saved recommendations.</div>
 
                 <div v-else class="space-y-3">
                   <Card v-for="rec in sortedRecommendations" :key="rec.id">
@@ -340,8 +364,9 @@
           <!-- Appointments -->
           <TabsContent value="appointments" class="mt-6 space-y-4">
             <Card class="bg-white shadow-sm">
-              <CardHeader class="border-b">
+              <CardHeader class="border-b flex flex-row items-center justify-between">
                 <CardTitle>Appointments</CardTitle>
+                <Button size="sm" variant="outline" @click="createApptOpen = true">+ Schedule</Button>
               </CardHeader>
               <CardContent class="pt-6">
                 <div v-if="appointments.length === 0" class="text-gray-500">No appointments found.</div>
@@ -349,7 +374,7 @@
                 <div v-else class="space-y-3">
                   <Card v-for="appt in sortedAppointments" :key="appt.id">
                     <CardContent class="pt-6">
-                      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
                         <div class="space-y-1">
                           <div class="flex items-center gap-2 flex-wrap">
                             <div class="text-gray-900">{{ appt.reason || 'Appointment' }}</div>
@@ -368,7 +393,22 @@
                           </div>
                           <div class="text-xs text-gray-500 break-all">ID: {{ appt.id }}</div>
                         </div>
+
+                        <!-- Status update buttons -->
+                        <div class="flex flex-wrap gap-1 shrink-0">
+                          <button
+                            v-for="s in appointmentStatusOptions"
+                            :key="s.value"
+                            :disabled="appt.status === s.value || apptStatusUpdating === appt.id"
+                            @click="updateAppointmentStatus(appt.id, s.value)"
+                            class="rounded px-2 py-1 text-xs border transition-colors disabled:opacity-40"
+                            :class="appt.status === s.value ? 'bg-gray-100 text-gray-500 cursor-default' : 'hover:bg-gray-50'"
+                          >
+                            {{ s.label }}
+                          </button>
+                        </div>
                       </div>
+                      <p v-if="apptStatusError && apptStatusUpdating === appt.id" class="mt-2 text-xs text-red-600">{{ apptStatusError }}</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -424,8 +464,9 @@
           <!-- Adverse events -->
           <TabsContent value="adverse" class="mt-6 space-y-4">
             <Card class="bg-white shadow-sm">
-              <CardHeader class="border-b">
+              <CardHeader class="border-b flex flex-row items-center justify-between">
                 <CardTitle>Adverse Events</CardTitle>
+                <Button size="sm" variant="outline" @click="createAdvOpen = true">+ Report</Button>
               </CardHeader>
               <CardContent class="pt-6">
                 <div v-if="adverseEvents.length === 0" class="text-gray-500">No adverse events found.</div>
@@ -475,6 +516,32 @@
       </div>
     </DialogContent>
   </Dialog>
+
+  <!-- Sub-dialogs -->
+  <CreateRecommendationDialog
+    :patient-id="patientId"
+    :open="createRecOpen"
+    @update:open="createRecOpen = $event"
+    @saved="loadAll"
+  />
+  <CreateAppointmentDialog
+    :patient-id="patientId"
+    :open="createApptOpen"
+    @update:open="createApptOpen = $event"
+    @saved="loadAll"
+  />
+  <CreateAdverseEventDialog
+    :patient-id="patientId"
+    :open="createAdvOpen"
+    @update:open="createAdvOpen = $event"
+    @saved="loadAll"
+  />
+  <CreateEncounterDialog
+    :patient-id="patientId"
+    :open="createEncOpen"
+    @update:open="createEncOpen = $event"
+    @saved="loadAll"
+  />
 </template>
 
 <script setup lang="ts">
@@ -500,6 +567,11 @@ import Tabs from '@/components/ui/Tabs.vue'
 import TabsList from '@/components/ui/TabsList.vue'
 import TabsTrigger from '@/components/ui/TabsTrigger.vue'
 import TabsContent from '@/components/ui/TabsContent.vue'
+
+import CreateRecommendationDialog from '@/components/CreateRecommendationDialog.vue'
+import CreateAppointmentDialog from '@/components/CreateAppointmentDialog.vue'
+import CreateAdverseEventDialog from '@/components/CreateAdverseEventDialog.vue'
+import CreateEncounterDialog from '@/components/CreateEncounterDialog.vue'
 
 type PatientDetailsDTO = {
   patientId: string
@@ -643,9 +715,46 @@ const overview = ref<PatientClinicalOverviewDTO | null>(null)
 const immunizations = ref<ImmunizationDTO[]>([])
 const encounters = ref<EncounterDTO[]>([])
 const recommendations = ref<ImmunizationRecommendationDTO[]>([])
+const ageBasedRecommendations = ref<ImmunizationRecommendationDTO[]>([])
 const appointments = ref<AppointmentDTO[]>([])
 const allergies = ref<AllergyIntoleranceDTO[]>([])
 const adverseEvents = ref<AdverseEventDTO[]>([])
+
+// Sub-dialog open flags
+const createRecOpen = ref(false)
+const createApptOpen = ref(false)
+const createAdvOpen = ref(false)
+const createEncOpen = ref(false)
+
+// Appointment status update
+const apptStatusUpdating = ref<string | null>(null)
+const apptStatusError = ref<string | null>(null)
+
+const appointmentStatusOptions = [
+  { value: 'booked', label: 'Booked' },
+  { value: 'arrived', label: 'Arrived' },
+  { value: 'fulfilled', label: 'Fulfilled' },
+  { value: 'cancelled', label: 'Cancelled' },
+  { value: 'noshow', label: 'No-show' },
+]
+
+async function updateAppointmentStatus(appointmentId: string, status: string) {
+  apptStatusUpdating.value = appointmentId
+  apptStatusError.value = null
+  try {
+    const res = await backendFetch(
+      `/api/practitioner/appointments/${encodeURIComponent(appointmentId)}/status?status=${encodeURIComponent(status)}`,
+      { method: 'PUT' },
+    )
+    const updated = (await res.json()) as AppointmentDTO
+    const idx = appointments.value.findIndex((a) => a.id === appointmentId)
+    if (idx !== -1) appointments.value[idx] = updated
+  } catch (e: any) {
+    apptStatusError.value = String(e?.message ?? e)
+  } finally {
+    apptStatusUpdating.value = null
+  }
+}
 
 const patient = computed(() => overview.value?.patient ?? null)
 const overviewEncounterBlocks = computed(() => overview.value?.encounters ?? [])
@@ -707,8 +816,7 @@ function toTime(value?: string | null): number {
 }
 
 function compareDateDesc(a?: string | null, b?: string | null) {
-  const ta = toTime(a)
-  const tb = toTime(b)
+  const ta = toTime(a); const tb = toTime(b)
   if (!Number.isFinite(ta) && !Number.isFinite(tb)) return 0
   if (!Number.isFinite(ta)) return 1
   if (!Number.isFinite(tb)) return -1
@@ -716,8 +824,7 @@ function compareDateDesc(a?: string | null, b?: string | null) {
 }
 
 function compareDateAsc(a?: string | null, b?: string | null) {
-  const ta = toTime(a)
-  const tb = toTime(b)
+  const ta = toTime(a); const tb = toTime(b)
   if (!Number.isFinite(ta) && !Number.isFinite(tb)) return 0
   if (!Number.isFinite(ta)) return 1
   if (!Number.isFinite(tb)) return -1
@@ -752,7 +859,6 @@ function ageLabelFromDate(value?: string | null): string {
 function immunizationComputedStatus(i: ImmunizationDTO): string {
   const raw = String(i.status || '').trim().toLowerCase()
   if (raw) {
-    // Future-dated records should visually appear as planned/upcoming even if status is "completed".
     const t = toTime(i.occurrenceDateTime)
     if (Number.isFinite(t) && t > Date.now()) return 'planned'
     return raw
@@ -764,20 +870,14 @@ function immunizationComputedStatus(i: ImmunizationDTO): string {
 
 function statusBadgeClass(status?: string) {
   const s = String(status || '').toLowerCase()
-
-  if (['completed', 'done', 'administered', 'resolved', 'booked'].includes(s)) {
+  if (['completed', 'done', 'administered', 'resolved', 'booked', 'fulfilled'].includes(s))
     return 'border-green-200 bg-green-50 text-green-700'
-  }
-  if (['planned', 'proposed', 'scheduled', 'pending', 'arrived'].includes(s)) {
+  if (['planned', 'proposed', 'scheduled', 'pending', 'arrived'].includes(s))
     return 'border-blue-200 bg-blue-50 text-blue-700'
-  }
-  if (['cancelled', 'canceled', 'entered-in-error', 'error', 'failed'].includes(s)) {
+  if (['cancelled', 'canceled', 'entered-in-error', 'error', 'failed', 'noshow'].includes(s))
     return 'border-red-200 bg-red-50 text-red-700'
-  }
-  if (['in-progress', 'active', 'open', 'confirmed'].includes(s)) {
+  if (['in-progress', 'active', 'open', 'confirmed'].includes(s))
     return 'border-amber-200 bg-amber-50 text-amber-700'
-  }
-
   return 'bg-white'
 }
 
@@ -786,52 +886,59 @@ async function loadAll() {
 
   loading.value = true
   error.value = null
-  try {
-    const id = encodeURIComponent(props.patientId)
+  const id = encodeURIComponent(props.patientId)
 
-    const [
-      overviewRes,
-      immunizationsRes,
-      encountersRes,
-      recommendationsRes,
-      appointmentsRes,
-      allergiesRes,
-      adverseRes,
-    ] = await Promise.all([
-      backendFetch(`/api/practitioner/patients/${id}/overview`),
-      backendFetch(`/api/practitioner/patients/${id}/get-immunizations`),
-      backendFetch(`/api/practitioner/patients/${id}/get-encounters`),
-      backendFetch(`/api/practitioner/patients/${id}/get-recommendations`),
-      backendFetch(`/api/practitioner/patients/${id}/get-appointments`),
-      backendFetch(`/api/practitioner/patients/${id}/get-allergies`),
-      backendFetch(`/api/practitioner/patients/${id}/adverse-events`),
-    ])
+  const [
+    overviewResult,
+    immunizationsResult,
+    encountersResult,
+    recommendationsResult,
+    ageRecsResult,
+    appointmentsResult,
+    allergiesResult,
+    adverseResult,
+  ] = await Promise.allSettled([
+    backendFetch(`/api/practitioner/patients/${id}/overview`),
+    backendFetch(`/api/practitioner/patients/${id}/get-immunizations`),
+    backendFetch(`/api/practitioner/patients/${id}/get-encounters`),
+    backendFetch(`/api/practitioner/patients/${id}/get-recommendations`),
+    backendFetch(`/api/practitioner/patients/${id}/age-based-recommendations`),
+    backendFetch(`/api/practitioner/patients/${id}/get-appointments`),
+    backendFetch(`/api/practitioner/patients/${id}/get-allergies`),
+    backendFetch(`/api/practitioner/patients/${id}/adverse-events`),
+  ])
 
-    overview.value = (await overviewRes.json()) as PatientClinicalOverviewDTO
-    immunizations.value = ((await immunizationsRes.json()) as ImmunizationDTO[]) ?? []
-    encounters.value = ((await encountersRes.json()) as EncounterDTO[]) ?? []
-    recommendations.value = ((await recommendationsRes.json()) as ImmunizationRecommendationDTO[]) ?? []
-    appointments.value = ((await appointmentsRes.json()) as AppointmentDTO[]) ?? []
-    allergies.value = ((await allergiesRes.json()) as AllergyIntoleranceDTO[]) ?? []
-    adverseEvents.value = ((await adverseRes.json()) as AdverseEventDTO[]) ?? []
-  } catch (e) {
-    error.value = String(e)
-  } finally {
-    loading.value = false
+  const errors: string[] = []
+
+  async function parseJson<T>(result: PromiseSettledResult<Response>, fallback: T, label: string): Promise<T> {
+    if (result.status === 'rejected') { errors.push(`${label}: ${result.reason}`); return fallback }
+    try { return ((await result.value.json()) as T) ?? fallback }
+    catch { errors.push(`${label}: failed to parse response`); return fallback }
   }
+
+  overview.value = await parseJson(overviewResult, null, 'overview')
+  immunizations.value = await parseJson(immunizationsResult, [], 'immunizations')
+  encounters.value = await parseJson(encountersResult, [], 'encounters')
+  recommendations.value = await parseJson(recommendationsResult, [], 'recommendations')
+  ageBasedRecommendations.value = await parseJson(ageRecsResult, [], 'age-based-recommendations')
+  appointments.value = await parseJson(appointmentsResult, [], 'appointments')
+  allergies.value = await parseJson(allergiesResult, [], 'allergies')
+  adverseEvents.value = await parseJson(adverseResult, [], 'adverse-events')
+
+  // Only surface errors for the critical endpoints; age-based-recommendations is optional
+  const criticalErrors = errors.filter(e => !e.startsWith('age-based-recommendations'))
+  if (criticalErrors.length > 0) error.value = criticalErrors.join('\n')
+
+  loading.value = false
 }
 
 watch(
   () => props.open,
-  (v) => {
-    if (v && props.patientId) void loadAll()
-  },
+  (v) => { if (v && props.patientId) void loadAll() },
 )
 
 watch(
   () => props.patientId,
-  (id, prev) => {
-    if (props.open && id && id !== prev) void loadAll()
-  },
+  (id, prev) => { if (props.open && id && id !== prev) void loadAll() },
 )
 </script>

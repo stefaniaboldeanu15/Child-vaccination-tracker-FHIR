@@ -66,6 +66,7 @@ async function submit() {
             v-model="identifier"
             class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
             placeholder="e.g. dr.mueller"
+            @keydown.enter="submit"
           />
         </div>
 
@@ -76,6 +77,7 @@ async function submit() {
             type="password"
             class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
             placeholder="Enter password"
+            @keydown.enter="submit"
           />
         </div>
 
@@ -89,6 +91,13 @@ async function submit() {
           {{ loading ? 'Signing in…' : 'Sign in' }}
         </button>
       </div>
+    </div>
+
+    <div class="text-center text-sm text-gray-500">
+      Guardian or parent?
+      <router-link to="/related-person" class="text-blue-600 hover:underline ml-1">
+        Related person portal →
+      </router-link>
     </div>
   </div>
 </template>

@@ -12,8 +12,6 @@
               <div>FHIR Practitioner ID: {{ doctorId || 'Unknown' }}</div>
               <div>Identifier: {{ doctorIdentifierLabel || 'None' }}</div>
             </CardDescription>
-            <p v-if="doctorLoading" class="mt-3 text-sm text-muted-foreground">Loading practitioner data…</p>
-            <p v-else-if="doctorError" class="mt-3 text-sm text-red-600">{{ doctorError }}</p>
           </div>
         </div>
       </CardHeader>
@@ -103,7 +101,17 @@
               </div>
             </div>
 
-            <div class="flex gap-2">
+            <div class="flex flex-wrap gap-2 justify-end">
+              <Button variant="outline" size="sm" class="gap-2" @click="handleEditPatient(p)">
+                <Pencil class="w-4 h-4" />
+                Edit
+              </Button>
+
+              <Button variant="outline" size="sm" class="gap-2" @click="handleManageRelatedPersons(p)">
+                <Users class="w-4 h-4" />
+                Related
+              </Button>
+
               <Button variant="outline" size="sm" class="gap-2" @click="handleViewDetails(p.id)">
                 <FileText class="w-4 h-4" />
                 View Records
@@ -147,12 +155,32 @@
       @update:open="createOpen = $event"
       @created="handlePatientCreated"
     />
+
+    <EditPatientDialog
+      v-if="editingPatient"
+      :open="editPatientOpen"
+      :patient-id="editingPatient.id"
+      :initial-first-name="editingPatient.firstName"
+      :initial-last-name="editingPatient.lastName"
+      :initial-birth-date="editingPatient.birthDate"
+      @update:open="editPatientOpen = $event"
+      @saved="handlePatientEdited"
+    />
+
+    <ManageRelatedPersonsDialog
+      v-if="managingRelatedPatient"
+      :open="manageRelatedOpen"
+      :patient-id="managingRelatedPatient.id"
+      :related-persons="managingRelatedPatient.relatedPersons ?? []"
+      @update:open="manageRelatedOpen = $event"
+      @changed="loadPatients"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { Search, Calendar, FileText } from 'lucide-vue-next'
+import { Search, Calendar, FileText, Pencil, Users } from 'lucide-vue-next'
 
 import { backendFetch } from '@/api/backend'
 import { useAuth } from '@/auth/auth'
@@ -169,6 +197,8 @@ import Badge from '@/components/ui/Badge.vue'
 import AddVaccinationDialog from '@/components/AddVaccinationDialog.vue'
 import PatientDetailsDialog from '@/components/PatientDetailsDialog.vue'
 import CreatePatientDialog from '@/components/CreatePatientDialog.vue'
+import EditPatientDialog from '@/components/EditPatientDialog.vue'
+import ManageRelatedPersonsDialog from '@/components/ManageRelatedPersonsDialog.vue'
 
 type PatientDetailsDTO = {
   patientId: string
@@ -201,15 +231,14 @@ type PatientCandidate = {
   identifier?: string
   relatedPersonsCount?: number
   relatedPersons?: RelatedPersonDTO[]
+  firstName?: string
+  lastName?: string
+  gender?: string
 }
 
 const props = defineProps<{ doctorId: string }>()
 
 const { state } = useAuth()
-
-// Practitioner header info comes from login response/auth store (backend has no frontend-safe Practitioner FHIR fetch endpoint here)
-//const doctorLoading = ref(false)
-//const doctorError = ref<string | null>(null)
 
 const doctorDisplayName = computed(() => {
   const p = state.practitioner
@@ -219,7 +248,6 @@ const doctorDisplayName = computed(() => {
 
 const doctorIdentifierLabel = computed(() => state.practitioner?.practitionerIdentifier ?? '')
 
-// Patient search/dashboard list
 const searchTerm = ref('')
 const patients = ref<PatientCandidate[]>([])
 const patientsLoading = ref(false)
@@ -245,6 +273,9 @@ function rowToCandidate(row: PatientDashboardRowDTO): PatientCandidate {
     identifier: row.patient.patientIdentifier,
     relatedPersonsCount: Array.isArray(row.relatedPersons) ? row.relatedPersons.length : 0,
     relatedPersons: row.relatedPersons ?? [],
+    firstName: row.patient.firstName,
+    lastName: row.patient.lastName,
+    gender: row.patient.gender,
   }
 }
 
@@ -284,24 +315,31 @@ async function runSearch() {
   }
 }
 
-// Initial load + reload if practitioner context changes
 watch(
   () => props.doctorId,
-  (id) => {
-    if (!id) return
-    void loadPatients()
-  },
+  (id) => { if (!id) return; void loadPatients() },
   { immediate: true },
 )
 
-// dialogs
+// Dialogs
 const selectedPatientId = ref<string | null>(null)
 const isAddDialogOpen = ref(false)
 const isDetailsDialogOpen = ref(false)
 const detailsReloadKey = ref(0)
-
-// create patient
 const createOpen = ref(false)
+
+// Edit patient
+const editPatientOpen = ref(false)
+const editingPatient = ref<PatientCandidate | null>(null)
+
+// Manage related persons
+const manageRelatedOpen = ref(false)
+const managingRelatedPatientId = ref<string | null>(null)
+const managingRelatedPatient = computed(() =>
+  managingRelatedPatientId.value
+    ? patients.value.find((p) => p.id === managingRelatedPatientId.value) ?? null
+    : null
+)
 
 function handlePatientCreated(patientId: string) {
   void loadPatients()
@@ -317,6 +355,20 @@ function handleAddVaccination(patientId: string) {
 function handleViewDetails(patientId: string) {
   selectedPatientId.value = patientId
   isDetailsDialogOpen.value = true
+}
+
+function handleEditPatient(p: PatientCandidate) {
+  editingPatient.value = p
+  editPatientOpen.value = true
+}
+
+function handlePatientEdited() {
+  void loadPatients()
+}
+
+function handleManageRelatedPersons(p: PatientCandidate) {
+  managingRelatedPatientId.value = p.id
+  manageRelatedOpen.value = true
 }
 
 function handleSaved() {
