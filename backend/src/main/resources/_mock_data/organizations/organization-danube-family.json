@@ -1,0 +1,26 @@
+{
+  "resourceType": "Organization",
+  "id": "org-danube-family",
+  "name": "Danube Family Health Center",
+  "alias": [
+    "Danube Health"
+  ],
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "+43 732 555 0202"
+    },
+    {
+      "system": "email",
+      "value": "desk@danube-family.demo"
+    }
+  ],
+  "address": [
+    {
+      "text": "Hauptplatz 8, 4020 Linz, Austria",
+      "city": "Linz",
+      "postalCode": "4020",
+      "country": "AT"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "resourceType": "AllergyIntolerance",
+  "id": "alg-emma-peanut",
+  "clinicalStatus": {
+    "text": "active"
+  },
+  "verificationStatus": {
+    "text": "confirmed"
+  },
+  "code": {
+    "coding": [
+      {
+        "system": "http://snomed.info/sct",
+        "code": "91935009",
+        "display": "Allergy to peanut"
+      }
+    ]
+  },
+  "patient": {
+    "reference": "Patient/patient-emma"
+  },
+  "criticality": "high",
+  "reaction": [
+    {
+      "description": "Generalized hives after peanut exposure"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "resourceType": "Appointment",
+  "id": "appt-emma-fsme",
+  "status": "booked",
+  "description": "Vienna Pediatric Clinic – Consultation Room 2",
+  "start": "2026-04-02T15:30:00Z",
+  "end": "2026-04-02T15:50:00Z",
+  "reason": [
+    {
+      "concept": {
+        "text": "FSME counseling and first dose"
+      }
+    }
+  ],
+  "participant": [
+    {
+      "actor": {
+        "reference": "Patient/patient-emma"
+      },
+      "status": "accepted"
+    },
+    {
+      "actor": {
+        "reference": "Practitioner/pract-smith"
+      },
+      "status": "accepted"
+    }
+  ]
+}

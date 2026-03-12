@@ -1,0 +1,25 @@
+{
+  "resourceType": "Observation",
+  "id": "obs-emma-temp",
+  "status": "final",
+  "code": {
+    "coding": [
+      {
+        "system": "http://loinc.org",
+        "code": "8310-5",
+        "display": "Body temperature"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/patient-emma"
+  },
+  "encounter": {
+    "reference": "Encounter/enc-emma-1"
+  },
+  "effectiveDateTime": "2023-12-06T08:35:00Z",
+  "valueQuantity": {
+    "value": 37.0,
+    "unit": "°C"
+  }
+}

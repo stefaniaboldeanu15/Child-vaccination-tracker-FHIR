@@ -1,9 +1,9 @@
 {
   "resourceType": "Location",
-  "id": "loc-vienna-room1",
+  "id": "loc-vienna-room2",
   "status": "active",
-  "name": "Vienna Pediatric Clinic – Immunization Room 1",
-  "description": "Main vaccination room for infants and routine well-child visits.",
+  "name": "Vienna Pediatric Clinic – Consultation Room 2",
+  "description": "Consultation and follow-up room for preschool vaccinations.",
   "address": {
     "text": "Mariahilfer Straße 120, 1060 Vienna, Austria"
   },

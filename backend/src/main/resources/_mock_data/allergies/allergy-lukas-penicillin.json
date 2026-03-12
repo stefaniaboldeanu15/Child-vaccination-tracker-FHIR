@@ -1,0 +1,28 @@
+{
+  "resourceType": "AllergyIntolerance",
+  "id": "alg-lukas-penicillin",
+  "clinicalStatus": {
+    "text": "active"
+  },
+  "verificationStatus": {
+    "text": "confirmed"
+  },
+  "code": {
+    "coding": [
+      {
+        "system": "http://snomed.info/sct",
+        "code": "294505008",
+        "display": "Penicillin allergy"
+      }
+    ]
+  },
+  "patient": {
+    "reference": "Patient/patient-lukas"
+  },
+  "criticality": "low",
+  "reaction": [
+    {
+      "description": "Maculopapular rash after amoxicillin"
+    }
+  ]
+}

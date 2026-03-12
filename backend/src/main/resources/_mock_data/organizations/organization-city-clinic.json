@@ -1,5 +1,26 @@
 {
   "resourceType": "Organization",
   "id": "org-vienna-peds",
-  "name": "Vienna City Pediatric Clinic"
+  "name": "Vienna City Pediatric Clinic",
+  "alias": [
+    "Vienna Peds"
+  ],
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "+43 1 555 0101"
+    },
+    {
+      "system": "email",
+      "value": "hello@viennapeds.demo"
+    }
+  ],
+  "address": [
+    {
+      "text": "Mariahilfer Straße 120, 1060 Vienna, Austria",
+      "city": "Vienna",
+      "postalCode": "1060",
+      "country": "AT"
+    }
+  ]
 }

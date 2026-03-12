@@ -80,9 +80,9 @@
 
       <Card v-for="p in patients" :key="p.id" class="hover:shadow-md transition-shadow">
         <CardContent class="pt-6">
-          <div class="flex items-center justify-between gap-3">
-            <div class="space-y-2 flex-1 min-w-0">
-              <div class="flex items-center gap-3">
+<div class="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+  <div class="space-y-3 flex-1 min-w-0">
+    <div class="flex items-start gap-3">
                 <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white">
                   {{ initials(p.display) }}
                 </div>
@@ -93,7 +93,9 @@
               </div>
 
               <div class="flex flex-wrap gap-2 ml-15">
-                <Badge v-if="p.birthDate" variant="outline" class="bg-blue-50">DOB: {{ p.birthDate }}</Badge>
+                 <Badge v-if="p.birthDate" variant="outline" class="bg-blue-50">
+  DOB: {{ formatBirthDate(p.birthDate) }}
+</Badge>
                 <Badge v-if="p.identifier" variant="outline" class="bg-green-50">{{ p.identifier }}</Badge>
                 <Badge v-if="typeof p.relatedPersonsCount === 'number'" variant="outline" class="bg-purple-50">
                   Related Persons: {{ p.relatedPersonsCount }}
@@ -205,7 +207,7 @@ type PatientDetailsDTO = {
   patientIdentifier?: string
   firstName?: string
   lastName?: string
-  birthDate?: string
+  birthDate?: string | Date
   gender?: string
 }
 
@@ -263,6 +265,46 @@ function initials(display: string) {
 
 function displayNameFromPatient(p: PatientDetailsDTO): string {
   return [p.firstName, p.lastName].filter(Boolean).join(' ').trim() || `Patient/${p.patientId}`
+}
+
+function formatBirthDate(value?: string | Date) {
+  if (!value) return ''
+
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    const day = String(value.getDate()).padStart(2, '0')
+    const month = String(value.getMonth() + 1).padStart(2, '0')
+    const year = value.getFullYear()
+    return `${day}.${month}.${year}`
+  }
+
+  const raw = String(value).trim()
+
+  const isoMatch = raw.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (isoMatch) {
+    const [, year, month, day] = isoMatch
+    return `${day}.${month}.${year}`
+  }
+
+  const javaDateMatch = raw.match(/^[A-Za-z]{3} ([A-Za-z]{3}) (\d{1,2}) .* (\d{4})$/)
+  if (javaDateMatch) {
+    const [, monthName, day, year] = javaDateMatch
+    const months: Record<string, string> = {
+      Jan: '01', Feb: '02', Mar: '03', Apr: '04',
+      May: '05', Jun: '06', Jul: '07', Aug: '08',
+      Sep: '09', Oct: '10', Nov: '11', Dec: '12',
+    }
+    return `${String(day).padStart(2, '0')}.${months[monthName]}.${year}`
+  }
+
+  const parsed = new Date(raw)
+  if (!Number.isNaN(parsed.getTime())) {
+    const day = String(parsed.getDate()).padStart(2, '0')
+    const month = String(parsed.getMonth() + 1).padStart(2, '0')
+    const year = parsed.getFullYear()
+    return `${day}.${month}.${year}`
+  }
+
+  return raw
 }
 
 function rowToCandidate(row: PatientDashboardRowDTO): PatientCandidate {

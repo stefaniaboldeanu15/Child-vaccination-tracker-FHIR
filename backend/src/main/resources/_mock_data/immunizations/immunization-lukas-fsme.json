@@ -1,0 +1,28 @@
+{
+  "resourceType": "Immunization",
+  "id": "imm-lukas-fsme",
+  "status": "completed",
+  "patient": {
+    "reference": "Patient/patient-lukas"
+  },
+  "encounter": {
+    "reference": "Encounter/enc-lukas-1"
+  },
+  "performer": [
+    {
+      "actor": {
+        "reference": "Practitioner/pract-mueller"
+      }
+    }
+  ],
+  "vaccineCode": {
+    "coding": [
+      {
+        "system": "http://hl7.org/fhir/sid/cvx",
+        "code": "37",
+        "display": "FSME (Tick-borne encephalitis)"
+      }
+    ]
+  },
+  "occurrenceDateTime": "2025-09-10T14:10:00Z"
+}

@@ -1,6 +1,6 @@
 {
   "resourceType": "Patient",
-  "id": "patient-noah",
+  "id": "patient-emma",
   "meta": {
     "profile": [
       "http://example.org/fhir/StructureDefinition/patient-child"
@@ -9,29 +9,29 @@
   "identifier": [
     {
       "system": "https://elga.gv.at/svnr",
-      "value": "1503241234"
+      "value": "0811215678"
     },
     {
       "system": "http://example.org/patient-portal/username",
-      "value": "noah.parent.demo"
+      "value": "emma.parent.demo"
     }
   ],
   "extension": [
     {
       "url": "http://example.org/extensions/patient-password",
-      "valueString": "DemoNoah123!"
+      "valueString": "DemoEmma123!"
     }
   ],
   "name": [
     {
-      "family": "Gruber",
+      "family": "Novak",
       "given": [
-        "Noah"
+        "Emma"
       ]
     }
   ],
-  "gender": "male",
-  "birthDate": "2024-03-15",
+  "gender": "female",
+  "birthDate": "2021-11-08",
   "generalPractitioner": [
     {
       "reference": "Practitioner/pract-smith"

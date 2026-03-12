@@ -1,0 +1,13 @@
+{
+  "resourceType": "Location",
+  "id": "loc-danube-room3",
+  "status": "active",
+  "name": "Danube Family Health Center – Room 3",
+  "description": "School-age immunization and travel vaccine room.",
+  "address": {
+    "text": "Hauptplatz 8, 4020 Linz, Austria"
+  },
+  "managingOrganization": {
+    "reference": "Organization/org-danube-family"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "resourceType": "Appointment",
+  "id": "appt-lukas-hpv",
+  "status": "booked",
+  "description": "Danube Family Health Center – Room 3",
+  "start": "2026-03-28T10:00:00Z",
+  "end": "2026-03-28T10:20:00Z",
+  "reason": [
+    {
+      "concept": {
+        "text": "HPV first dose"
+      }
+    }
+  ],
+  "participant": [
+    {
+      "actor": {
+        "reference": "Patient/patient-lukas"
+      },
+      "status": "accepted"
+    },
+    {
+      "actor": {
+        "reference": "Practitioner/pract-mueller"
+      },
+      "status": "accepted"
+    }
+  ]
+}

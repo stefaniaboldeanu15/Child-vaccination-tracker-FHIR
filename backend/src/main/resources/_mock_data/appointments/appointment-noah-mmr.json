@@ -1,0 +1,29 @@
+{
+  "resourceType": "Appointment",
+  "id": "appt-noah-mmr",
+  "status": "booked",
+  "description": "Vienna Pediatric Clinic – Consultation Room 2",
+  "start": "2026-03-20T09:00:00Z",
+  "end": "2026-03-20T09:20:00Z",
+  "reason": [
+    {
+      "concept": {
+        "text": "MMR vaccination"
+      }
+    }
+  ],
+  "participant": [
+    {
+      "actor": {
+        "reference": "Patient/patient-noah"
+      },
+      "status": "accepted"
+    },
+    {
+      "actor": {
+        "reference": "Practitioner/pract-smith"
+      },
+      "status": "accepted"
+    }
+  ]
+}

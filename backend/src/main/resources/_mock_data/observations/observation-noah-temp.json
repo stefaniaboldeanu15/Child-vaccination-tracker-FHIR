@@ -1,0 +1,25 @@
+{
+  "resourceType": "Observation",
+  "id": "obs-noah-temp",
+  "status": "final",
+  "code": {
+    "coding": [
+      {
+        "system": "http://loinc.org",
+        "code": "8310-5",
+        "display": "Body temperature"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/patient-noah"
+  },
+  "encounter": {
+    "reference": "Encounter/enc-noah-1"
+  },
+  "effectiveDateTime": "2024-05-20T09:05:00Z",
+  "valueQuantity": {
+    "value": 36.8,
+    "unit": "°C"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "resourceType": "AdverseEvent",
+  "id": "ae-noah-fever",
+  "subject": {
+    "reference": "Patient/patient-noah"
+  },
+  "encounter": {
+    "reference": "Encounter/enc-noah-1"
+  },
+  "category": [
+    {
+      "text": "adverse-effect"
+    }
+  ],
+  "outcome": [
+    {
+      "text": "resolved"
+    }
+  ],
+  "recordedDate": "2024-05-20T18:30:00Z",
+  "suspectEntity": [
+    {
+      "instance": {
+        "reference": "Immunization/imm-noah-pcv13"
+      }
+    }
+  ]
+}

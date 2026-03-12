@@ -1,6 +1,6 @@
 {
   "resourceType": "RelatedPerson",
-  "id": "rp-noah-mother",
+  "id": "rp-noah-father",
   "meta": {
     "profile": [
       "http://example.org/fhir/StructureDefinition/relatedperson-guardian"
@@ -12,7 +12,7 @@
   "identifier": [
     {
       "system": "https://elga.gv.at/svnr",
-      "value": "2705904455"
+      "value": "1404883322"
     }
   ],
   "relationship": [
@@ -20,29 +20,29 @@
       "coding": [
         {
           "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
-          "code": "MTH",
-          "display": "Mother"
+          "code": "FTH",
+          "display": "Father"
         }
       ],
-      "text": "Mother"
+      "text": "Father"
     }
   ],
   "name": [
     {
       "family": "Gruber",
       "given": [
-        "Anna"
+        "Martin"
       ]
     }
   ],
   "telecom": [
     {
       "system": "phone",
-      "value": "+43 664 555 1101"
+      "value": "+43 676 555 1102"
     },
     {
       "system": "email",
-      "value": "anna.gruber@example.demo"
+      "value": "martin.gruber@example.demo"
     }
   ],
   "address": [

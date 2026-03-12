@@ -1,18 +1,18 @@
 {
   "resourceType": "RelatedPerson",
-  "id": "rp-noah-mother",
+  "id": "rp-emma-mother",
   "meta": {
     "profile": [
       "http://example.org/fhir/StructureDefinition/relatedperson-guardian"
     ]
   },
   "patient": {
-    "reference": "Patient/patient-noah"
+    "reference": "Patient/patient-emma"
   },
   "identifier": [
     {
       "system": "https://elga.gv.at/svnr",
-      "value": "2705904455"
+      "value": "1906897788"
     }
   ],
   "relationship": [
@@ -29,25 +29,25 @@
   ],
   "name": [
     {
-      "family": "Gruber",
+      "family": "Novak",
       "given": [
-        "Anna"
+        "Petra"
       ]
     }
   ],
   "telecom": [
     {
       "system": "phone",
-      "value": "+43 664 555 1101"
+      "value": "+43 699 555 2201"
     },
     {
       "system": "email",
-      "value": "anna.gruber@example.demo"
+      "value": "petra.novak@example.demo"
     }
   ],
   "address": [
     {
-      "text": "Lindengasse 7/12, 1070 Vienna, Austria"
+      "text": "Kettenbrückengasse 22, 1050 Vienna, Austria"
     }
   ]
 }

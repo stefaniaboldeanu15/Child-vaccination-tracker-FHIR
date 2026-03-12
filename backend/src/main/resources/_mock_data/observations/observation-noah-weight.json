@@ -1,0 +1,25 @@
+{
+  "resourceType": "Observation",
+  "id": "obs-noah-weight",
+  "status": "final",
+  "code": {
+    "coding": [
+      {
+        "system": "http://loinc.org",
+        "code": "29463-7",
+        "display": "Body weight"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/patient-noah"
+  },
+  "encounter": {
+    "reference": "Encounter/enc-noah-2"
+  },
+  "effectiveDateTime": "2024-07-24T10:20:00Z",
+  "valueQuantity": {
+    "value": 7.4,
+    "unit": "kg"
+  }
+}

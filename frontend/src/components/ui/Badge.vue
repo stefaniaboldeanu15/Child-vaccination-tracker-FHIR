@@ -13,7 +13,7 @@ const props = defineProps<{ variant?: 'default' | 'outline'; class?: string }>()
 const attrs = useAttrs()
 
 const classes = computed(() => {
-  const base = 'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors'
+  const base = 'inline-flex shrink-0 items-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors'
   const variant = props.variant === 'outline'
     ? 'border border-border bg-transparent text-foreground'
     : 'bg-primary text-primary-foreground'

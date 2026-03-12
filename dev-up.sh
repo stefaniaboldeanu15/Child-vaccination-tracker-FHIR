@@ -69,13 +69,18 @@ seed_fhir() {
     shopt -u nullglob
   }
 
-  upload_folder "Practitioner"  "practitioners"
-  upload_folder "Organization"  "organizations"
-  upload_folder "Patient"       "patients"
-  upload_folder "RelatedPerson" "relatedpersons"
-  upload_folder "Immunization"  "immunizations"
-  upload_folder "Location"      "locations"
-  upload_folder "Encounter"     "encounters"
+  upload_folder "Practitioner"             "practitioners"
+  upload_folder "Organization"             "organizations"
+  upload_folder "Location"                 "locations"
+  upload_folder "Patient"                  "patients"
+  upload_folder "RelatedPerson"            "relatedpersons"
+  upload_folder "Encounter"                "encounters"
+  upload_folder "Immunization"             "immunizations"
+  upload_folder "Observation"              "observations"
+  upload_folder "Appointment"              "appointments"
+  upload_folder "AllergyIntolerance"       "allergies"
+  upload_folder "ImmunizationRecommendation" "recommendations"
+  upload_folder "AdverseEvent"             "adverseevents"
 
   echo "Seed complete."
 }

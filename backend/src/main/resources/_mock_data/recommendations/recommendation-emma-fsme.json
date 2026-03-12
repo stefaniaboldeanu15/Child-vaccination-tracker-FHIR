@@ -1,0 +1,35 @@
+{
+  "resourceType": "ImmunizationRecommendation",
+  "id": "rec-emma-fsme",
+  "patient": {
+    "reference": "Patient/patient-emma"
+  },
+  "recommendation": [
+    {
+      "vaccineCode": [
+        {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/cvx",
+              "code": "37",
+              "display": "FSME (Tick-borne encephalitis)"
+            }
+          ]
+        }
+      ],
+      "forecastStatus": {
+        "text": "due"
+      },
+      "dateCriterion": [
+        {
+          "code": {
+            "text": "due-date"
+          },
+          "value": "2026-04-02T00:00:00Z"
+        }
+      ],
+      "series": "Seasonal protection",
+      "doseNumber": "1"
+    }
+  ]
+}
