@@ -7,7 +7,6 @@
       </DialogHeader>
 
       <div class="space-y-4">
-        <!-- Catalog picker -->
         <div class="space-y-2">
           <Label>Vaccine (from catalog)</Label>
           <select
@@ -22,7 +21,13 @@
         <div class="grid grid-cols-2 gap-3">
           <div class="space-y-2">
             <Label for="rec-code">Vaccine code</Label>
-            <Input id="rec-code" v-model="vaccineCode" placeholder="e.g., 20" />
+            <Input
+              id="rec-code"
+              v-model="vaccineCode"
+              placeholder="e.g., 20"
+              :class="invalidFieldClass(showValidation && !!vaccineCodeError)"
+            />
+            <p v-if="showValidation && vaccineCodeError" class="text-xs text-red-600">{{ vaccineCodeError }}</p>
           </div>
           <div class="space-y-2">
             <Label for="rec-display">Vaccine display</Label>
@@ -37,12 +42,25 @@
               id="rec-due"
               type="date"
               v-model="dueDate"
-              class="border-input bg-input-background dark:bg-input/30 flex h-9 w-full rounded-md border px-3 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+              :class="[
+                'border-input bg-input-background dark:bg-input/30 flex h-9 w-full rounded-md border px-3 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50',
+                invalidFieldClass(showValidation && !!dueDateError),
+              ]"
             />
+            <p v-if="showValidation && dueDateError" class="text-xs text-red-600">{{ dueDateError }}</p>
           </div>
           <div class="space-y-2">
             <Label for="rec-dose">Dose number</Label>
-            <Input id="rec-dose" v-model="doseNumber" type="number" min="1" placeholder="e.g., 1" />
+            <Input
+              id="rec-dose"
+              v-model="doseNumber"
+              type="number"
+              min="1"
+              step="1"
+              placeholder="e.g., 1"
+              :class="invalidFieldClass(showValidation && !!doseNumberError)"
+            />
+            <p v-if="showValidation && doseNumberError" class="text-xs text-red-600">{{ doseNumberError }}</p>
           </div>
         </div>
 
@@ -56,11 +74,13 @@
           <Input id="rec-notes" v-model="notes" placeholder="Optional notes" />
         </div>
 
-        <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
+        <div v-if="error" class="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {{ error }}
+        </div>
 
         <div class="flex justify-end gap-2 pt-2">
           <Button variant="outline" @click="emit('update:open', false)" :disabled="loading">Cancel</Button>
-          <Button @click="submit" :disabled="loading || !vaccineCode.trim()">{{ loading ? 'Saving…' : 'Save' }}</Button>
+          <Button @click="submit" :disabled="loading || !canSubmit">{{ loading ? 'Saving…' : 'Save' }}</Button>
         </div>
       </div>
     </DialogContent>
@@ -80,6 +100,7 @@ import DialogDescription from '@/components/ui/DialogDescription.vue'
 import Label from '@/components/ui/Label.vue'
 import Input from '@/components/ui/Input.vue'
 import Button from '@/components/ui/Button.vue'
+import { invalidFieldClass, isBlank, isValidDateInput, toFriendlyFormError } from '@/utils/formFeedback'
 
 const props = defineProps<{ patientId: string; open: boolean }>()
 const emit = defineEmits<{
@@ -96,6 +117,7 @@ const series = ref('')
 const notes = ref('')
 const loading = ref(false)
 const error = ref<string | null>(null)
+const submitAttempted = ref(false)
 
 const catalogOptions = computed(() => {
   const map = new Map<string, { value: string; label: string; code: string; display: string }>()
@@ -108,6 +130,27 @@ const catalogOptions = computed(() => {
   }
   return Array.from(map.values()).sort((a, b) => a.label.localeCompare(b.label))
 })
+
+const vaccineCodeError = computed(() => {
+  if (isBlank(vaccineCode.value)) return 'Enter the recommended vaccine code.'
+  return ''
+})
+
+const dueDateError = computed(() => {
+  if (!dueDate.value.trim()) return ''
+  if (!isValidDateInput(dueDate.value)) return 'Enter a valid due date.'
+  return ''
+})
+
+const doseNumberError = computed(() => {
+  if (!doseNumber.value.trim()) return ''
+  const parsed = Number(doseNumber.value)
+  if (!Number.isInteger(parsed) || parsed < 1) return 'Dose number must be a whole number starting at 1.'
+  return ''
+})
+
+const canSubmit = computed(() => !vaccineCodeError.value && !dueDateError.value && !doseNumberError.value)
+const showValidation = computed(() => submitAttempted.value)
 
 watch(selectedCatalog, (v) => {
   if (!v) return
@@ -127,11 +170,19 @@ watch(() => props.open, (v) => {
     series.value = ''
     notes.value = ''
     error.value = null
+    submitAttempted.value = false
   }
 })
 
 async function submit() {
+  submitAttempted.value = true
   error.value = null
+
+  if (!canSubmit.value) {
+    error.value = 'Please review the recommendation details before saving.'
+    return
+  }
+
   loading.value = true
   try {
     await backendFetch(`/api/practitioner/patients/${encodeURIComponent(props.patientId)}/create-recommendation`, {
@@ -141,7 +192,7 @@ async function submit() {
         vaccineCode: vaccineCode.value.trim(),
         vaccineDisplay: vaccineDisplay.value.trim() || undefined,
         dueDate: dueDate.value || undefined,
-        doseNumber: doseNumber.value ? parseInt(doseNumber.value) : undefined,
+        doseNumber: doseNumber.value ? parseInt(doseNumber.value, 10) : undefined,
         series: series.value.trim() || undefined,
         notes: notes.value.trim() || undefined,
       }),
@@ -149,7 +200,7 @@ async function submit() {
     emit('saved')
     emit('update:open', false)
   } catch (e: any) {
-    error.value = String(e?.message ?? e)
+    error.value = toFriendlyFormError(e, 'Saving the recommendation')
   } finally {
     loading.value = false
   }

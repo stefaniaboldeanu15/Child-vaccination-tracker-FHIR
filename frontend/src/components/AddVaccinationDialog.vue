@@ -21,18 +21,30 @@
             <option value="custom">Custom</option>
           </select>
           <p class="text-xs text-muted-foreground">
-            This will autofill standard coding (CVX) when available. Use “Custom” for other systems.
+            This autofills standard CVX coding when available. Use “Custom” only when you need a non-standard code.
           </p>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
           <div class="space-y-2">
             <Label for-id="vaccineSystem">Vaccine system</Label>
-            <Input id="vaccineSystem" v-model="vaccineSystem" placeholder="e.g., http://hl7.org/fhir/sid/cvx" />
+            <Input
+              id="vaccineSystem"
+              v-model="vaccineSystem"
+              placeholder="e.g., http://hl7.org/fhir/sid/cvx"
+              :class="invalidFieldClass(showValidation && !!vaccineSystemError)"
+            />
+            <p v-if="showValidation && vaccineSystemError" class="text-xs text-red-600">{{ vaccineSystemError }}</p>
           </div>
           <div class="space-y-2">
             <Label for-id="vaccineCode">Vaccine code</Label>
-            <Input id="vaccineCode" v-model="vaccineCode" placeholder="e.g., 03" />
+            <Input
+              id="vaccineCode"
+              v-model="vaccineCode"
+              placeholder="e.g., 03"
+              :class="invalidFieldClass(showValidation && !!vaccineCodeError)"
+            />
+            <p v-if="showValidation && vaccineCodeError" class="text-xs text-red-600">{{ vaccineCodeError }}</p>
           </div>
         </div>
 
@@ -50,17 +62,23 @@
                 id="vaccination-date"
                 type="date"
                 v-model="date"
-                class="border-input bg-input-background dark:bg-input/30 flex h-9 w-full rounded-md border pl-10 pr-3 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                :class="[
+                  'border-input bg-input-background dark:bg-input/30 flex h-9 w-full rounded-md border pl-10 pr-3 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50',
+                  invalidFieldClass(showValidation && !!dateError),
+                ]"
               />
             </div>
+            <p v-if="showValidation && dateError" class="text-xs text-red-600">{{ dateError }}</p>
           </div>
         </div>
 
-        <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
+        <div v-if="error" class="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {{ error }}
+        </div>
 
         <div class="flex justify-end gap-2 pt-4">
           <Button variant="outline" type="button" @click="emit('update:open', false)" :disabled="loading">Cancel</Button>
-          <Button type="submit" :disabled="loading || !vaccineSystem.trim() || !vaccineCode.trim() || !date.trim()">{{ loading ? 'Saving…' : 'Save' }}</Button>
+          <Button type="submit" :disabled="loading || !canSubmit">{{ loading ? 'Saving…' : 'Save' }}</Button>
         </div>
       </form>
     </DialogContent>
@@ -83,6 +101,7 @@ import Input from '@/components/ui/Input.vue'
 import Label from '@/components/ui/Label.vue'
 
 import { vaccineCatalog } from '@/vaccines/vaccineCatalog'
+import { invalidFieldClass, isBlank, isFutureDate, isValidDateInput, toFriendlyFormError } from '@/utils/formFeedback'
 
 const props = defineProps<{ patientId: string; doctorId: string; open: boolean }>()
 const emit = defineEmits<{
@@ -95,13 +114,9 @@ const selectedCatalog = ref<string>('')
 const vaccineSystem = ref('http://hl7.org/fhir/sid/cvx')
 const vaccineCode = ref('')
 const vaccineDisplay = ref('')
-const manufacturer = ref('')
-const lotNumber = ref('')
-const location = ref('')
-const notes = ref('')
-
 const loading = ref(false)
 const error = ref<string | null>(null)
+const submitAttempted = ref(false)
 
 const catalogOptions = computed(() => {
   const map = new Map<string, { value: string; label: string; system: string; code: string; display: string }>()
@@ -115,6 +130,26 @@ const catalogOptions = computed(() => {
   }
   return Array.from(map.values()).sort((a, b) => a.label.localeCompare(b.label))
 })
+
+const vaccineSystemError = computed(() => {
+  if (isBlank(vaccineSystem.value)) return 'Choose or enter a coding system.'
+  return ''
+})
+
+const vaccineCodeError = computed(() => {
+  if (isBlank(vaccineCode.value)) return 'Enter a vaccine code.'
+  return ''
+})
+
+const dateError = computed(() => {
+  if (isBlank(date.value)) return 'Choose the vaccination date.'
+  if (!isValidDateInput(date.value)) return 'Enter a valid date.'
+  if (isFutureDate(date.value)) return 'Vaccination dates cannot be in the future.'
+  return ''
+})
+
+const canSubmit = computed(() => !vaccineSystemError.value && !vaccineCodeError.value && !dateError.value)
+const showValidation = computed(() => submitAttempted.value)
 
 watch(
   () => selectedCatalog.value,
@@ -133,44 +168,47 @@ watch(
   },
 )
 
-function buildNote(): string {
-  const parts: string[] = []
-  if (manufacturer.value.trim()) parts.push(`Manufacturer: ${manufacturer.value.trim()}`)
-  if (location.value.trim()) parts.push(`Location: ${location.value.trim()}`)
-  if (notes.value.trim()) parts.push(notes.value.trim())
-  return parts.join(' | ')
-}
-
-async function handleSubmit() {
-  error.value = null
-  loading.value = true
-  try {
-    await backendFetch(`/api/practitioner/patients/${encodeURIComponent(props.patientId)}/create-immunization`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      vaccineSystem: vaccineSystem.value.trim() || undefined,
-      vaccineCode: vaccineCode.value.trim(),
-      vaccineDisplay: vaccineDisplay.value.trim() || undefined,
-      date: date.value, // YYYY-MM-DD
-      performerId: props.doctorId || undefined,
-    }),
-  })
-
-    emit('update:open', false)
-    emit('saved')
-
-    // reset
+watch(
+  () => props.open,
+  (v) => {
+    if (!v) return
+    date.value = new Date().toISOString().slice(0, 10)
     selectedCatalog.value = ''
     vaccineSystem.value = 'http://hl7.org/fhir/sid/cvx'
     vaccineCode.value = ''
     vaccineDisplay.value = ''
-    manufacturer.value = ''
-    lotNumber.value = ''
-    location.value = ''
-    notes.value = ''
+    error.value = null
+    submitAttempted.value = false
+  },
+)
+
+async function handleSubmit() {
+  submitAttempted.value = true
+  error.value = null
+
+  if (!canSubmit.value) {
+    error.value = 'Please complete the required vaccination details before saving.'
+    return
+  }
+
+  loading.value = true
+  try {
+    await backendFetch(`/api/practitioner/patients/${encodeURIComponent(props.patientId)}/create-immunization`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        vaccineSystem: vaccineSystem.value.trim() || undefined,
+        vaccineCode: vaccineCode.value.trim(),
+        vaccineDisplay: vaccineDisplay.value.trim() || undefined,
+        date: date.value,
+        performerId: props.doctorId || undefined,
+      }),
+    })
+
+    emit('update:open', false)
+    emit('saved')
   } catch (e) {
-    error.value = String(e)
+    error.value = toFriendlyFormError(e, 'Saving the vaccination')
   } finally {
     loading.value = false
   }

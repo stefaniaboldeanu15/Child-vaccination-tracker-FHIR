@@ -10,7 +10,13 @@
         <div class="grid grid-cols-2 gap-3">
           <div class="space-y-2">
             <Label for="ae-display">Event name</Label>
-            <Input id="ae-display" v-model="display" placeholder="e.g., Injection site reaction" />
+            <Input
+              id="ae-display"
+              v-model="display"
+              placeholder="e.g., Injection site reaction"
+              :class="invalidFieldClass(showValidation && !!displayError)"
+            />
+            <p v-if="showValidation && displayError" class="text-xs text-red-600">{{ displayError }}</p>
           </div>
           <div class="space-y-2">
             <Label for="ae-code">Event code</Label>
@@ -60,8 +66,12 @@
             id="ae-date"
             type="datetime-local"
             v-model="date"
-            class="border-input bg-input-background dark:bg-input/30 flex h-9 w-full rounded-md border px-3 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            :class="[
+              'border-input bg-input-background dark:bg-input/30 flex h-9 w-full rounded-md border px-3 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50',
+              invalidFieldClass(showValidation && !!dateError),
+            ]"
           />
+          <p v-if="showValidation && dateError" class="text-xs text-red-600">{{ dateError }}</p>
         </div>
 
         <div class="space-y-2">
@@ -86,11 +96,13 @@
           </div>
         </div>
 
-        <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
+        <div v-if="error" class="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {{ error }}
+        </div>
 
         <div class="flex justify-end gap-2 pt-2">
           <Button variant="outline" @click="emit('update:open', false)" :disabled="loading">Cancel</Button>
-          <Button @click="submit" :disabled="loading || !display.trim()">{{ loading ? 'Saving…' : 'Save' }}</Button>
+          <Button @click="submit" :disabled="loading || !canSubmit">{{ loading ? 'Saving…' : 'Save' }}</Button>
         </div>
       </div>
     </DialogContent>
@@ -98,7 +110,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { backendFetch } from '@/api/backend'
 
 import Dialog from '@/components/ui/Dialog.vue'
@@ -109,6 +121,7 @@ import DialogDescription from '@/components/ui/DialogDescription.vue'
 import Label from '@/components/ui/Label.vue'
 import Input from '@/components/ui/Input.vue'
 import Button from '@/components/ui/Button.vue'
+import { invalidFieldClass, isBlank, isFutureDateTime, isValidDateTimeLocal, toFriendlyFormError } from '@/utils/formFeedback'
 
 const props = defineProps<{ patientId: string; open: boolean }>()
 const emit = defineEmits<{
@@ -127,6 +140,22 @@ const immunizationId = ref('')
 const encounterId = ref('')
 const loading = ref(false)
 const error = ref<string | null>(null)
+const submitAttempted = ref(false)
+
+const displayError = computed(() => {
+  if (isBlank(display.value)) return 'Enter a short name for the adverse event.'
+  return ''
+})
+
+const dateError = computed(() => {
+  if (!date.value.trim()) return ''
+  if (!isValidDateTimeLocal(date.value)) return 'Enter a valid event date and time.'
+  if (isFutureDateTime(date.value)) return 'Adverse events cannot be recorded in the future.'
+  return ''
+})
+
+const canSubmit = computed(() => !displayError.value && !dateError.value)
+const showValidation = computed(() => submitAttempted.value)
 
 watch(() => props.open, (v) => {
   if (v) {
@@ -140,11 +169,19 @@ watch(() => props.open, (v) => {
     immunizationId.value = ''
     encounterId.value = ''
     error.value = null
+    submitAttempted.value = false
   }
 })
 
 async function submit() {
+  submitAttempted.value = true
   error.value = null
+
+  if (!canSubmit.value) {
+    error.value = 'Please review the adverse event details before saving.'
+    return
+  }
+
   loading.value = true
   try {
     await backendFetch(`/api/practitioner/patients/${encodeURIComponent(props.patientId)}/adverse-events`, {
@@ -165,7 +202,7 @@ async function submit() {
     emit('saved')
     emit('update:open', false)
   } catch (e: any) {
-    error.value = String(e?.message ?? e)
+    error.value = toFriendlyFormError(e, 'Saving the adverse event')
   } finally {
     loading.value = false
   }

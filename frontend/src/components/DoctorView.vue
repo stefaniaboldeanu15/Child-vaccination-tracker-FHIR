@@ -70,6 +70,9 @@
           </Button>
         </div>
         <p v-if="patientsError" class="mt-3 text-sm text-red-600">{{ patientsError }}</p>
+        <div v-if="successMessage" class="mt-3 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+          {{ successMessage }}
+        </div>
       </CardContent>
     </Card>
 
@@ -141,7 +144,7 @@
       :doctor-id="doctorId"
       :open="isAddDialogOpen"
       @update:open="isAddDialogOpen = $event"
-      @saved="handleSaved"
+      @saved="handleVaccinationSaved"
     />
 
     <PatientDetailsDialog
@@ -165,6 +168,7 @@
       :initial-first-name="editingPatient.firstName"
       :initial-last-name="editingPatient.lastName"
       :initial-birth-date="editingPatient.birthDate"
+      :initial-gender="editingPatient.gender"
       @update:open="editPatientOpen = $event"
       @saved="handlePatientEdited"
     />
@@ -175,7 +179,7 @@
       :patient-id="managingRelatedPatient.id"
       :related-persons="managingRelatedPatient.relatedPersons ?? []"
       @update:open="manageRelatedOpen = $event"
-      @changed="loadPatients"
+      @changed="handleRelatedPersonsChanged"
     />
   </div>
 </template>
@@ -254,6 +258,7 @@ const searchTerm = ref('')
 const patients = ref<PatientCandidate[]>([])
 const patientsLoading = ref(false)
 const patientsError = ref<string | null>(null)
+const successMessage = ref('')
 const lastQueryLabel = ref('—')
 
 function initials(display: string) {
@@ -384,6 +389,7 @@ const managingRelatedPatient = computed(() =>
 )
 
 function handlePatientCreated(patientId: string) {
+  successMessage.value = 'Patient created successfully.'
   void loadPatients()
   selectedPatientId.value = patientId
   isDetailsDialogOpen.value = true
@@ -405,6 +411,7 @@ function handleEditPatient(p: PatientCandidate) {
 }
 
 function handlePatientEdited() {
+  successMessage.value = 'Patient details updated.'
   void loadPatients()
 }
 
@@ -413,9 +420,15 @@ function handleManageRelatedPersons(p: PatientCandidate) {
   manageRelatedOpen.value = true
 }
 
-function handleSaved() {
+function handleVaccinationSaved() {
+  successMessage.value = 'Vaccination saved successfully.'
   if (isDetailsDialogOpen.value) {
     detailsReloadKey.value++
   }
+}
+
+function handleRelatedPersonsChanged() {
+  successMessage.value = 'Related persons updated.'
+  void loadPatients()
 }
 </script>

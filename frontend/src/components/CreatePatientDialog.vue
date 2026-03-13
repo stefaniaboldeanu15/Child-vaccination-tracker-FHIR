@@ -25,8 +25,12 @@
               id="birth"
               type="date"
               v-model="birthDate"
-              class="border-input bg-input-background dark:bg-input/30 flex h-9 w-full rounded-md border px-3 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+              :class="[
+                'border-input bg-input-background dark:bg-input/30 flex h-9 w-full rounded-md border px-3 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50',
+                invalidFieldClass(showValidation && !!birthDateError),
+              ]"
             />
+            <p v-if="showValidation && birthDateError" class="text-xs text-red-600">{{ birthDateError }}</p>
           </div>
 
           <div class="space-y-2">
@@ -45,11 +49,13 @@
           </div>
         </div>
 
-        <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
+        <div v-if="error" class="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {{ error }}
+        </div>
 
         <div class="flex items-center justify-end gap-2 pt-1">
           <Button variant="outline" @click="emit('update:open', false)" :disabled="loading">Cancel</Button>
-          <Button @click="create" :disabled="loading || !canSubmit">Create</Button>
+          <Button @click="create" :disabled="loading || !canSubmit">{{ loading ? 'Creating…' : 'Create' }}</Button>
         </div>
       </div>
     </DialogContent>
@@ -68,6 +74,7 @@ import DialogDescription from '@/components/ui/DialogDescription.vue'
 import Label from '@/components/ui/Label.vue'
 import Input from '@/components/ui/Input.vue'
 import Button from '@/components/ui/Button.vue'
+import { invalidFieldClass, isFutureDate, isValidDateInput, toFriendlyFormError } from '@/utils/formFeedback'
 
 const props = defineProps<{ open: boolean }>()
 const emit = defineEmits<{
@@ -82,22 +89,37 @@ const gender = ref('')
 
 const loading = ref(false)
 const error = ref<string | null>(null)
+const submitAttempted = ref(false)
 
-const canSubmit = computed(() => {
-  return !!(givenName.value.trim() || familyName.value.trim())
+const birthDateError = computed(() => {
+  if (!birthDate.value.trim()) return ''
+  if (!isValidDateInput(birthDate.value)) return 'Enter a valid birth date.'
+  if (isFutureDate(birthDate.value)) return 'Birth dates cannot be in the future.'
+  return ''
 })
 
+const canSubmit = computed(() => !!(givenName.value.trim() || familyName.value.trim()) && !birthDateError.value)
+const showValidation = computed(() => submitAttempted.value)
+
 watch(() => props.open, (v) => {
-    if (!v) return
-    error.value = null
-    givenName.value = ''
-    familyName.value = ''
-    birthDate.value = ''
-    gender.value = ''
+  if (!v) return
+  error.value = null
+  givenName.value = ''
+  familyName.value = ''
+  birthDate.value = ''
+  gender.value = ''
+  submitAttempted.value = false
 })
 
 async function create() {
+  submitAttempted.value = true
   error.value = null
+
+  if (!canSubmit.value) {
+    error.value = birthDateError.value || 'Enter at least a given name or family name.'
+    return
+  }
+
   loading.value = true
   try {
     const res = await backendFetch('/api/practitioner/dashboard/patients', {
@@ -116,7 +138,7 @@ async function create() {
     emit('created', patientId)
     emit('update:open', false)
   } catch (e: any) {
-    error.value = String(e?.message ?? e)
+    error.value = toFriendlyFormError(e, 'Creating the patient')
   } finally {
     loading.value = false
   }

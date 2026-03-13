@@ -69,6 +69,9 @@
 
           <p v-if="loading" class="text-sm text-muted-foreground">Loading…</p>
           <p v-else-if="error" class="text-sm text-red-600 whitespace-pre-wrap">{{ error }}</p>
+          <div v-if="successMessage" class="rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+            {{ successMessage }}
+          </div>
         </div>
 
         <!-- Stat cards -->
@@ -522,25 +525,25 @@
     :patient-id="patientId"
     :open="createRecOpen"
     @update:open="createRecOpen = $event"
-    @saved="loadAll"
+    @saved="handleRecordSaved('Recommendation saved.')"
   />
   <CreateAppointmentDialog
     :patient-id="patientId"
     :open="createApptOpen"
     @update:open="createApptOpen = $event"
-    @saved="loadAll"
+    @saved="handleRecordSaved('Appointment saved.')"
   />
   <CreateAdverseEventDialog
     :patient-id="patientId"
     :open="createAdvOpen"
     @update:open="createAdvOpen = $event"
-    @saved="loadAll"
+    @saved="handleRecordSaved('Adverse event saved.')"
   />
   <CreateEncounterDialog
     :patient-id="patientId"
     :open="createEncOpen"
     @update:open="createEncOpen = $event"
-    @saved="loadAll"
+    @saved="handleRecordSaved('Encounter saved.')"
   />
 </template>
 
@@ -710,6 +713,7 @@ const emit = defineEmits<{ (e: 'update:open', v: boolean): void }>()
 const activeTab = ref('overview')
 const loading = ref(false)
 const error = ref<string | null>(null)
+const successMessage = ref('')
 
 const overview = ref<PatientClinicalOverviewDTO | null>(null)
 const immunizations = ref<ImmunizationDTO[]>([])
@@ -914,6 +918,11 @@ function statusBadgeClass(status?: string) {
   return 'bg-white'
 }
 
+async function handleRecordSaved(message: string) {
+  successMessage.value = message
+  await loadAll()
+}
+
 async function loadAll() {
   if (!props.patientId?.trim()) return
 
@@ -967,7 +976,11 @@ async function loadAll() {
 
 watch(
   () => props.open,
-  (v) => { if (v && props.patientId) void loadAll() },
+  (v) => {
+    if (!v) return
+    successMessage.value = ''
+    if (props.patientId) void loadAll()
+  },
 )
 
 watch(

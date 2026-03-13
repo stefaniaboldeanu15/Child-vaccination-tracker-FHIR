@@ -182,7 +182,6 @@ async function submitRegister() {
           <Card v-if="activeTab === 'login'" class="bg-white shadow-sm">
             <CardHeader>
               <CardTitle>Sign in</CardTitle>
-              <CardDescription>Use your related-person username and password.</CardDescription>
             </CardHeader>
             <CardContent class="space-y-4">
               <p v-if="regSuccess" class="rounded bg-green-50 px-3 py-2 text-sm text-green-700">
