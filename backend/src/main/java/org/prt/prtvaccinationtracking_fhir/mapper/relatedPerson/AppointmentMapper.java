@@ -1,87 +1,183 @@
 package org.prt.prtvaccinationtracking_fhir.mapper.relatedPerson;
 
 import org.hl7.fhir.r5.model.*;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.AppointmentDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.CreateAppointmentRequest;
-import org.prt.prtvaccinationtracking_fhir.mapper.practitioner.BaseMapperConfig;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.appointment.AppointmentDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.appointment.CreateAppointmentRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.appointment.UpdateAppointmentRequestDTO;
+import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
-@Mapper(config = BaseMapperConfig.class)
-public interface AppointmentMapper {
+@Component
+public class AppointmentMapper {
 
-    // FHIR → DTO (RelatedPerson portal view)
-    @Mapping(target = "id", expression = "java(resource.getIdElement().getIdPart())")
-    @Mapping(target = "patientId", expression = "java(extractParticipantId(resource, \"Patient\"))")
-    @Mapping(target = "patientName", expression = "java(extractParticipantName(resource, \"Patient\"))")
-    @Mapping(target = "relatedPersonId", expression = "java(extractParticipantId(resource, \"RelatedPerson\"))")
-    @Mapping(target = "relatedPersonName", expression = "java(extractParticipantName(resource, \"RelatedPerson\"))")
-    @Mapping(target = "start", expression = "java(toLocalDateTime(resource.getStartElement()))")
-    @Mapping(target = "end", expression = "java(toLocalDateTime(resource.getEndElement()))")
-    @Mapping(target = "status", expression = "java(resource.getStatus() != null ? resource.getStatus().toCode() : null)")
-    @Mapping(target = "location", expression = "java(resource.hasDescription() ? resource.getDescription() : null)")
-    @Mapping(target = "reason", expression = "java(resource.hasReason() ? resource.getReasonFirstRep().getText() : null)")
-    AppointmentDTO toDTO(Appointment resource);
+    private final MapperSupport support;
 
-    // CREATE DTO → FHIR
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "status", expression = "java(org.hl7.fhir.r5.model.Enumerations.AppointmentStatus.BOOKED)")
-    @Mapping(target = "description", source = "reason")
-    @Mapping(target = "start", expression = "java(toDate(dto.getStart()))")
-    @Mapping(target = "end", expression = "java(toDate(dto.getEnd()))")
-    @Mapping(target = "participant", expression = "java(buildParticipants(dto.getPatientId()))")
-    Appointment toResource(CreateAppointmentRequest dto);
-
-    // Helpers
-
-    default String extractParticipantId(Appointment resource, String typePrefix) {
-        return resource.getParticipant().stream()
-                .filter(p -> p.getActor() != null
-                        && p.getActor().getReference() != null
-                        && p.getActor().getReference().startsWith(typePrefix + "/"))
-                .map(p -> p.getActor().getReferenceElement().getIdPart())
-                .findFirst()
-                .orElse(null);
+    public AppointmentMapper(MapperSupport support) {
+        this.support = support;
     }
 
-    default String extractParticipantName(Appointment resource, String typePrefix) {
-        return resource.getParticipant().stream()
-                .filter(p -> p.getActor() != null
-                        && p.getActor().getReference() != null
-                        && p.getActor().getReference().startsWith(typePrefix + "/")
-                        && p.getActor().hasDisplay())
-                .map(p -> p.getActor().getDisplay())
-                .findFirst()
-                .orElse(null);
+    public AppointmentDTO toDTO(Appointment resource) {
+        if (resource == null) {
+            return null;
+        }
+
+        return new AppointmentDTO(
+                resource.getIdElement().getIdPart(),
+                resource.hasStatus() ? resource.getStatus().toCode() : null,
+                toLocalDateTime(resource.hasStart() ? resource.getStart() : null),
+                toLocalDateTime(resource.hasEnd() ? resource.getEnd() : null),
+                extractReason(resource),
+                extractPractitionerName(resource),
+                extractPatientId(resource),
+                extractLocationId(resource)
+        );
     }
 
-    default List<Appointment.AppointmentParticipantComponent> buildParticipants(String patientId) {
-        Appointment.AppointmentParticipantComponent patient =
-                new Appointment.AppointmentParticipantComponent()
-                        .setActor(new Reference("Patient/" + patientId))
-                        .setStatus(Appointment.ParticipationStatus.ACCEPTED);
+    public Appointment toResource(CreateAppointmentRequestDTO dto) {
+        if (dto == null) {
+            return null;
+        }
 
-        return List.of(patient);
+        Appointment resource = new Appointment();
+
+        if (dto.start() != null) {
+            resource.setStart(toDate(dto.start()));
+        }
+
+        if (dto.end() != null) {
+            resource.setEnd(toDate(dto.end()));
+        }
+
+        if (dto.reason() != null && !dto.reason().isBlank()) {
+            resource.setReason(List.of(
+                    new CodeableReference(new CodeableConcept().setText(dto.reason()))
+            ));
+        }
+
+        if (dto.patientId() != null && !dto.patientId().isBlank()) {
+            resource.addParticipant().setActor(support.toPatientReference(dto.patientId()));
+        }
+
+        if (dto.locationId() != null && !dto.locationId().isBlank()) {
+            resource.addParticipant().setActor(support.toLocationReference(dto.locationId()));
+        }
+
+        resource.setStatus(Appointment.AppointmentStatus.BOOKED);
+        return resource;
     }
 
-    default LocalDateTime toLocalDateTime(DateTimeType dateTime) {
-        if (dateTime == null || dateTime.getValue() == null) return null;
+    public void updateResource(UpdateAppointmentRequestDTO dto, Appointment resource) {
+        if (dto == null || resource == null) {
+            return;
+        }
 
-        return dateTime.getValue().toInstant()
+        if (dto.start() != null) {
+            resource.setStart(toDate(dto.start()));
+        }
+
+        if (dto.end() != null) {
+            resource.setEnd(toDate(dto.end()));
+        }
+
+        if (dto.status() != null && !dto.status().isBlank()) {
+            resource.setStatus(Appointment.AppointmentStatus.fromCode(dto.status()));
+        }
+    }
+
+    private String extractReason(Appointment resource) {
+        if (!resource.hasReason() || resource.getReason().isEmpty()) {
+            return null;
+        }
+
+        CodeableReference reason = resource.getReasonFirstRep();
+        if (reason == null || !reason.hasConcept()) {
+            return null;
+        }
+
+        return support.codeableConceptToText(reason.getConcept());
+    }
+
+    private String extractPatientId(Appointment resource) {
+        for (Appointment.AppointmentParticipantComponent participant : resource.getParticipant()) {
+            if (participant == null || !participant.hasActor()) {
+                continue;
+            }
+
+            Reference actor = participant.getActor();
+            if (actor.hasReference() && actor.getReference().startsWith("Patient/")) {
+                return support.referenceToId(actor);
+            }
+        }
+        return null;
+    }
+
+    private String extractLocationId(Appointment resource) {
+        for (Appointment.AppointmentParticipantComponent participant : resource.getParticipant()) {
+            if (participant == null || !participant.hasActor()) {
+                continue;
+            }
+
+            Reference actor = participant.getActor();
+            if (actor.hasReference() && actor.getReference().startsWith("Location/")) {
+                return support.referenceToId(actor);
+            }
+        }
+        return null;
+    }
+
+    private String extractPractitionerName(Appointment resource) {
+        for (Appointment.AppointmentParticipantComponent participant : resource.getParticipant()) {
+            if (participant == null || !participant.hasActor()) {
+                continue;
+            }
+
+            Reference actor = participant.getActor();
+            if (!actor.hasReference() || !actor.getReference().startsWith("Practitioner/")) {
+                continue;
+            }
+
+            if (actor.getResource() instanceof Practitioner practitioner && practitioner.hasName()) {
+                HumanName name = practitioner.getNameFirstRep();
+                String given = name.hasGiven() && !name.getGiven().isEmpty()
+                        ? name.getGiven().get(0).getValue()
+                        : null;
+                String family = name.hasFamily() ? name.getFamily() : null;
+
+                if (given != null && family != null) {
+                    return given + " " + family;
+                }
+                if (given != null) {
+                    return given;
+                }
+                if (family != null) {
+                    return family;
+                }
+            }
+
+            return support.referenceToId(actor);
+        }
+
+        return null;
+    }
+
+    private Date toDate(LocalDateTime value) {
+        if (value == null) {
+            return null;
+        }
+        return Date.from(value.atZone(ZoneId.systemDefault()).toInstant());
+    }
+
+    private LocalDateTime toLocalDateTime(Date value) {
+        if (value == null) {
+            return null;
+        }
+        return Instant.ofEpochMilli(value.getTime())
                 .atZone(ZoneId.systemDefault())
                 .toLocalDateTime();
     }
-
-    default Date toDate(LocalDateTime dateTime) {
-        if (dateTime == null) return null;
-
-        return Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
-    }
 }
-
-
