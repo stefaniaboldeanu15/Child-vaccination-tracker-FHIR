@@ -1,0 +1,31 @@
+{
+  "resourceType": "CodeSystem",
+  "id": "adverse-event-outcome",
+  "url": "http://terminology.hl7.org/CodeSystem/adverse-event-outcome",
+  "version": "5.0.0",
+  "name": "AdverseEventOutcome",
+  "title": "Adverse Event Outcome",
+  "status": "active",
+  "experimental": false,
+  "publisher": "HL7",
+  "description": "Outcome of an adverse event.",
+  "caseSensitive": true,
+  "content": "complete",
+  "concept": [
+    {
+      "code": "resolved",
+      "display": "Resolved",
+      "definition": "The adverse event has resolved."
+    },
+    {
+      "code": "ongoing",
+      "display": "Ongoing",
+      "definition": "The adverse event is ongoing."
+    },
+    {
+      "code": "fatal",
+      "display": "Fatal",
+      "definition": "The adverse event resulted in death."
+    }
+  ]
+}

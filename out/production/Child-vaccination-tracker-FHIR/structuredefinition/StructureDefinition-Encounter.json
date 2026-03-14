@@ -1,0 +1,20 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "encounter-pediatric",
+  "url": "http://example.org/fhir/StructureDefinition/encounter-pediatric",
+  "version": "1.0.0",
+  "name": "EncounterPediatric",
+  "status": "active",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Encounter",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Encounter",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      { "path": "Encounter.status", "min": 1 },
+      { "path": "Encounter.class", "min": 1 },
+      { "path": "Encounter.subject", "min": 1 }
+    ]
+  }
+}
