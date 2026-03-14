@@ -6,10 +6,59 @@
   <component name="ChangeListManager">
     <list default="true" id="2c478b76-e8c4-455e-8ca7-ea74f60e425b" name="Changes" comment="Revert &quot;comit&quot;&#10;&#10;This reverts commit f026c80b">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/target/classes/application.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/target/classes/valuesets/adverseEvent/ValueSet-adverse-event-actuality.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/target/classes/valuesets/adverseEvent/ValueSet-adverse-event-status.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/target/classes/valuesets/allergyIntolerance/ValueSet-allergyintolerance-clinical.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/controller/relatedPerson/AdverseEventController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/controller/relatedPerson/AllergyIntoleranceController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/controller/relatedPerson/AppointmentController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/controller/relatedPerson/CarePlanController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/controller/relatedPerson/CommunicationController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/controller/relatedPerson/ConditionController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/controller/relatedPerson/ConsentController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/controller/relatedPerson/EncounterController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/controller/relatedPerson/GoalController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/controller/relatedPerson/ImmunizationController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/controller/relatedPerson/LocationController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/controller/relatedPerson/ObservationController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/controller/relatedPerson/OrganizationController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/controller/relatedPerson/PatientController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/controller/relatedPerson/PractitionerController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/controller/relatedPerson/RecommendationController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/controller/relatedPerson/RelatedPersonController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/dto/relatedPerson/patient/PatientDetailsDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/dto/relatedPerson/patient/PatientDetailsDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/mapper/relatedPerson/AdverseEventMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/mapper/relatedPerson/AllergyIntoleranceMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/mapper/relatedPerson/AppointmentMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/mapper/relatedPerson/CarePlanMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/mapper/relatedPerson/CommunicationMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/mapper/relatedPerson/ConditionMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/mapper/relatedPerson/ConsentMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/mapper/relatedPerson/EncounterMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/mapper/relatedPerson/GoalMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/mapper/relatedPerson/ImmunizationMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/mapper/relatedPerson/LocationMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/mapper/relatedPerson/MapperSupport.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/mapper/relatedPerson/ObservationMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/mapper/relatedPerson/OrganizationMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/mapper/relatedPerson/PatientMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/mapper/relatedPerson/PractitionerMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/mapper/relatedPerson/RecommendationMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/mapper/relatedPerson/RelatedPersonMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/service/relatedPerson/AdverseEventService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/service/relatedPerson/AllergyIntoleranceService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/service/relatedPerson/AppointmentService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/service/relatedPerson/CarePlanService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/service/relatedPerson/CommunicationService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/service/relatedPerson/ConditionService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/service/relatedPerson/ConsentService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/service/relatedPerson/EncounterService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/service/relatedPerson/GoalService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/service/relatedPerson/ImmunizationRecommendationService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/service/relatedPerson/ImmunizationService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/service/relatedPerson/LocationService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/service/relatedPerson/ObservationService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/service/relatedPerson/OrganizationService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/service/relatedPerson/PatientService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/service/relatedPerson/PractitionerService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/service/relatedPerson/RelatedPersonService.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,57 +111,60 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;HTTP Request.generated-requests | #16.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP Request.generated-requests | #2.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP Request.generated-requests | #22.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP Request.generated-requests | #3.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP Request.generated-requests | #5.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP Request.generated-requests | #6.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP Request.generated-requests | #7.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP Request.generated-requests | #9.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
-    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
-    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
-    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;SHELLCHECK.PATH&quot;: &quot;I do mind&quot;,
-    &quot;Spring Boot.PrtVaccinationTrackingFhirApplication.executor&quot;: &quot;Run&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/MASTER/PRT - Vaccination Tracking FHIR - IntelliJ IDEA/Child-vaccination-tracker-FHIR/frontend&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.20898438&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.4\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "HTTP Request.generated-requests | #16.executor": "Run",
+    "HTTP Request.generated-requests | #2.executor": "Run",
+    "HTTP Request.generated-requests | #22.executor": "Run",
+    "HTTP Request.generated-requests | #3.executor": "Run",
+    "HTTP Request.generated-requests | #5.executor": "Run",
+    "HTTP Request.generated-requests | #6.executor": "Run",
+    "HTTP Request.generated-requests | #7.executor": "Run",
+    "HTTP Request.generated-requests | #9.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHELLCHECK.PATH": "I do mind",
+    "Spring Boot.PrtVaccinationTrackingFhirApplication.executor": "Run",
+    "git-widget-placeholder": "related-person-fix",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/yusra/Desktop/Child-vaccination-tracker-FHIR/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/mapper",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.20898438",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.4\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;ChangesTree.GroupingKeys&quot;: [
-      &quot;directory&quot;,
-      &quot;module&quot;,
-      &quot;repository&quot;
+  "keyToStringList": {
+    "ChangesTree.GroupingKeys": [
+      "directory",
+      "module",
+      "repository"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
       <recent name="org.prt.prtvaccinationtracking_fhir.service.practitioner" />
       <recent name="org.prt.prtvaccinationtracking_fhir.fhir.validation" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\yusra\Desktop\Child-vaccination-tracker-FHIR\backend\src\main\java\org\prt\prtvaccinationtracking_fhir\mapper" />
+      <recent name="C:\Users\yusra\Desktop\Child-vaccination-tracker-FHIR\backend\src\main\java\org\prt\prtvaccinationtracking_fhir\controller" />
+      <recent name="C:\Users\yusra\Desktop\Child-vaccination-tracker-FHIR\backend\src\main\java\org\prt\prtvaccinationtracking_fhir\service" />
+      <recent name="C:\Users\yusra\Desktop\Child-vaccination-tracker-FHIR\backend\src\main\java\org\prt\prtvaccinationtracking_fhir\service\practitioner" />
       <recent name="D:\MASTER\PRT - Vaccination Tracking FHIR - IntelliJ IDEA\Child-vaccination-tracker-FHIR\frontend" />
-      <recent name="D:\MASTER\PRT - Vaccination Tracking FHIR - IntelliJ IDEA\Child-vaccination-tracker-FHIR\backend\src\main\java\org\prt\prtvaccinationtracking_fhir\config" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\MASTER\PRT - Vaccination Tracking FHIR - IntelliJ IDEA\Child-vaccination-tracker-FHIR\frontend" />
@@ -146,7 +198,7 @@
       <option name="ALTERNATIVE_JRE_PATH" value="17" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
       <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
-      <module name="backend" />
+      <module name="prt-vaccination-tracking-fhir-backend" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="org.prt.prtvaccinationtracking_fhir.PrtVaccinationTrackingFhirApplication" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -246,6 +298,11 @@
     <option name="version" value="3" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
+    <option name="OPEN_GENERIC_TABS">
+      <map>
+        <entry key="71bf8645-cea8-42f5-ac02-96821d32748c" value="TOOL_WINDOW" />
+      </map>
+    </option>
     <option name="RECENT_FILTERS">
       <map>
         <entry key="Branch">
@@ -268,6 +325,30 @@
     </option>
     <option name="TAB_STATES">
       <map>
+        <entry key="71bf8645-cea8-42f5-ac02-96821d32748c">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="main" />
+                      </list>
+                    </value>
+                  </entry>
+                  <entry key="roots">
+                    <value>
+                      <list>
+                        <option value="$PROJECT_DIR$" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
         <entry key="MAIN">
           <value>
             <State>
@@ -291,7 +372,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="commit" />
     <MESSAGE value="Revert &quot;comit&quot;&#10;&#10;This reverts commit f026c80b" />
-    <option name="LAST_COMMIT_MESSAGE" value="Revert &quot;comit&quot;&#10;&#10;This reverts commit f026c80b" />
+    <MESSAGE value="Commit to new branch from main" />
+    <option name="LAST_COMMIT_MESSAGE" value="Commit to new branch from main" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -1,0 +1,19 @@
+POST http://localhost:8081/api/related-person/adverse-events
+Content-Type: application/json
+Content-Length: 150
+User-Agent: IntelliJ HTTP Client/IntelliJ IDEA 2025.2.6.1
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+{
+  "status": "IN_PROGRESS",
+  "actuality": "ACTUAL",
+  "patientId": "1000",
+  "category": "Fever after vaccination",
+  "recordedDate": "2026-03-14"
+}
+
+<> 2026-03-14T204501.500.json
+
+###
+
