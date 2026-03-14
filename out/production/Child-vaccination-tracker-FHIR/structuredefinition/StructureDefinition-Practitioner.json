@@ -1,0 +1,38 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "practitioner-childcare",
+  "url": "http://example.org/fhir/StructureDefinition/practitioner-childcare",
+  "version": "1.0.0",
+  "name": "PractitionerChildcare",
+  "status": "active",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Practitioner",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Practitioner",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      { "path": "Practitioner.identifier", "min": 1 },
+      {
+        "path": "Practitioner.identifier.system",
+        "min": 1,
+        "fixedUri": "http://hospital.smarthealthit.org/practitioners"
+      },
+      { "path": "Practitioner.identifier.value", "min": 1 },
+
+      { "path": "Practitioner.name", "min": 1 },
+      { "path": "Practitioner.name.family", "min": 1 },
+      { "path": "Practitioner.name.given", "min": 1 },
+
+      { "path": "Practitioner.extension", "min": 1 },
+      {
+        "path": "Practitioner.extension.url",
+        "fixedUri": "http://example.org/extensions/password"
+      },
+      {
+        "path": "Practitioner.extension.value[x]",
+        "min": 1
+      }
+    ]
+  }
+}

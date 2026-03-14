@@ -1,0 +1,9 @@
+{
+  "resourceType": "Location",
+  "id": "loc-vienna-room1",
+  "status": "active",
+  "name": "Vienna Pediatric Clinic-Room 1",
+  "managingOrganization": {
+    "reference": "Organization/org-vienna-peds"
+  }
+}

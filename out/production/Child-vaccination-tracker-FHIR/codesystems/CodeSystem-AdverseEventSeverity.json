@@ -1,0 +1,31 @@
+{
+  "resourceType": "CodeSystem",
+  "id": "adverse-event-severity",
+  "url": "http://terminology.hl7.org/CodeSystem/adverse-event-severity",
+  "version": "5.0.0",
+  "name": "AdverseEventSeverity",
+  "title": "Adverse Event Severity",
+  "status": "active",
+  "experimental": false,
+  "publisher": "HL7",
+  "description": "Severity of an adverse event.",
+  "caseSensitive": true,
+  "content": "complete",
+  "concept": [
+    {
+      "code": "mild",
+      "display": "Mild",
+      "definition": "Minimal symptoms, no intervention required."
+    },
+    {
+      "code": "moderate",
+      "display": "Moderate",
+      "definition": "Symptoms requiring medical attention."
+    },
+    {
+      "code": "severe",
+      "display": "Severe",
+      "definition": "Severe or life-threatening symptoms."
+    }
+  ]
+}
