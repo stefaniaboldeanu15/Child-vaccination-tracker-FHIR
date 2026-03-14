@@ -6,10 +6,16 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+<<<<<<< HEAD
         <module name="prt-vaccination-tracking-fhir-backend" />
         <module name="backend" />
+=======
+>>>>>>> db06b0c5adcf4fdcd6974c0abc872884c1b4fd6f
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="prt-vaccination-tracking-fhir-backend" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">

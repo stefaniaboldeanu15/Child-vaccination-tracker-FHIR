@@ -2,73 +2,14 @@ package org.prt.prtvaccinationtracking_fhir.dto.relatedPerson;
 
 import java.util.List;
 
-public class CreateFullEncounterRequest {
-
-    private String encounterId;
-    private String encounterDate;
-    private String organizationId;
-    private String locationId;
-
-    private List<FullImmunizationInput> immunizations;
-    private List<FullObservationInput> observations;
-
-    // ------------------------------
-    // Constructor
-    // ------------------------------
-
-    public CreateFullEncounterRequest() {}
-
-    // ------------------------------
-    // Getters and Setters
-    // ------------------------------
-
-    public String getEncounterId() {
-        return encounterId;
-    }
-
-    public void setEncounterId(String encounterId) {
-        this.encounterId = encounterId;
-    }
-
-    public String getEncounterDate() {
-        return encounterDate;
-    }
-
-    public void setEncounterDate(String encounterDate) {
-        this.encounterDate = encounterDate;
-    }
-
-    public String getOrganizationId() {
-        return organizationId;
-    }
-
-    public void setOrganizationId(String organizationId) {
-        this.organizationId = organizationId;
-    }
-
-    public String getLocationId() {
-        return locationId;
-    }
-
-    public void setLocationId(String locationId) {
-        this.locationId = locationId;
-    }
-
-    public List<FullImmunizationInput> getImmunizations() {
-        return immunizations;
-    }
-
-    public void setImmunizations(List<FullImmunizationInput> immunizations) {
-        this.immunizations = immunizations;
-    }
-
-    public List<FullObservationInput> getObservations() {
-        return observations;
-    }
-
-    public void setObservations(List<FullObservationInput> observations) {
-        this.observations = observations;
-    }
+public record CreateFullEncounterRequest(
+        String encounterId,
+        String encounterDate,
+        String organizationId,
+        String locationId,
+        List<FullImmunizationInput> immunizations,
+        List<FullObservationInput> observations
+) {
 
     // ------------------------------
     // Inner classes
