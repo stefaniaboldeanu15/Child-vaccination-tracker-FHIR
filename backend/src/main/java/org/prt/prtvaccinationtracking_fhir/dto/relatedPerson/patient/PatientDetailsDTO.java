@@ -1,6 +1,6 @@
 package org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.patient;
 
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.relatedPerson.RelatedPersonDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.relatedPerson.RelatedPersonDTO;
 
 import java.time.LocalDate;
 

@@ -1,0 +1,40 @@
+package org.prt.prtvaccinationtracking_fhir.service.relatedPerson;
+
+import org.hl7.fhir.r5.model.CarePlan;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.careplan.CarePlanDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.careplan.CreateCarePlanRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.careplan.UpdateCarePlanRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.fhir.FhirGateway;
+import org.prt.prtvaccinationtracking_fhir.mapper.relatedPerson.RelatedPersonCarePlanMapper;
+import org.springframework.stereotype.Service;
+
+@Service
+public class RelatedPersonCarePlanService {
+
+    private final FhirGateway fhir;
+    private final RelatedPersonCarePlanMapper mapper;
+
+    public RelatedPersonCarePlanService(FhirGateway fhir, RelatedPersonCarePlanMapper mapper) {
+        this.fhir = fhir;
+        this.mapper = mapper;
+    }
+
+    public CarePlanDTO create(CreateCarePlanRequestDTO dto) {
+        CarePlan resource = mapper.toResource(dto);
+        CarePlan created = fhir.create(resource);
+        return mapper.toDTO(created);
+    }
+
+    public CarePlanDTO getById(String id) {
+        return mapper.toDTO(fhir.read(CarePlan.class, id));
+    }
+
+    public CarePlanDTO update(String id, UpdateCarePlanRequestDTO dto) {
+        CarePlan existing = fhir.read(CarePlan.class, id);
+        mapper.updateResource(dto, existing);
+        fhir.ensureId(CarePlan.class, existing, id);
+        CarePlan updated = fhir.update(existing);
+        return mapper.toDTO(updated);
+    }
+
+}
