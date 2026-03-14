@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="2c478b76-e8c4-455e-8ca7-ea74f60e425b" name="Changes" comment="Revert &quot;comit&quot;&#10;&#10;This reverts commit f026c80b">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/target/classes/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/target/classes/valuesets/adverseEvent/ValueSet-adverse-event-actuality.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/target/classes/valuesets/adverseEvent/ValueSet-adverse-event-status.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/target/classes/valuesets/allergyIntolerance/ValueSet-allergyintolerance-clinical.json" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Record" />
+        <option value="Interface" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="frondend-stefania" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="HARD" />
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
+    <option name="UPDATE_TYPE" value="REBASE" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;stefaniaboldeanu15&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/stefaniaboldeanu15/Child-vaccination-tracker-FHIR.git&quot;,
+    &quot;accountId&quot;: &quot;580062c3-92ba-4295-a95c-7c829b6ec836&quot;
+  }
+}</component>
+  <component name="HttpClientOnboardingState">{
+  &quot;isOnboardingCommentShown&quot;: true
+}</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="374vHC0Z8cBZHB538f4YxivhAi2" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;HTTP Request.generated-requests | #16.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP Request.generated-requests | #2.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP Request.generated-requests | #22.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP Request.generated-requests | #3.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP Request.generated-requests | #5.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP Request.generated-requests | #6.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP Request.generated-requests | #7.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP Request.generated-requests | #9.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHELLCHECK.PATH&quot;: &quot;I do mind&quot;,
+    &quot;Spring Boot.PrtVaccinationTrackingFhirApplication.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/MASTER/PRT - Vaccination Tracking FHIR - IntelliJ IDEA/Child-vaccination-tracker-FHIR/frontend&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.20898438&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.4\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;ChangesTree.GroupingKeys&quot;: [
+      &quot;directory&quot;,
+      &quot;module&quot;,
+      &quot;repository&quot;
+    ]
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="org.prt.prtvaccinationtracking_fhir.service.practitioner" />
+      <recent name="org.prt.prtvaccinationtracking_fhir.fhir.validation" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\MASTER\PRT - Vaccination Tracking FHIR - IntelliJ IDEA\Child-vaccination-tracker-FHIR\frontend" />
+      <recent name="D:\MASTER\PRT - Vaccination Tracking FHIR - IntelliJ IDEA\Child-vaccination-tracker-FHIR\backend\src\main\java\org\prt\prtvaccinationtracking_fhir\config" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\MASTER\PRT - Vaccination Tracking FHIR - IntelliJ IDEA\Child-vaccination-tracker-FHIR\frontend" />
+      <recent name="D:\MASTER\PRT - Vaccination Tracking FHIR - IntelliJ IDEA\Child-vaccination-tracker-FHIR\frontend\src\components\ui" />
+      <recent name="D:\MASTER\PRT - Vaccination Tracking FHIR - IntelliJ IDEA\Child-vaccination-tracker-FHIR\backend\src\main\java\org\prt\prtvaccinationtracking_fhir" />
+      <recent name="D:\MASTER\PRT - Vaccination Tracking FHIR - IntelliJ IDEA\Child-vaccination-tracker-FHIR\backend\.mvn\wrapper" />
+      <recent name="D:\MASTER\PRT - Vaccination Tracking FHIR - IntelliJ IDEA\Child-vaccination-tracker-FHIR\backend" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="org.prt.prtvaccinationtracking_fhir.controller" />
+      <recent name="org.prt.prtvaccinationtracking_fhir.config" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Spring Boot.PrtVaccinationTrackingFhirApplication">
+    <configuration name="generated-requests | #2" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#2" index="2" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="generated-requests | #22" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#22" index="22" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="generated-requests | #3" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#3" index="3" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="generated-requests | #5" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#5" index="5" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="generated-requests | #6" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" executionIdentifier="#6" index="6" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="PrtVaccinationTrackingFhirApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="ALTERNATIVE_JRE_PATH" value="17" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="backend" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="org.prt.prtvaccinationtracking_fhir.PrtVaccinationTrackingFhirApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="HTTP Request.generated-requests | #2" />
+      <item itemvalue="HTTP Request.generated-requests | #3" />
+      <item itemvalue="HTTP Request.generated-requests | #5" />
+      <item itemvalue="HTTP Request.generated-requests | #6" />
+      <item itemvalue="HTTP Request.generated-requests | #22" />
+      <item itemvalue="Spring Boot.PrtVaccinationTrackingFhirApplication" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="HTTP Request.generated-requests | #22" />
+        <item itemvalue="HTTP Request.generated-requests | #6" />
+        <item itemvalue="HTTP Request.generated-requests | #5" />
+        <item itemvalue="HTTP Request.generated-requests | #3" />
+        <item itemvalue="HTTP Request.generated-requests | #2" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.27397.103" />
+        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-IU-252.27397.103" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="2c478b76-e8c4-455e-8ca7-ea74f60e425b" name="Changes" comment="" />
+      <created>1766175067879</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1766175067879</updated>
+      <workItem from="1766175069365" duration="10961000" />
+      <workItem from="1766273081793" duration="152000" />
+      <workItem from="1766273281155" duration="94000" />
+      <workItem from="1766273381704" duration="292000" />
+      <workItem from="1766273793160" duration="454000" />
+      <workItem from="1766274263899" duration="34312000" />
+      <workItem from="1767449431552" duration="33367000" />
+      <workItem from="1767645454599" duration="37727000" />
+      <workItem from="1767873609648" duration="116000" />
+      <workItem from="1767874050180" duration="15573000" />
+      <workItem from="1767951508076" duration="5326000" />
+      <workItem from="1768230412503" duration="6381000" />
+      <workItem from="1768646271056" duration="1324000" />
+      <workItem from="1768904367088" duration="692000" />
+      <workItem from="1769015082000" duration="1113000" />
+      <workItem from="1771759538780" duration="53924000" />
+      <workItem from="1772719902098" duration="1760000" />
+      <workItem from="1772888630155" duration="487000" />
+      <workItem from="1772889142814" duration="142000" />
+      <workItem from="1772896660196" duration="521000" />
+      <workItem from="1772996774875" duration="332000" />
+      <workItem from="1772997343774" duration="5107000" />
+      <workItem from="1773002520417" duration="139000" />
+      <workItem from="1773002677164" duration="462000" />
+      <workItem from="1773003156548" duration="160000" />
+      <workItem from="1773003334457" duration="29000" />
+      <workItem from="1773003381224" duration="10556000" />
+      <workItem from="1773050897253" duration="1767000" />
+      <workItem from="1773484274112" duration="4840000" />
+      <workItem from="1773489246188" duration="1645000" />
+      <workItem from="1773490976314" duration="1225000" />
+      <workItem from="1773492224804" duration="144000" />
+      <workItem from="1773492389716" duration="85000" />
+      <workItem from="1773492490344" duration="2846000" />
+      <workItem from="1773505861604" duration="1362000" />
+      <workItem from="1773509848946" duration="178000" />
+      <workItem from="1773510046963" duration="606000" />
+    </task>
+    <task id="LOCAL-00001" summary="commit">
+      <option name="closed" value="true" />
+      <created>1766175140515</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1766175140515</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Revert &quot;comit&quot;&#10;&#10;This reverts commit f026c80b">
+      <option name="closed" value="true" />
+      <created>1773051382825</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1773051382825</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="Branch">
+          <value>
+            <list>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="main" />
+                </option>
+              </RecentGroup>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="origin/backend-practitioner-v2" />
+                </option>
+              </RecentGroup>
+            </list>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="origin/main" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="commit" />
+    <MESSAGE value="Revert &quot;comit&quot;&#10;&#10;This reverts commit f026c80b" />
+    <option name="LAST_COMMIT_MESSAGE" value="Revert &quot;comit&quot;&#10;&#10;This reverts commit f026c80b" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/backend/src/main/java/org/prt/prtvaccinationtracking_fhir/service/practitioner/OrganizationService.java</url>
+          <line>10</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

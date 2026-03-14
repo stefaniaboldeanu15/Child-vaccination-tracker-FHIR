@@ -5,7 +5,7 @@ import org.prt.prtvaccinationtracking_fhir.dto.practitioner.organization.*;
 import org.prt.prtvaccinationtracking_fhir.service.practitioner.OrganizationService;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@RestController("practitionerOrganizationController")
 @RequestMapping("/api/practitioner/organizations")
 public class OrganizationController {
 

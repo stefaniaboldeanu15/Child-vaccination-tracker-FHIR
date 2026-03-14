@@ -1,11 +1,13 @@
 package org.prt.prtvaccinationtracking_fhir.controller.practitioner;
 
 import jakarta.validation.Valid;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.adverseEvent.*;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.adverseEvent.AdverseEventDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.adverseEvent.CreateAdverseEventRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.practitioner.adverseEvent.UpdateAdverseEventRequestDTO;
 import org.prt.prtvaccinationtracking_fhir.service.practitioner.AdverseEventService;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@RestController("practitionerAdverseEventController")
 @RequestMapping("/api/practitioner/adverse-events")
 public class AdverseEventController {
 

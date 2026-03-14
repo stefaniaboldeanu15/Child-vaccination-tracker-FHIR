@@ -5,7 +5,7 @@ import org.prt.prtvaccinationtracking_fhir.dto.practitioner.immunization.*;
 import org.prt.prtvaccinationtracking_fhir.service.practitioner.ImmunizationService;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@RestController("practitionerImmunizationController")
 @RequestMapping("/api/practitioner/immunizations")
 public class ImmunizationController {
 

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
+@Component("practitionerAdverseEventMapper")
 public class AdverseEventMapper {
 
     private final MapperSupport support;

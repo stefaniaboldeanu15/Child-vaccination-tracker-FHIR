@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+@Component("practitionerConsentMapper")
 public class ConsentMapper {
 
     private final MapperSupport support;

@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+@Component("practitionerPractitionerMapper")
 public class PractitionerMapper {
 
     private static final String LICENSE_SYSTEM = "app:practitioner-license";

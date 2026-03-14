@@ -5,7 +5,7 @@ import org.prt.prtvaccinationtracking_fhir.dto.practitioner.condition.*;
 import org.prt.prtvaccinationtracking_fhir.service.practitioner.ConditionService;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@RestController("practitionerConditionController")
 @RequestMapping("/api/practitioner/conditions")
 public class ConditionController {
 
