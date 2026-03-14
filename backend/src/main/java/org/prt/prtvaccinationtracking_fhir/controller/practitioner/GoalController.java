@@ -5,7 +5,7 @@ import org.prt.prtvaccinationtracking_fhir.dto.practitioner.goal.*;
 import org.prt.prtvaccinationtracking_fhir.service.practitioner.GoalService;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@RestController("practitionerGoalController")
 @RequestMapping("/api/practitioner/goals")
 public class GoalController {
 

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+@Component("practitionerPatientMapper")
 public class PatientMapper {
 
     private static final String SVNR_SYSTEM = "app:svnr";

@@ -7,7 +7,7 @@ import org.prt.prtvaccinationtracking_fhir.dto.practitioner.appointment.UpdateAp
 import org.prt.prtvaccinationtracking_fhir.service.practitioner.AppointmentService;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@RestController("relatedPersonAppointmentController")
 @RequestMapping("/api/practitioner/appointments")
 public class AppointmentController {
 

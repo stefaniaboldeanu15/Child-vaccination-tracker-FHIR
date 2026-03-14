@@ -7,7 +7,7 @@ import org.prt.prtvaccinationtracking_fhir.dto.practitioner.consent.UpdateConsen
 import org.prt.prtvaccinationtracking_fhir.service.practitioner.ConsentService;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@RestController("relatedPersonConsentController")
 @RequestMapping("/api/practitioner/consents")
 public class ConsentController {
 

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+@Component("relatedpersonPatientMapper")
 public class PatientMapper {
 
     private static final String SVNR_SYSTEM = "app:svnr";

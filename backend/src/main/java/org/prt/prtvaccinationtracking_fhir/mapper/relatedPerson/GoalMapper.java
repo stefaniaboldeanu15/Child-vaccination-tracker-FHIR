@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.util.List;
 
-@Component
+@Component("relatedpersonGoalMapper")
 public class GoalMapper {
 
     private static final String CARE_PLAN_ID_SYSTEM = "app:care-plan-id";

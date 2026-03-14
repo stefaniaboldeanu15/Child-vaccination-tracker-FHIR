@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+@Component("relatedpersonRelatedPersonMapper")
 public class RelatedPersonMapper {
 
     private final MapperSupport support;

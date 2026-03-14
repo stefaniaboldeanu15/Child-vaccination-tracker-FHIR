@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+@Component("relatedpersonConditionMapper")
 public class ConditionMapper {
 
     private static final String CLINICAL_STATUS_SYSTEM =

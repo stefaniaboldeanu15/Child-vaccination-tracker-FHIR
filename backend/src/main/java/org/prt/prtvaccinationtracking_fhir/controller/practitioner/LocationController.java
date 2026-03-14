@@ -5,7 +5,7 @@ import org.prt.prtvaccinationtracking_fhir.dto.practitioner.location.*;
 import org.prt.prtvaccinationtracking_fhir.service.practitioner.LocationService;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@RestController("practitionerLocationController")
 @RequestMapping("/api/practitioner/locations")
 public class LocationController {
 

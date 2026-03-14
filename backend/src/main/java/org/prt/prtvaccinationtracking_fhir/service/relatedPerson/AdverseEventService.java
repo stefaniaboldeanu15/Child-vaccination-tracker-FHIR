@@ -8,7 +8,7 @@ import org.prt.prtvaccinationtracking_fhir.fhir.FhirGateway;
 import org.prt.prtvaccinationtracking_fhir.mapper.practitioner.AdverseEventMapper;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service("relatedPersonAdverseEventService")
 public class AdverseEventService {
 
     private final FhirGateway fhir;

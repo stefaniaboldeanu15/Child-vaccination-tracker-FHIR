@@ -8,7 +8,7 @@ import org.prt.prtvaccinationtracking_fhir.fhir.FhirGateway;
 import org.prt.prtvaccinationtracking_fhir.mapper.practitioner.ConsentMapper;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service("relatedPersonConsentService")
 public class ConsentService {
 
     private final FhirGateway fhir;

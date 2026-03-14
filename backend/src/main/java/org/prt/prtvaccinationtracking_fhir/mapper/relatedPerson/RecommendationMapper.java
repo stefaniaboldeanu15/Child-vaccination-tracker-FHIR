@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.util.List;
 
-@Component
+@Component("relatedpersonRecommendationMapper")
 public class RecommendationMapper {
 
     private final MapperSupport support;

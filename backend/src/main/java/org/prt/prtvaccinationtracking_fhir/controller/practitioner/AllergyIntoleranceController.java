@@ -5,7 +5,7 @@ import org.prt.prtvaccinationtracking_fhir.dto.practitioner.allergyIntolerance.*
 import org.prt.prtvaccinationtracking_fhir.service.practitioner.AllergyIntoleranceService;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@RestController("practitionerAllergyIntoleranceController")
 @RequestMapping("/api/practitioner/allergy-intolerances")
 public class AllergyIntoleranceController {
 

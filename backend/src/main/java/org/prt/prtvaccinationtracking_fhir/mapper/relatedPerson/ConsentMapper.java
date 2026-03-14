@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.util.List;
 
-@Component
+@Component("relatedpersonConsentMapper")
 public class ConsentMapper {
 
     private final MapperSupport support;

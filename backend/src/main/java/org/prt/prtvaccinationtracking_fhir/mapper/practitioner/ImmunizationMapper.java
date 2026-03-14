@@ -17,7 +17,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+@Component("practitionerImmunizationMapper")
 public class ImmunizationMapper {
 
     private final MapperSupport support;

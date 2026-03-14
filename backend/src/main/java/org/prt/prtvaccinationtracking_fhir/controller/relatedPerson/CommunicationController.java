@@ -1,13 +1,13 @@
 package org.prt.prtvaccinationtracking_fhir.controller.relatedPerson;
 
-import jakarta.validation.Valid;
+import  jakarta.validation.Valid;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.communication.CommunicationDTO;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.communication.CreateCommunicationRequestDTO;
 import org.prt.prtvaccinationtracking_fhir.dto.practitioner.communication.UpdateCommunicationRequestDTO;
 import org.prt.prtvaccinationtracking_fhir.service.practitioner.CommunicationService;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@RestController("relatedPersonCommunicationController")
 @RequestMapping("/api/practitioner/communications")
 public class CommunicationController {
 

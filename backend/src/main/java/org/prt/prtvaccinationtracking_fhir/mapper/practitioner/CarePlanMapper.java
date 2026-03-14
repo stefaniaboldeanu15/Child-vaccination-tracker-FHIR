@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+@Component("practitionerCarePlanMapper")
 public class CarePlanMapper {
 
     private final MapperSupport support;

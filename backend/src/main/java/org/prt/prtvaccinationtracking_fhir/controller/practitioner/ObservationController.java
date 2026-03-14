@@ -5,7 +5,7 @@ import org.prt.prtvaccinationtracking_fhir.dto.practitioner.observation.*;
 import org.prt.prtvaccinationtracking_fhir.service.practitioner.ObservationService;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@RestController("practitionerObservationController")
 @RequestMapping("/api/practitioner/observations")
 public class ObservationController {
 

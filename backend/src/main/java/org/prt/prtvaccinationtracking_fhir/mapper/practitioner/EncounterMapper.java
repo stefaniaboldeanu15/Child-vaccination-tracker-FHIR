@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@Component
+@Component("practitionerEncounterMapper")
 public class EncounterMapper {
 
     private final MapperSupport support;

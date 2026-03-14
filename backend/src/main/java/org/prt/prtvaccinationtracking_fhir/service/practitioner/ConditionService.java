@@ -8,7 +8,7 @@ import org.prt.prtvaccinationtracking_fhir.fhir.FhirGateway;
 import org.prt.prtvaccinationtracking_fhir.mapper.practitioner.ConditionMapper;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service("practitionerConditionService")
 public class ConditionService {
 
     private final FhirGateway fhir;

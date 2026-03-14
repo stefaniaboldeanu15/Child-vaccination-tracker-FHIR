@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
+@Component("relatedpersonAllergyIntoleranceMapper")
 public class AllergyIntoleranceMapper {
 
     private static final String CLINICAL_STATUS_SYSTEM =

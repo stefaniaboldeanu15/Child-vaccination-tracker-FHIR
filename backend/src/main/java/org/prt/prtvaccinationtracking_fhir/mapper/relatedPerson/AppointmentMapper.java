@@ -12,7 +12,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
-@Component
+@Component("relatedpersonAppointmentMapper")
 public class AppointmentMapper {
 
     private final MapperSupport support;

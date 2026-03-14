@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 
-@Component
+@Component("practitionerObservationMapper")
 public class ObservationMapper {
 
     private final MapperSupport support;

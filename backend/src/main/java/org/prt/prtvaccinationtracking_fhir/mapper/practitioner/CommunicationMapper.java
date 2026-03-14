@@ -17,7 +17,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
-@Component
+@Component("practitionerCommunicationMapper")
 public class CommunicationMapper {
 
     private final MapperSupport support;

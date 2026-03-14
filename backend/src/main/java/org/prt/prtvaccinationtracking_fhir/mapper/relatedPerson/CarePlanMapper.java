@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+@Component("relatedpersonCarePlanMapper")
 public class CarePlanMapper {
 
     private final MapperSupport support;

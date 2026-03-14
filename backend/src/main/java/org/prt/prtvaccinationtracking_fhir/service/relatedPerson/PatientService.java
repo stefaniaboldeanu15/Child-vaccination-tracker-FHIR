@@ -8,7 +8,7 @@ import org.prt.prtvaccinationtracking_fhir.fhir.FhirGateway;
 import org.prt.prtvaccinationtracking_fhir.mapper.practitioner.PatientMapper;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service("relatedPersonPatientService")
 public class PatientService {
 
     private final FhirGateway fhir;

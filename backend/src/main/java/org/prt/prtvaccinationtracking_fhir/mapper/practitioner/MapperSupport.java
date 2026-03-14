@@ -13,7 +13,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
-@Component
+@Component("practitionerSupportMapper")
 public class MapperSupport {
 
     public String referenceToId(Reference reference) {

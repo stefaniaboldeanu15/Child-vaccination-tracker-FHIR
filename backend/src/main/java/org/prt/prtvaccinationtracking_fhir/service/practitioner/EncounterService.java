@@ -8,7 +8,7 @@ import org.prt.prtvaccinationtracking_fhir.fhir.FhirGateway;
 import org.prt.prtvaccinationtracking_fhir.mapper.practitioner.EncounterMapper;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service("practitionerEncounterService")
 public class EncounterService {
 
     private final FhirGateway fhir;
