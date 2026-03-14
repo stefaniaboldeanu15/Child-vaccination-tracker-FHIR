@@ -1,0 +1,26 @@
+{
+  "resourceType": "CodeSystem",
+  "id": "adverse-event-category",
+  "url": "http://terminology.hl7.org/CodeSystem/adverse-event-category",
+  "version": "5.0.0",
+  "name": "AdverseEventCategory",
+  "title": "Adverse Event Category",
+  "status": "active",
+  "experimental": false,
+  "publisher": "HL7",
+  "description": "Categorization of adverse events.",
+  "caseSensitive": true,
+  "content": "complete",
+  "concept": [
+    {
+      "code": "product-problem",
+      "display": "Product Problem",
+      "definition": "An issue with the vaccine product itself."
+    },
+    {
+      "code": "adverse-effect",
+      "display": "Adverse Effect",
+      "definition": "An adverse reaction experienced by the patient."
+    }
+  ]
+}

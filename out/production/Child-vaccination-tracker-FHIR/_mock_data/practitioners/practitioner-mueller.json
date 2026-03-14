@@ -1,0 +1,22 @@
+{
+  "resourceType": "Practitioner",
+  "id": "pract-mueller",
+  "identifier": [
+    {
+      "system": "http://hospital.smarthealthit.org/practitioners",
+      "value": "dr.mueller"
+    }
+  ],
+  "name": [
+    {
+      "family": "Müller",
+      "given": ["Anna"]
+    }
+  ],
+  "extension": [
+    {
+      "url": "http://example.org/extensions/password",
+      "valueString": "pwMueller01"
+    }
+  ]
+}
