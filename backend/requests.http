@@ -1,0 +1,10 @@
+POST http://localhost:8081/api/related-person/adverse-events
+Content-Type: application/json
+
+{
+  "status": "IN_PROGRESS",
+  "actuality": "ACTUAL",
+  "patientId": "1000",
+  "category": "Fever after vaccination",
+  "recordedDate": "2026-03-14"
+}
