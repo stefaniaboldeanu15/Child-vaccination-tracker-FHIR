@@ -1,8 +1,8 @@
 package org.prt.prtvaccinationtracking_fhir.dto.relatedPerson;
 
-public record RegistrationRequestDTO(
-        String identifier,
-        String password,
+public record RelatedPersonLoginResponseDTO(
+        String accessToken,
+        String patientId,
         String firstName,
         String lastName
 ) {
