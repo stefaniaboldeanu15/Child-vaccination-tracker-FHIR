@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "vue": "^3.5.13",
-    "vue-router": "^4.5.1",
+    "vue-router": "^4.6.4",
     "vuestic-ui": "^1.10.3"
   },
   "devDependencies": {
