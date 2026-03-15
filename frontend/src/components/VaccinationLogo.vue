@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Logo component – shield + medical cross + kids
 defineProps<{
   size?: number
   variant?: 'full' | 'icon'

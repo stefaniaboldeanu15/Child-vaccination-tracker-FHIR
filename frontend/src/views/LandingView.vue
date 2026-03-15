@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Landing page – VaxCare Junior
 import { startSmartLogin } from '@/utils/smart'
 import VaccinationLogo from '@/components/VaccinationLogo.vue'
 </script>
