@@ -1,9 +1,9 @@
 package org.prt.prtvaccinationtracking_fhir.mapper.relatedPerson;
 
 import org.hl7.fhir.r5.model.*;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.careplan.CarePlanDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.careplan.CreateCarePlanRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.careplan.UpdateCarePlanRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.careplan.CarePlanDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.careplan.CreateCarePlanRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.careplan.UpdateCarePlanRequestDTO;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;

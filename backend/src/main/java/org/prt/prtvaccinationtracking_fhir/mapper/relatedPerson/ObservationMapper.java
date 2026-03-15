@@ -1,9 +1,9 @@
 package org.prt.prtvaccinationtracking_fhir.mapper.relatedPerson;
 
 import org.hl7.fhir.r5.model.*;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.observation.CreateObservationRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.observation.ObservationDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.observation.UpdateObservationRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.observation.CreateObservationRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.observation.ObservationDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.observation.UpdateObservationRequestDTO;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;

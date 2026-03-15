@@ -8,7 +8,7 @@ import org.prt.prtvaccinationtracking_fhir.service.practitioner.LocationService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController("relatedPersonLocationController")
-@RequestMapping("/api/practitioner/locations")
+@RequestMapping("/api/related-person/locations")
 public class LocationController {
 
     private final LocationService service;

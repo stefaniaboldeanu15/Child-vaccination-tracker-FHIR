@@ -8,7 +8,7 @@ import org.prt.prtvaccinationtracking_fhir.service.practitioner.ImmunizationReco
 import org.springframework.web.bind.annotation.*;
 
 @RestController("relatedPersonRecommendationController")
-@RequestMapping("/api/practitioner/immunization-recommendations")
+@RequestMapping("/api/related-person/immunization-recommendations")
 public class RecommendationController {
 
     private final ImmunizationRecommendationService service;

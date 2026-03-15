@@ -8,7 +8,7 @@ import org.prt.prtvaccinationtracking_fhir.service.practitioner.CommunicationSer
 import org.springframework.web.bind.annotation.*;
 
 @RestController("relatedPersonCommunicationController")
-@RequestMapping("/api/practitioner/communications")
+@RequestMapping("/api/related-person/communication")
 public class CommunicationController {
 
     private final CommunicationService service;

@@ -1,11 +1,11 @@
 package org.prt.prtvaccinationtracking_fhir.service.relatedPerson;
 
 import org.hl7.fhir.r5.model.Condition;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.condition.ConditionDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.condition.CreateConditionRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.condition.UpdateConditionRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.condition.ConditionDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.condition.CreateConditionRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.condition.UpdateConditionRequestDTO;
 import org.prt.prtvaccinationtracking_fhir.fhir.FhirGateway;
-import org.prt.prtvaccinationtracking_fhir.mapper.practitioner.ConditionMapper;
+import org.prt.prtvaccinationtracking_fhir.mapper.relatedPerson.ConditionMapper;
 import org.springframework.stereotype.Service;
 
 @Service("relatedPersonConditionService")

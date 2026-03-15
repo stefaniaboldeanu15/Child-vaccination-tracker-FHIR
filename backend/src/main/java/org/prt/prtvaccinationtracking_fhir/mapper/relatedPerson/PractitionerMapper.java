@@ -1,26 +1,27 @@
+// backend/src/main/java/org/prt/prtvaccinationtracking_fhir/mapper/relatedPerson/PractitionerMapper.java
 package org.prt.prtvaccinationtracking_fhir.mapper.relatedPerson;
 
-import org.hl7.fhir.r5.model.*;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.practitioner.CreatePractitionerRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.practitioner.PractitionerDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.practitioner.UpdatePractitionerRequestDTO;
+import org.hl7.fhir.r5.model.CodeableConcept;
+import org.hl7.fhir.r5.model.Coding;
+import org.hl7.fhir.r5.model.ContactPoint;
+import org.hl7.fhir.r5.model.HumanName;
+import org.hl7.fhir.r5.model.Identifier;
+import org.hl7.fhir.r5.model.Practitioner;
+import org.hl7.fhir.r5.model.StringType;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.practitioner.CreatePractitionerRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.practitioner.PractitionerDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.practitioner.UpdatePractitionerRequestDTO;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Component("relatedpersonPractitionerMapper")
+@Component("relatedPersonPractitionerMapper")
 public class PractitionerMapper {
 
     private static final String LICENSE_SYSTEM = "app:practitioner-license";
     private static final String SPECIALIZATION_SYSTEM = "app:practitioner-specialization";
     private static final String ORGANIZATION_SYSTEM = "app:organization-id";
-
-    private final MapperSupport support;
-
-    public PractitionerMapper(MapperSupport support) {
-        this.support = support;
-    }
 
     public PractitionerDTO toDTO(Practitioner resource) {
         if (resource == null) {
@@ -30,7 +31,7 @@ public class PractitionerMapper {
         return new PractitionerDTO(
                 resource.getIdElement().getIdPart(),
                 extractFullName(resource),
-                extractIdentifier(resource),
+                extractIdentifier(resource, LICENSE_SYSTEM),
                 extractRole(resource)
         );
     }
@@ -67,12 +68,12 @@ public class PractitionerMapper {
         if (dto.specialization() != null && !dto.specialization().isBlank()) {
             resource.setQualification(List.of(
                     new Practitioner.PractitionerQualificationComponent()
-                            .setCode(new CodeableConcept().addCoding(
-                                    new org.hl7.fhir.r5.model.Coding()
+                            .setCode(new CodeableConcept()
+                                    .addCoding(new Coding()
                                             .setSystem(SPECIALIZATION_SYSTEM)
                                             .setCode(dto.specialization())
-                                            .setDisplay(dto.specialization())
-                            ).setText(dto.specialization()))
+                                            .setDisplay(dto.specialization()))
+                                    .setText(dto.specialization()))
             ));
         }
 
@@ -96,7 +97,7 @@ public class PractitionerMapper {
                 if (dto.firstName().isBlank()) {
                     name.setGiven(new ArrayList<>());
                 } else {
-                    name.setGiven(List.of(new org.hl7.fhir.r5.model.StringType(dto.firstName())));
+                    name.setGiven(List.of(new StringType(dto.firstName())));
                 }
             }
 
@@ -111,42 +112,95 @@ public class PractitionerMapper {
             }
         }
 
+        if (dto.organizationId() != null) {
+            updateIdentifier(resource, ORGANIZATION_SYSTEM, dto.organizationId());
+        }
+
         if (dto.specialization() != null) {
             if (dto.specialization().isBlank()) {
                 resource.setQualification(new ArrayList<>());
             } else {
                 resource.setQualification(List.of(
                         new Practitioner.PractitionerQualificationComponent()
-                                .setCode(new CodeableConcept().addCoding(
-                                        new org.hl7.fhir.r5.model.Coding()
+                                .setCode(new CodeableConcept()
+                                        .addCoding(new Coding()
                                                 .setSystem(SPECIALIZATION_SYSTEM)
                                                 .setCode(dto.specialization())
-                                                .setDisplay(dto.specialization())
-                                ).setText(dto.specialization()))
+                                                .setDisplay(dto.specialization()))
+                                        .setText(dto.specialization()))
                 ));
             }
         }
 
-        if (dto.phone() != null || dto.email() != null) {
-            String currentPhone = extractPhone(resource);
-            String currentEmail = extractEmail(resource);
+        updateTelecom(resource, dto.phone(), dto.email());
+    }
 
-            String phone = dto.phone() != null ? dto.phone() : currentPhone;
-            String email = dto.email() != null ? dto.email() : currentEmail;
-
-            resource.setTelecom(buildTelecom(phone, email));
+    private String extractFullName(Practitioner resource) {
+        if (!resource.hasName()) {
+            return null;
         }
 
-        if (dto.organizationId() != null) {
-            upsertOrganizationIdentifier(resource, dto.organizationId());
+        HumanName name = resource.getNameFirstRep();
+        String given = name.getGivenAsSingleString();
+        String family = name.getFamily();
+
+        if ((given == null || given.isBlank()) && (family == null || family.isBlank())) {
+            return null;
         }
+
+        if (given == null || given.isBlank()) {
+            return family;
+        }
+
+        if (family == null || family.isBlank()) {
+            return given;
+        }
+
+        return given + " " + family;
+    }
+
+    private String extractIdentifier(Practitioner resource, String system) {
+        if (resource == null || !resource.hasIdentifier()) {
+            return null;
+        }
+
+        return resource.getIdentifier().stream()
+                .filter(identifier -> system.equals(identifier.getSystem()))
+                .map(Identifier::getValue)
+                .filter(value -> value != null && !value.isBlank())
+                .findFirst()
+                .orElse(null);
+    }
+
+    private String extractRole(Practitioner resource) {
+        if (!resource.hasQualification() || !resource.getQualificationFirstRep().hasCode()) {
+            return null;
+        }
+
+        CodeableConcept code = resource.getQualificationFirstRep().getCode();
+
+        if (code.hasText()) {
+            return code.getText();
+        }
+
+        return code.getCoding().stream()
+                .filter(coding -> SPECIALIZATION_SYSTEM.equals(coding.getSystem()))
+                .map(coding -> {
+                    if (coding.hasDisplay() && !coding.getDisplay().isBlank()) {
+                        return coding.getDisplay();
+                    }
+                    return coding.getCode();
+                })
+                .filter(value -> value != null && !value.isBlank())
+                .findFirst()
+                .orElse(null);
     }
 
     private HumanName buildHumanName(String firstName, String lastName) {
         HumanName name = new HumanName();
 
         if (firstName != null && !firstName.isBlank()) {
-            name.setGiven(List.of(new org.hl7.fhir.r5.model.StringType(firstName)));
+            name.setGiven(List.of(new StringType(firstName)));
         }
 
         if (lastName != null && !lastName.isBlank()) {
@@ -174,109 +228,49 @@ public class PractitionerMapper {
         return telecom;
     }
 
-    private String extractFullName(Practitioner resource) {
-        if (!resource.hasName()) {
-            return null;
+    private void updateTelecom(Practitioner resource, String phone, String email) {
+        List<ContactPoint> telecom = new ArrayList<>();
+
+        if (phone != null) {
+            if (!phone.isBlank()) {
+                telecom.add(new ContactPoint()
+                        .setSystem(ContactPoint.ContactPointSystem.PHONE)
+                        .setValue(phone));
+            }
+        } else {
+            resource.getTelecom().stream()
+                    .filter(cp -> cp.getSystem() == ContactPoint.ContactPointSystem.PHONE)
+                    .findFirst()
+                    .ifPresent(telecom::add);
         }
 
-        HumanName name = resource.getNameFirstRep();
-        String firstName = null;
-        String lastName = null;
-
-        if (name.hasGiven() && !name.getGiven().isEmpty()) {
-            firstName = name.getGiven().get(0).getValue();
+        if (email != null) {
+            if (!email.isBlank()) {
+                telecom.add(new ContactPoint()
+                        .setSystem(ContactPoint.ContactPointSystem.EMAIL)
+                        .setValue(email));
+            }
+        } else {
+            resource.getTelecom().stream()
+                    .filter(cp -> cp.getSystem() == ContactPoint.ContactPointSystem.EMAIL)
+                    .findFirst()
+                    .ifPresent(telecom::add);
         }
 
-        if (name.hasFamily()) {
-            lastName = name.getFamily();
-        }
-
-        if (firstName == null && lastName == null) {
-            return null;
-        }
-        if (firstName == null) {
-            return lastName;
-        }
-        if (lastName == null) {
-            return firstName;
-        }
-        return firstName + " " + lastName;
+        resource.setTelecom(telecom);
     }
 
-    private String extractIdentifier(Practitioner resource) {
-        if (!resource.hasIdentifier() || resource.getIdentifier().isEmpty()) {
-            return null;
-        }
+    private void updateIdentifier(Practitioner resource, String system, String value) {
+        List<Identifier> identifiers = new ArrayList<>(
+                resource.hasIdentifier() ? resource.getIdentifier() : List.of()
+        );
 
-        for (Identifier identifier : resource.getIdentifier()) {
-            if (identifier == null || !identifier.hasValue()) {
-                continue;
-            }
+        identifiers.removeIf(identifier -> system.equals(identifier.getSystem()));
 
-            if (!identifier.hasSystem() || LICENSE_SYSTEM.equals(identifier.getSystem())) {
-                return identifier.getValue();
-            }
-        }
-
-        return null;
-    }
-
-    private String extractRole(Practitioner resource) {
-        if (resource.hasQualification() && !resource.getQualification().isEmpty()) {
-            Practitioner.PractitionerQualificationComponent qualification = resource.getQualificationFirstRep();
-            if (qualification.hasCode()) {
-                return support.codeableConceptToText(qualification.getCode());
-            }
-        }
-        return null;
-    }
-
-    private String extractPhone(Practitioner resource) {
-        if (!resource.hasTelecom() || resource.getTelecom().isEmpty()) {
-            return null;
-        }
-
-        for (ContactPoint telecom : resource.getTelecom()) {
-            if (telecom != null
-                    && telecom.hasSystem()
-                    && telecom.getSystem() == ContactPoint.ContactPointSystem.PHONE
-                    && telecom.hasValue()) {
-                return telecom.getValue();
-            }
-        }
-
-        return null;
-    }
-
-    private String extractEmail(Practitioner resource) {
-        if (!resource.hasTelecom() || resource.getTelecom().isEmpty()) {
-            return null;
-        }
-
-        for (ContactPoint telecom : resource.getTelecom()) {
-            if (telecom != null
-                    && telecom.hasSystem()
-                    && telecom.getSystem() == ContactPoint.ContactPointSystem.EMAIL
-                    && telecom.hasValue()) {
-                return telecom.getValue();
-            }
-        }
-
-        return null;
-    }
-
-    private void upsertOrganizationIdentifier(Practitioner resource, String organizationId) {
-        List<Identifier> identifiers = resource.hasIdentifier()
-                ? new ArrayList<>(resource.getIdentifier())
-                : new ArrayList<>();
-
-        identifiers.removeIf(identifier ->
-                identifier != null && identifier.hasSystem() && ORGANIZATION_SYSTEM.equals(identifier.getSystem()));
-
-        if (organizationId != null && !organizationId.isBlank()) {
+        if (value != null && !value.isBlank()) {
             identifiers.add(new Identifier()
-                    .setSystem(ORGANIZATION_SYSTEM)
-                    .setValue(organizationId));
+                    .setSystem(system)
+                    .setValue(value));
         }
 
         resource.setIdentifier(identifiers);

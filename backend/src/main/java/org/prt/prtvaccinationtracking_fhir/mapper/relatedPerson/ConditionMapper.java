@@ -1,9 +1,9 @@
 package org.prt.prtvaccinationtracking_fhir.mapper.relatedPerson;
 
 import org.hl7.fhir.r5.model.*;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.condition.ConditionDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.condition.CreateConditionRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.condition.UpdateConditionRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.condition.ConditionDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.condition.CreateConditionRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.condition.UpdateConditionRequestDTO;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;

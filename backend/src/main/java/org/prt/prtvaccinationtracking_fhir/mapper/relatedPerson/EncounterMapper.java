@@ -1,9 +1,17 @@
+// backend/src/main/java/org/prt/prtvaccinationtracking_fhir/mapper/relatedPerson/EncounterMapper.java
 package org.prt.prtvaccinationtracking_fhir.mapper.relatedPerson;
 
-import org.hl7.fhir.r5.model.*;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.encounter.CreateEncounterRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.encounter.EncounterDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.encounter.UpdateEncounterRequestDTO;
+import org.hl7.fhir.r5.model.CodeableConcept;
+import org.hl7.fhir.r5.model.CodeableReference;
+import org.hl7.fhir.r5.model.Encounter;
+import org.hl7.fhir.r5.model.Enumerations;
+import org.hl7.fhir.r5.model.HumanName;
+import org.hl7.fhir.r5.model.Period;
+import org.hl7.fhir.r5.model.Practitioner;
+import org.hl7.fhir.r5.model.Reference;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.encounter.CreateEncounterRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.encounter.EncounterDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.encounter.UpdateEncounterRequestDTO;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;

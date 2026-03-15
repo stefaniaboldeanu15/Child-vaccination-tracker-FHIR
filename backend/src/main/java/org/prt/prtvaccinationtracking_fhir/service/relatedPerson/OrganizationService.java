@@ -1,11 +1,11 @@
 package org.prt.prtvaccinationtracking_fhir.service.relatedPerson;
 
 import org.hl7.fhir.r5.model.Organization;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.organization.CreateOrganizationRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.organization.OrganizationDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.organization.UpdateOrganizationRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.organization.CreateOrganizationRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.organization.OrganizationDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.organization.UpdateOrganizationRequestDTO;
 import org.prt.prtvaccinationtracking_fhir.fhir.FhirGateway;
-import org.prt.prtvaccinationtracking_fhir.mapper.practitioner.OrganizationMapper;
+import org.prt.prtvaccinationtracking_fhir.mapper.relatedPerson.OrganizationMapper;
 import org.springframework.stereotype.Service;
 
 @Service("relatedPersonOrganizationService")

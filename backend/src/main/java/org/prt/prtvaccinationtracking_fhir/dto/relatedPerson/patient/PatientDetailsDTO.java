@@ -1,6 +1,7 @@
+// backend/src/main/java/org/prt/prtvaccinationtracking_fhir/dto/relatedPerson/patient/PatientDetailsDTO.java
 package org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.patient;
 
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.relatedPerson.RelatedPersonDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.relatedPerson.RelatedPersonDTO;
 
 import java.time.LocalDate;
 
@@ -16,4 +17,5 @@ public record PatientDetailsDTO(
         String email,
         String address,
         RelatedPersonDTO parent
-) {}
+) {
+}

@@ -8,7 +8,7 @@ import org.prt.prtvaccinationtracking_fhir.service.practitioner.EncounterService
 import org.springframework.web.bind.annotation.*;
 
 @RestController("relatedPersonEncounterController")
-@RequestMapping("/api/practitioner")
+@RequestMapping("/api/related-person")
 public class EncounterController {
 
     private final EncounterService service;

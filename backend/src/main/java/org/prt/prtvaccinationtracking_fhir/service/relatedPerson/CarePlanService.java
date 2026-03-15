@@ -1,11 +1,11 @@
 package org.prt.prtvaccinationtracking_fhir.service.relatedPerson;
 
 import org.hl7.fhir.r5.model.CarePlan;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.careplan.CarePlanDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.careplan.CreateCarePlanRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.careplan.UpdateCarePlanRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.careplan.CarePlanDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.careplan.CreateCarePlanRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.careplan.UpdateCarePlanRequestDTO;
 import org.prt.prtvaccinationtracking_fhir.fhir.FhirGateway;
-import org.prt.prtvaccinationtracking_fhir.mapper.practitioner.CarePlanMapper;
+import org.prt.prtvaccinationtracking_fhir.mapper.relatedPerson.CarePlanMapper;
 import org.springframework.stereotype.Service;
 
 @Service("relatedPersonCarePlanService")

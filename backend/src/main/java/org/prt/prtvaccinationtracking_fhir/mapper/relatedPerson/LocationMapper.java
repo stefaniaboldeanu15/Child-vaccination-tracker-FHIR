@@ -1,9 +1,9 @@
 package org.prt.prtvaccinationtracking_fhir.mapper.relatedPerson;
 
 import org.hl7.fhir.r5.model.*;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.location.CreateLocationRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.location.LocationDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.location.UpdateLocationRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.location.CreateLocationRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.location.LocationDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.location.UpdateLocationRequestDTO;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

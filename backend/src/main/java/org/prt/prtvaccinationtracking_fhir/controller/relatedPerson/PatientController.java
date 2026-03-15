@@ -8,7 +8,7 @@ import org.prt.prtvaccinationtracking_fhir.service.practitioner.PatientService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController("relatedPersonPatientController")
-@RequestMapping("/api/practitioner/patients")
+@RequestMapping("/api/related-person/patients")
 public class PatientController {
 
     private final PatientService service;

@@ -1,39 +1,46 @@
-import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
-import { useAuth, useRelatedPersonAuth } from '@/auth/auth'
+import { createRouter, createWebHistory } from 'vue-router'
+import { useSession } from '@/auth/session'
 
-import LoginView from '@/views/LoginView.vue'
-import DoctorPortalView from '@/views/DoctorPortalView.vue'
-import RelatedPersonView from '@/views/RelatedPersonView.vue'
-
-const routes: RouteRecordRaw[] = [
-    {
-        path: '/',
-        redirect: () => {
-            const { isAuthenticated } = useAuth()
-            const { isAuthenticated: isRelatedPersonAuthenticated } = useRelatedPersonAuth()
-
-            if (isAuthenticated.value) return '/doctor'
-                if (isRelatedPersonAuthenticated.value) return '/related-person'
-                    return '/login'
-        },
-    },
-{ path: '/login', name: 'login', component: LoginView },
-{ path: '/doctor', name: 'doctor', component: DoctorPortalView, meta: { requiresAuth: true } },
-{ path: '/related-person', name: 'related-person', component: RelatedPersonView },
-{ path: '/:pathMatch(.*)*', redirect: '/' },
-]
+import LandingView from '@/views/LandingView.vue'
+import AuthCallbackView from '@/views/AuthCallbackView.vue'
+import PractitionerDashboardView from '@/views/PractitionerDashboardView.vue'
+import RelatedPersonDashboardView from '@/views/RelatedPersonDashboardView.vue'
 
 export const router = createRouter({
-    history: createWebHistory(),
-                                   routes,
+  history: createWebHistory(),
+  routes: [
+    { path: '/', name: 'home', component: LandingView },
+    { path: '/auth/callback', name: 'auth-callback', component: AuthCallbackView },
+    {
+      path: '/practitioner',
+      name: 'practitioner',
+      component: PractitionerDashboardView,
+      meta: { requiresAuth: true, role: 'practitioner' },
+    },
+    {
+      path: '/related-person',
+      name: 'related-person',
+      component: RelatedPersonDashboardView,
+      meta: { requiresAuth: true, role: 'related-person' },
+    },
+    { path: '/:pathMatch(.*)*', redirect: '/' },
+  ],
 })
 
 router.beforeEach((to) => {
-    const { isAuthenticated } = useAuth()
-    const { isAuthenticated: isRelatedPersonAuthenticated } = useRelatedPersonAuth()
+  const { state, isAuthenticated } = useSession()
 
-    if (to.path === '/login' && isAuthenticated.value) return '/doctor'
-        if (to.path === '/login' && isRelatedPersonAuthenticated.value) return '/related-person'
-            if (to.meta.requiresAuth && !isAuthenticated.value) return '/login'
-                return true
+  if (!to.meta.requiresAuth) {
+    if (to.path === '/' && isAuthenticated.value) {
+      return state.role === 'practitioner' ? '/practitioner' : '/related-person'
+    }
+    return true
+  }
+
+  if (!isAuthenticated.value) return '/'
+  if (to.meta.role && to.meta.role !== state.role) {
+    return state.role === 'practitioner' ? '/practitioner' : '/related-person'
+  }
+
+  return true
 })

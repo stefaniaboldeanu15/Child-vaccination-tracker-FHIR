@@ -1,10 +1,17 @@
+// backend/src/main/java/org/prt/prtvaccinationtracking_fhir/mapper/relatedPerson/ImmunizationMapper.java
 package org.prt.prtvaccinationtracking_fhir.mapper.relatedPerson;
 
-import org.hl7.fhir.r5.model.*;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.immunization.CreateImmunizationRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.immunization.ImmunizationDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.immunization.ImmunizationStatusDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.immunization.UpdateImmunizationRequestDTO;
+import org.hl7.fhir.r5.model.Annotation;
+import org.hl7.fhir.r5.model.CodeableConcept;
+import org.hl7.fhir.r5.model.DateTimeType;
+import org.hl7.fhir.r5.model.HumanName;
+import org.hl7.fhir.r5.model.Immunization;
+import org.hl7.fhir.r5.model.Practitioner;
+import org.hl7.fhir.r5.model.Reference;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.immunization.CreateImmunizationRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.immunization.ImmunizationDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.immunization.ImmunizationStatusDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.immunization.UpdateImmunizationRequestDTO;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;

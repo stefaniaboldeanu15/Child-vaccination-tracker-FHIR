@@ -1,10 +1,11 @@
+// backend/src/main/java/org/prt/prtvaccinationtracking_fhir/mapper/relatedPerson/PatientMapper.java
 package org.prt.prtvaccinationtracking_fhir.mapper.relatedPerson;
 
 import org.hl7.fhir.r5.model.*;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.patient.CreatePatientRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.patient.PatientDetailsDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.patient.UpdatePatientRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.relatedPerson.RelatedPersonDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.patient.CreatePatientRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.patient.PatientDetailsDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.patient.UpdatePatientRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.relatedPerson.RelatedPersonDTO;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

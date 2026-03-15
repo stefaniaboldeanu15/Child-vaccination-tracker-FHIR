@@ -1,11 +1,11 @@
 package org.prt.prtvaccinationtracking_fhir.service.relatedPerson;
 
 import org.hl7.fhir.r5.model.Goal;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.goal.CreateGoalRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.goal.GoalDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.goal.UpdateGoalRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.goal.CreateGoalRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.goal.GoalDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.goal.UpdateGoalRequestDTO;
 import org.prt.prtvaccinationtracking_fhir.fhir.FhirGateway;
-import org.prt.prtvaccinationtracking_fhir.mapper.practitioner.GoalMapper;
+import org.prt.prtvaccinationtracking_fhir.mapper.relatedPerson.GoalMapper;
 import org.springframework.stereotype.Service;
 
 @Service("relatedPersonGoalService")

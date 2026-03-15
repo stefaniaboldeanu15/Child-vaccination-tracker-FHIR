@@ -3,9 +3,9 @@ package org.prt.prtvaccinationtracking_fhir.mapper.relatedPerson;
 import org.hl7.fhir.r5.model.CodeableConcept;
 import org.hl7.fhir.r5.model.Consent;
 import org.hl7.fhir.r5.model.Reference;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.consent.ConsentDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.consent.CreateConsentRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.consent.UpdateConsentRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.consent.ConsentDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.consent.CreateConsentRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.consent.UpdateConsentRequestDTO;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;

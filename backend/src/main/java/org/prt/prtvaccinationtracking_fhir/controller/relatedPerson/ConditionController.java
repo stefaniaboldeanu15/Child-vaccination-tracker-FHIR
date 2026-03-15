@@ -8,7 +8,7 @@ import org.prt.prtvaccinationtracking_fhir.service.practitioner.ConditionService
 import org.springframework.web.bind.annotation.*;
 
 @RestController("relatedPersonConditionController")
-@RequestMapping("/api/practitioner/conditions")
+@RequestMapping("/api/related-person/conditions")
 public class ConditionController {
 
     private final ConditionService service;
