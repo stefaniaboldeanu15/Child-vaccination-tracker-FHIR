@@ -53,19 +53,12 @@ json_pretty_print() {
 }
 
 is_bundle_seeded() {
-  local response
-  response="$(curl -s "${FHIR_BASE_URL}/Practitioner?identifier=dr.mueller" 2>/dev/null || true)"
-  [[ -n "$response" ]] || return 1
-
-  python3 - <<'PY' <<<"$response"
+  curl -s "${FHIR_BASE_URL}/Practitioner?identifier=dr.mueller" \
+    | python3 -c '
 import json, sys
-try:
-    data = json.load(sys.stdin)
-    total = data.get("total", 0)
-    raise SystemExit(0 if isinstance(total, int) and total > 0 else 1)
-except Exception:
-    raise SystemExit(1)
-PY
+data = json.load(sys.stdin)
+raise SystemExit(0 if data.get("total", 0) > 0 else 1)
+'
 }
 
 seed_fhir() {
