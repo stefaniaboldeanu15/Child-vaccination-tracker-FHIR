@@ -4,6 +4,7 @@ import ca.uhn.fhir.rest.gclient.TokenClientParam;
 import org.hl7.fhir.r5.model.*;
 import org.prt.prtvaccinationtracking_fhir.auth.dto.AuthSessionResponse;
 import org.prt.prtvaccinationtracking_fhir.auth.dto.RegisterRelatedPersonRequest;
+import org.prt.prtvaccinationtracking_fhir.auth.dto.RegisterPractitionerRequest;
 import org.prt.prtvaccinationtracking_fhir.auth.model.AuthenticatedUser;
 import org.prt.prtvaccinationtracking_fhir.auth.model.UserRole;
 import org.prt.prtvaccinationtracking_fhir.fhir.FhirGateway;
@@ -22,6 +23,11 @@ public class FhirAuthService {
     public static final String PASSWORD_EXTENSION_URL = "http://example.org/extensions/password";
     public static final String RELATED_PERSON_USERNAME_SYSTEM = "app:login-username";
 
+    public static final String PRACTITIONER_USERNAME_SYSTEM = "app:username";
+    public static final String PRACTITIONER_LICENSE_SYSTEM = "app:practitioner-license";
+    public static final String PRACTITIONER_SPECIALIZATION_SYSTEM = "app:practitioner-specialization";
+    public static final String PRACTITIONER_ORGANIZATION_SYSTEM = "app:organization-id";
+
     private final FhirGateway fhir;
     private final PasswordService passwordService;
 
@@ -34,7 +40,9 @@ public class FhirAuthService {
         Bundle bundle = fhir.client()
                 .search()
                 .forResource(Practitioner.class)
-                .where(new TokenClientParam("identifier").exactly().code(username))
+                .where(new TokenClientParam("identifier")
+                    .exactly()
+                    .systemAndCode(PRACTITIONER_USERNAME_SYSTEM, username))
                 .returnBundle(Bundle.class)
                 .execute();
 
@@ -133,6 +141,40 @@ public class FhirAuthService {
         );
     }
 
+    public AuthenticatedUser authenticatedPractitioner(Practitioner practitioner, String username) {
+    String practitionerId = practitioner.getIdElement().getIdPart();
+
+    return new AuthenticatedUser(
+            "Practitioner/" + practitionerId,
+            username,
+            UserRole.PRACTITIONER,
+            practitionerDisplayName(practitioner),
+            "Practitioner/" + practitionerId,
+            practitionerId,
+            List.of(),
+            List.of()
+    );
+}
+
+    private void ensurePractitionerUsernameAvailable(String username) {
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("username is required");
+        }
+
+        Bundle bundle = fhir.client()
+                .search()
+                .forResource(Practitioner.class)
+                .where(new TokenClientParam("identifier")
+                        .exactly()
+                        .systemAndCode(PRACTITIONER_USERNAME_SYSTEM, username))
+                .returnBundle(Bundle.class)
+                .execute();
+
+        if (!resources(bundle, Practitioner.class).isEmpty()) {
+            throw new IllegalStateException("Practitioner username already exists");
+        }
+    }
+
     public RelatedPerson registerRelatedPerson(RegisterRelatedPersonRequest request) {
         RelatedPerson resource = new RelatedPerson();
 
@@ -176,6 +218,68 @@ public class FhirAuthService {
                 .setValue(request.username()));
 
         resource.addExtension(new Extension(PASSWORD_EXTENSION_URL, new StringType(passwordService.encode(request.password()))));
+        return fhir.create(resource);
+    }
+
+    public Practitioner registerPractitioner(RegisterPractitionerRequest request) {
+        ensurePractitionerUsernameAvailable(request.username());
+
+        Practitioner resource = new Practitioner();
+
+        if (request.firstName() != null || request.lastName() != null) {
+            HumanName name = new HumanName();
+            if (request.firstName() != null && !request.firstName().isBlank()) {
+                name.addGiven(request.firstName());
+            }
+            if (request.lastName() != null && !request.lastName().isBlank()) {
+                name.setFamily(request.lastName());
+            }
+            resource.addName(name);
+        }
+
+        resource.addIdentifier(new Identifier()
+                .setSystem(PRACTITIONER_USERNAME_SYSTEM)
+                .setValue(request.username()));
+
+        if (request.identifier() != null && !request.identifier().isBlank()) {
+            resource.addIdentifier(new Identifier()
+                    .setSystem(PRACTITIONER_LICENSE_SYSTEM)
+                    .setValue(request.identifier()));
+        }
+
+        if (request.organizationId() != null && !request.organizationId().isBlank()) {
+            resource.addIdentifier(new Identifier()
+                    .setSystem(PRACTITIONER_ORGANIZATION_SYSTEM)
+                    .setValue(request.organizationId()));
+        }
+
+        if (request.specialization() != null && !request.specialization().isBlank()) {
+            resource.addQualification(new Practitioner.PractitionerQualificationComponent()
+                    .setCode(new CodeableConcept()
+                            .addCoding(new Coding()
+                                    .setSystem(PRACTITIONER_SPECIALIZATION_SYSTEM)
+                                    .setCode(request.specialization())
+                                    .setDisplay(request.specialization()))
+                            .setText(request.specialization())));
+        }
+
+        if (request.phone() != null && !request.phone().isBlank()) {
+            resource.addTelecom(new ContactPoint()
+                    .setSystem(ContactPoint.ContactPointSystem.PHONE)
+                    .setValue(request.phone()));
+        }
+
+        if (request.email() != null && !request.email().isBlank()) {
+            resource.addTelecom(new ContactPoint()
+                    .setSystem(ContactPoint.ContactPointSystem.EMAIL)
+                    .setValue(request.email()));
+        }
+
+        resource.addExtension(new Extension(
+                PASSWORD_EXTENSION_URL,
+                new StringType(passwordService.encode(request.password()))
+        ));
+
         return fhir.create(resource);
     }
 

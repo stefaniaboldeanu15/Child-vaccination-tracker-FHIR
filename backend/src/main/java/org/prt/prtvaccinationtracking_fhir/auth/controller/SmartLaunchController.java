@@ -3,6 +3,7 @@ package org.prt.prtvaccinationtracking_fhir.auth.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import org.prt.prtvaccinationtracking_fhir.auth.config.AuthProperties;
 import org.prt.prtvaccinationtracking_fhir.auth.dto.AuthSessionResponse;
+import org.prt.prtvaccinationtracking_fhir.auth.dto.RegisterPractitionerRequest;
 import org.prt.prtvaccinationtracking_fhir.auth.dto.RegisterRelatedPersonRequest;
 import org.prt.prtvaccinationtracking_fhir.auth.dto.SmartConfigurationResponse;
 import org.prt.prtvaccinationtracking_fhir.auth.dto.TokenResponse;
@@ -17,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import org.hl7.fhir.r5.model.Practitioner;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -258,6 +260,18 @@ public class SmartLaunchController {
         AuthenticatedUser user = authService.authenticateRelatedPerson(request.username(), request.password())
                 .orElseThrow(() -> new IllegalStateException("Related person registration completed but login failed"));
 
+        return authService.buildSessionResponse(user);
+    }
+
+    @PostMapping("/api/auth/practitioner/register")
+    public AuthSessionResponse registerPractitioner(@RequestBody RegisterPractitionerRequest request) {
+        Practitioner practitioner = authService.registerPractitioner(request);
+
+        if (practitioner == null || !practitioner.getIdElement().hasIdPart()) {
+            throw new IllegalStateException("Practitioner registration completed but created resource could not be resolved");
+        }
+
+        AuthenticatedUser user = authService.authenticatedPractitioner(practitioner, request.username());
         return authService.buildSessionResponse(user);
     }
 
