@@ -4,3 +4,4 @@ dist/
 target/
 .idea/
 *.iml
+hapi-fhir-jpaserver-starter/
