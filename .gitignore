@@ -2,3 +2,5 @@ node_modules/
 .vite/
 dist/
 target/
+.idea/
+*.iml
