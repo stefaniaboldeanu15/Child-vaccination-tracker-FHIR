@@ -175,7 +175,28 @@ public class FhirAuthService {
         }
     }
 
+    private void ensureRelatedPersonUsernameAvailable(String username) {
+    if (username == null || username.isBlank()) {
+        throw new IllegalArgumentException("username is required");
+    }
+
+    Bundle bundle = fhir.client()
+            .search()
+            .forResource(RelatedPerson.class)
+            .where(new TokenClientParam("identifier")
+                    .exactly()
+                    .systemAndCode(RELATED_PERSON_USERNAME_SYSTEM, username))
+            .returnBundle(Bundle.class)
+            .execute();
+
+    if (!resources(bundle, RelatedPerson.class).isEmpty()) {
+        throw new IllegalStateException("Related person username already exists");
+    }
+}
+
     public RelatedPerson registerRelatedPerson(RegisterRelatedPersonRequest request) {
+        ensureRelatedPersonUsernameAvailable(request.username());
+
         RelatedPerson resource = new RelatedPerson();
 
         if (request.patientId() != null && !request.patientId().isBlank()) {
