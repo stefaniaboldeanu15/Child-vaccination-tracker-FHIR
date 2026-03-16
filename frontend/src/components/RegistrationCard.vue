@@ -48,6 +48,14 @@ const signInLabel = computed(() =>
   isPractitioner.value ? 'Continue to practitioner sign in' : 'Continue to parent sign in'
 )
 
+const usernameError = computed(() => {
+  if (!error.value) return ''
+
+  return /username already exists|already exists/i.test(error.value)
+    ? error.value
+    : ''
+})
+
 function trimmed(value: string) {
   const normalized = value.trim()
   return normalized ? normalized : undefined
@@ -104,17 +112,31 @@ function friendlyError(reason: unknown) {
   if (!(reason instanceof Error)) return 'The registration request failed.'
 
   const raw = reason.message
+  let message = raw
+
   const jsonStart = raw.indexOf('{')
   if (jsonStart >= 0) {
     try {
-      const parsed = JSON.parse(raw.slice(jsonStart)) as { detail?: string; message?: string; error?: string }
-      return parsed.detail || parsed.message || parsed.error || raw
+      const parsed = JSON.parse(raw.slice(jsonStart)) as {
+        detail?: string
+        message?: string
+        error?: string
+      }
+      message = parsed.detail || parsed.message || parsed.error || raw
     } catch {
-      return raw
+      message = raw
     }
   }
 
-  return raw
+  if (/Practitioner username already exists/i.test(message)) {
+    return 'This practitioner username is already taken.'
+  }
+
+  if (/Related person username already exists/i.test(message)) {
+    return 'This username is already taken.'
+  }
+
+  return message
 }
 
 async function submit() {
@@ -213,7 +235,14 @@ function reset() {
         <va-input v-model="form.firstName" label="First name" placeholder="Enter first name" />
         <va-input v-model="form.lastName" label="Last name" placeholder="Enter last name" />
 
-        <va-input v-model="form.username" label="Username" placeholder="Choose a username" autocomplete="username" />
+       <va-input
+          v-model="form.username"
+          label="Username"
+          placeholder="Choose a username"
+          autocomplete="username"
+          :error="Boolean(usernameError)"
+          :error-messages="usernameError ? [usernameError] : []"
+        />
         <va-input v-model="form.password" label="Password" type="password" placeholder="Choose a password" autocomplete="new-password" />
 
         <va-input
