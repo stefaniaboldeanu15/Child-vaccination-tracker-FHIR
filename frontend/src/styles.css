@@ -211,3 +211,13 @@ code.inline-code {
     grid-template-columns: 1fr;
   }
 }
+
+.auth-card {
+  width: 100%;
+}
+
+.auth-card .va-input-wrapper,
+.auth-card .va-select,
+.auth-card .va-textarea {
+  width: 100%;
+}

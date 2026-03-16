@@ -1,5 +1,12 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import { startSmartLogin } from '@/utils/smart'
+
+const router = useRouter()
+
+async function goToRegistration(role: 'practitioner' | 'related-person') {
+  await router.push(role === 'practitioner' ? '/register/practitioner' : '/register/related-person')
+}
 </script>
 
 <template>
@@ -14,12 +21,21 @@ import { startSmartLogin } from '@/utils/smart'
           A clean Vue 3 + Vuestic portal for pediatric vaccination tracking, with SMART on FHIR standalone launch, a practitioner workspace for search and updates, and a related-person view for all linked children.
         </p>
 
-        <div class="toolbar" style="margin: 22px 0 28px">
+        <div class="toolbar" style="margin: 22px 0 12px">
           <va-button size="large" @click="startSmartLogin('practitioner')">
             Practitioner sign in
           </va-button>
           <va-button size="large" preset="secondary" @click="startSmartLogin('related-person')">
             Parent sign in
+          </va-button>
+        </div>
+
+        <div class="toolbar" style="margin: 0 0 28px">
+          <va-button preset="secondary" color="primary" @click="goToRegistration('practitioner')">
+            Register practitioner
+          </va-button>
+          <va-button preset="secondary" color="success" @click="goToRegistration('related-person')">
+            Register parent or guardian
           </va-button>
         </div>
 
