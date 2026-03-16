@@ -2,3 +2,4 @@ node_modules/
 .vite/
 dist/
 target/
+..dev.sh.kate-swp.kate-swp
