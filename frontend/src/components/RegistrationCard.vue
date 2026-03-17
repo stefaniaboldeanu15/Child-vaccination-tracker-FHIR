@@ -199,7 +199,7 @@ function reset() {
 
     <template v-if="success">
       <va-alert color="success" outline style="margin-bottom: 18px">
-        The account was created successfully. Use the existing SMART sign-in flow to start an authenticated session.
+        The account was created successfully. Now go to login.
       </va-alert>
 
       <div class="record-card section-stack" style="margin-bottom: 18px">

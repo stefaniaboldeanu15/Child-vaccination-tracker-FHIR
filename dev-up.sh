@@ -145,7 +145,7 @@ seed_fhir() {
   printf '%s\n' "$body" | json_pretty_print
 
   echo "Checking Practitioner dr.mueller..."
-  curl -fsS "${FHIR_BASE_URL}/Practitioner?identifier=dr.mueller" | json_pretty_print
+  curl -fsS "${FHIR_BASE_URL}/Practitioner?identifier=app:username|dr.mueller" | json_pretty_print
 
   echo "Checking Patient count..."
   curl -fsS "${FHIR_BASE_URL}/Patient" | json_pretty_print
