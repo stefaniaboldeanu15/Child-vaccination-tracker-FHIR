@@ -1,0 +1,14 @@
+---
+description: Design/UI work only — do not modify backend
+alwaysApply: true
+---
+
+# Design & Frontend Only
+
+When working on design or UI:
+
+- **Only edit** files under `frontend/` (Vue components, styles, assets, config).
+- **Do not modify** anything under `backend/` (Java, Spring, FHIR mappers, etc.).
+- If a change would require backend updates, suggest the frontend-only part or ask before touching backend.
+
+Current focus: UI design on branch `UI-DESIGEN`.

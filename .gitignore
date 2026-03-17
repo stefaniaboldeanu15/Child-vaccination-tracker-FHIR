@@ -3,3 +3,5 @@ node_modules/
 dist/
 target/
 ..dev.sh.kate-swp.kate-swp
+.idea/
+*.iml
