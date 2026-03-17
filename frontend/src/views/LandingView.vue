@@ -1,16 +1,6 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
-import { startSmartLogin } from '@/utils/smart'
-<<<<<<< HEAD
-
-const router = useRouter()
-
-async function goToRegistration(role: 'practitioner' | 'related-person') {
-  await router.push(role === 'practitioner' ? '/register/practitioner' : '/register/related-person')
-}
-=======
 import VaccinationLogo from '@/components/VaccinationLogo.vue'
->>>>>>> aa7d081 (Stop tracking node_modules and .idea, update .gitignore)
+import AuthPortalCard from '@/components/AuthPortalCard.vue'
 </script>
 
 <template>
@@ -19,26 +9,6 @@ import VaccinationLogo from '@/components/VaccinationLogo.vue'
       <span v-for="i in 24" :key="i" class="needle-icon">💉</span>
     </div>
 
-<<<<<<< HEAD
-        <div class="toolbar" style="margin: 22px 0 12px">
-          <va-button size="large" @click="startSmartLogin('practitioner')">
-            Practitioner sign in
-          </va-button>
-          <va-button size="large" preset="secondary" @click="startSmartLogin('related-person')">
-            Parent sign in
-          </va-button>
-        </div>
-
-        <div class="toolbar" style="margin: 0 0 28px">
-          <va-button preset="secondary" color="primary" @click="goToRegistration('practitioner')">
-            Register practitioner
-          </va-button>
-          <va-button preset="secondary" color="success" @click="goToRegistration('related-person')">
-            Register parent or guardian
-          </va-button>
-        </div>
-
-=======
     <!-- Hero -->
     <section class="landing-hero">
       <va-card class="surface-card hero-card hero-main">
@@ -46,73 +16,24 @@ import VaccinationLogo from '@/components/VaccinationLogo.vue'
           <VaccinationLogo variant="icon" class="logo-icon logo-icon-fluid" />
           <div class="header-text">
             <h1 class="landing-title">VaxCare Junior</h1>
-            <p class="landing-tagline">Pediatric vaccination records, schedules, and care updates in one secure place.</p>
+            <p class="landing-tagline">Pediatric vaccination records, schedules, and care updates in one secure place.
+            </p>
           </div>
         </header>
-        <div class="hero-actions">
-          <p class="hero-actions-label">Choose how to sign in</p>
-          <div class="toolbar landing-toolbar">
-            <va-button size="large" class="btn-practitioner" @click="startSmartLogin('practitioner')">
-              <template #prepend>
-                <span class="btn-icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
-                </span>
-              </template>
-              Practitioner sign in
-            </va-button>
-            <va-button size="large" preset="secondary" class="btn-parent" @click="startSmartLogin('related-person')">
-              <template #prepend>
-                <span class="btn-icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                </span>
-              </template>
-              Parent sign in
-            </va-button>
-          </div>
+
+        <div class="hero-copy">
+          <p class="hero-actions-label">Choose your portal, then either sign in or create an account.</p>
         </div>
->>>>>>> aa7d081 (Stop tracking node_modules and .idea, update .gitignore)
-        <div class="metric-grid">
-          <div class="metric metric-smart">
-            <div class="value">SMART</div>
-            <div class="label">Authorization code + PKCE</div>
-          </div>
-          <div class="metric metric-fhir">
-            <div class="value">FHIR</div>
-            <div class="label">Direct resource search + DTO views</div>
-          </div>
-          <div class="metric metric-vuestic">
-            <div class="value">Vuestic</div>
-            <div class="label">Clean, lightweight interaction layer</div>
-          </div>
+
+        <div class="portals-grid landing-auth-grid">
+          <AuthPortalCard role="practitioner" badge="For clinicians" title="Practitioner portal"
+            subtitle="Manage patient records and keep immunizations up to date"
+            description="Look up children, view full vaccination history, see what’s due, and record new immunizations in one workspace tied to your practice." />
+          <AuthPortalCard role="related-person" badge="For parents & guardians" title="Family portal"
+            subtitle="One place for all your children’s vaccination records"
+            description="Sign in once to see the child linked to your account, check what’s due, and keep your family’s vaccinations on track." />
         </div>
       </va-card>
-    </section>
-
-    <!-- Who is this for -->
-    <section class="landing-section portals-section">
-      <h2 class="section-title">Who is this for?</h2>
-      <div class="portals-grid">
-        <va-card class="surface-card hero-card portal-card portal-practitioner">
-          <div class="portal-inner">
-            <span class="portal-badge">For clinicians</span>
-            <h2 class="portal-title">Practitioner Login</h2>
-            <p class="portal-subtitle">Manage patient records and keep immunizations up to date</p>
-            <p class="portal-desc">
-              Look up children, view full vaccination history, see what’s due, and record new immunizations. All in one workspace tied to your practice.
-            </p>
-          </div>
-        </va-card>
-        <va-card class="surface-card hero-card portal-card portal-parent">
-          <div class="portal-inner">
-            <span class="portal-badge">For parents & guardians</span>
-            <h2 class="portal-title">Parent Login</h2>
-            <p class="portal-subtitle">One place for all your children’s vaccination records</p>
-            <p class="portal-desc">
-              Sign in once to see every child linked to your account. Check what’s due, share records with providers, and keep your family’s vaccinations on track.
-            </p>
-          </div>
-        </va-card>
-      </div>
     </section>
 
     <!-- What you can do -->
@@ -123,21 +44,24 @@ import VaccinationLogo from '@/components/VaccinationLogo.vue'
           <div class="kicker">Stay on schedule</div>
           <h3 class="feature-title">See what’s due</h3>
           <p class="feature-desc">
-            View vaccines due for each child at a glance. Update status and due dates with your clinician so the whole family stays on schedule.
+            View vaccines due for each child at a glance. Update status and due dates with your clinician so the whole
+            family stays on schedule.
           </p>
         </va-card>
         <va-card class="surface-card hero-card feature-card">
           <div class="kicker">Full picture</div>
           <h3 class="feature-title">Complete visit history</h3>
           <p class="feature-desc">
-            Each visit is shown with immunizations given and notes in one place—so you and your care team always have the full story.
+            Each visit is shown with immunizations given and notes in one place—so you and your care team always have
+            the full story.
           </p>
         </va-card>
         <va-card class="surface-card hero-card feature-card demo-card">
           <div class="kicker">Try it out</div>
           <h3 class="feature-title">Demo access</h3>
           <p class="feature-desc">
-            Practitioner: <code class="inline-code">dr.mueller</code> / <code class="inline-code">pwMueller01</code><br />
+            Practitioner: <code class="inline-code">dr.mueller</code> / <code
+              class="inline-code">pwMueller01</code><br />
             Parent: <code class="inline-code">anna.gruber.parent</code> / <code class="inline-code">Parent123!</code>
           </p>
         </va-card>
@@ -147,6 +71,12 @@ import VaccinationLogo from '@/components/VaccinationLogo.vue'
 </template>
 
 <style scoped>
+.landing-page .hero-main {
+  display: grid;
+  gap: var(--space-lg);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.86));
+}
+
 .landing-page {
   --landing-accent: #0d9488;
   --landing-accent-soft: rgba(13, 148, 136, 0.12);
@@ -194,57 +124,6 @@ import VaccinationLogo from '@/components/VaccinationLogo.vue'
     radial-gradient(ellipse 60% 40% at 0% 60%, rgba(5, 150, 105, 0.04), transparent 45%);
   pointer-events: none;
   z-index: 0;
-}
-
-.needle-bg {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  overflow: hidden;
-}
-
-.needle-icon {
-  position: absolute;
-  font-size: clamp(0.85rem, 1.5vw, 1.2rem);
-  opacity: 0.06;
-  animation: needle-float 12s ease-in-out infinite;
-}
-
-.needle-icon:nth-child(1) { left: 5%; top: 8%; animation-delay: 0s; }
-.needle-icon:nth-child(2) { left: 18%; top: 15%; animation-delay: -1.5s; transform: rotate(-12deg); }
-.needle-icon:nth-child(3) { left: 28%; top: 6%; animation-delay: -3s; transform: rotate(8deg); }
-.needle-icon:nth-child(4) { left: 42%; top: 12%; animation-delay: -0.5s; transform: rotate(-5deg); }
-.needle-icon:nth-child(5) { left: 55%; top: 5%; animation-delay: -2s; }
-.needle-icon:nth-child(6) { left: 68%; top: 14%; animation-delay: -4s; transform: rotate(10deg); }
-.needle-icon:nth-child(7) { left: 82%; top: 9%; animation-delay: -1s; transform: rotate(-8deg); }
-.needle-icon:nth-child(8) { left: 92%; top: 18%; animation-delay: -2.5s; }
-.needle-icon:nth-child(9) { left: 8%; top: 35%; animation-delay: -3.5s; transform: rotate(6deg); }
-.needle-icon:nth-child(10) { left: 22%; top: 42%; animation-delay: -0.8s; transform: rotate(-10deg); }
-.needle-icon:nth-child(11) { left: 75%; top: 38%; animation-delay: -2.2s; transform: rotate(4deg); }
-.needle-icon:nth-child(12) { left: 88%; top: 45%; animation-delay: -4.5s; transform: rotate(-6deg); }
-.needle-icon:nth-child(13) { left: 12%; top: 62%; animation-delay: -1.2s; transform: rotate(12deg); }
-.needle-icon:nth-child(14) { left: 35%; top: 68%; animation-delay: -3.2s; transform: rotate(-4deg); }
-.needle-icon:nth-child(15) { left: 58%; top: 72%; animation-delay: -0.3s; transform: rotate(7deg); }
-.needle-icon:nth-child(16) { left: 78%; top: 65%; animation-delay: -2.8s; transform: rotate(-9deg); }
-.needle-icon:nth-child(17) { left: 5%; top: 82%; animation-delay: -4.2s; transform: rotate(5deg); }
-.needle-icon:nth-child(18) { left: 45%; top: 88%; animation-delay: -1.8s; transform: rotate(-7deg); }
-.needle-icon:nth-child(19) { left: 65%; top: 92%; animation-delay: -3.8s; transform: rotate(3deg); }
-.needle-icon:nth-child(20) { left: 90%; top: 78%; animation-delay: -0.6s; transform: rotate(-11deg); }
-.needle-icon:nth-child(21) { left: 50%; top: 28%; animation-delay: -2.3s; transform: rotate(9deg); opacity: 0.08; }
-.needle-icon:nth-child(22) { left: 30%; top: 55%; animation-delay: -4s; transform: rotate(-3deg); opacity: 0.08; }
-.needle-icon:nth-child(23) { left: 70%; top: 52%; animation-delay: -1.4s; transform: rotate(6deg); opacity: 0.08; }
-.needle-icon:nth-child(24) { left: 15%; top: 78%; animation-delay: -3.3s; transform: rotate(-8deg); opacity: 0.08; }
-
-@keyframes needle-float {
-  0%, 100% { opacity: 0.05; }
-  50% { opacity: 0.1; }
-}
-
-.landing-page .landing-hero {
-  position: relative;
-  z-index: 1;
-  margin-bottom: var(--space-lg);
 }
 
 .landing-page .landing-section {
@@ -348,6 +227,7 @@ import VaccinationLogo from '@/components/VaccinationLogo.vue'
   --logo-color: #0d9488;
   flex-shrink: 0;
 }
+
 .landing-page .landing-header .logo-icon-fluid {
   width: clamp(48px, 10vw, 64px);
   height: clamp(48px, 10vw, 64px);
@@ -367,7 +247,7 @@ import VaccinationLogo from '@/components/VaccinationLogo.vue'
 }
 
 .landing-page .landing-tagline {
-  font-size: clamp(0.95rem, 1.5vw, 1.05rem);
+  font-size: clamp(1rem, 1.5vw, 1.05rem);
   line-height: 1.5;
   margin: 0;
   max-width: 42ch;
@@ -384,7 +264,7 @@ import VaccinationLogo from '@/components/VaccinationLogo.vue'
 }
 
 .landing-page .hero-actions-label {
-  font-size: 0.8rem;
+  font-size: 1rem;
   font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--text-muted);
@@ -437,17 +317,28 @@ import VaccinationLogo from '@/components/VaccinationLogo.vue'
   border-color: rgba(2, 132, 199, 0.2);
   background: rgba(255, 255, 255, 0.7) !important;
 }
-.landing-page .metric-smart .value { color: var(--landing-blue); }
+
+.landing-page .metric-smart .value {
+  color: var(--landing-blue);
+}
+
 .landing-page .metric-fhir {
   border-color: rgba(13, 148, 136, 0.2);
   background: rgba(255, 255, 255, 0.7) !important;
 }
-.landing-page .metric-fhir .value { color: var(--landing-teal); }
+
+.landing-page .metric-fhir .value {
+  color: var(--landing-teal);
+}
+
 .landing-page .metric-vuestic {
   border-color: rgba(109, 40, 217, 0.2);
   background: rgba(255, 255, 255, 0.7) !important;
 }
-.landing-page .metric-vuestic .value { color: var(--landing-violet); }
+
+.landing-page .metric-vuestic .value {
+  color: var(--landing-violet);
+}
 
 .landing-page .btn-icon {
   display: inline-flex;
@@ -458,6 +349,7 @@ import VaccinationLogo from '@/components/VaccinationLogo.vue'
   margin-right: 0.35em;
   flex-shrink: 0;
 }
+
 .landing-page .btn-icon svg {
   width: 100%;
   height: 100%;
@@ -474,6 +366,7 @@ import VaccinationLogo from '@/components/VaccinationLogo.vue'
   box-shadow: 0 2px 10px rgba(13, 148, 136, 0.35) !important;
   transition: box-shadow 0.25s var(--ease-out), transform 0.25s var(--ease-out), background 0.2s ease !important;
 }
+
 .landing-page :deep(.va-button.btn-practitioner .btn-icon) {
   color: #fff;
 }
@@ -495,6 +388,7 @@ import VaccinationLogo from '@/components/VaccinationLogo.vue'
   min-height: 44px;
   transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s var(--ease-spring), color 0.2s ease !important;
 }
+
 .landing-page :deep(.va-button.btn-parent .btn-icon) {
   color: var(--btn-accent);
 }
@@ -505,6 +399,7 @@ import VaccinationLogo from '@/components/VaccinationLogo.vue'
   color: var(--btn-accent-hover) !important;
   transform: translateY(-1px) !important;
 }
+
 .landing-page :deep(.va-button.btn-parent:hover .btn-icon) {
   color: var(--btn-accent-hover);
 }
@@ -515,12 +410,14 @@ import VaccinationLogo from '@/components/VaccinationLogo.vue'
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
+
 .landing-page .portal-parent {
   border-left: 5px solid var(--landing-mint);
   background: var(--glass) !important;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
+
 .landing-page .portal-card {
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
@@ -550,9 +447,11 @@ import VaccinationLogo from '@/components/VaccinationLogo.vue'
 .landing-page .feature-card:nth-child(1) {
   border-left: 4px solid var(--landing-amber);
 }
+
 .landing-page .feature-card:nth-child(2) {
   border-left: 4px solid var(--landing-violet);
 }
+
 .landing-page .feature-card:nth-child(3) {
   border-left: 4px solid var(--landing-blue);
 }
@@ -576,9 +475,17 @@ import VaccinationLogo from '@/components/VaccinationLogo.vue'
   margin: 0;
 }
 
-.landing-page .feature-card:nth-child(1) .kicker { color: var(--landing-amber); }
-.landing-page .feature-card:nth-child(2) .kicker { color: var(--landing-violet); }
-.landing-page .feature-card:nth-child(3) .kicker { color: var(--landing-blue); }
+.landing-page .feature-card:nth-child(1) .kicker {
+  color: var(--landing-amber);
+}
+
+.landing-page .feature-card:nth-child(2) .kicker {
+  color: var(--landing-violet);
+}
+
+.landing-page .feature-card:nth-child(3) .kicker {
+  color: var(--landing-blue);
+}
 
 .landing-page .demo-card .inline-code {
   background: var(--landing-blue-soft);
@@ -592,19 +499,229 @@ import VaccinationLogo from '@/components/VaccinationLogo.vue'
   border-radius: var(--radius-lg);
 }
 
-/* Flexible: grids reflow via auto-fit; extra tweaks for very small screens */
+.needle-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.needle-icon {
+  position: absolute;
+  font-size: clamp(0.85rem, 1.5vw, 1.2rem);
+  opacity: 0.06;
+  animation: needle-float 12s ease-in-out infinite;
+}
+
+.needle-icon:nth-child(1) {
+  left: 5%;
+  top: 8%;
+  animation-delay: 0s;
+}
+
+.needle-icon:nth-child(2) {
+  left: 18%;
+  top: 15%;
+  animation-delay: -1.5s;
+  transform: rotate(-12deg);
+}
+
+.needle-icon:nth-child(3) {
+  left: 28%;
+  top: 6%;
+  animation-delay: -3s;
+  transform: rotate(8deg);
+}
+
+.needle-icon:nth-child(4) {
+  left: 42%;
+  top: 12%;
+  animation-delay: -0.5s;
+  transform: rotate(-5deg);
+}
+
+.needle-icon:nth-child(5) {
+  left: 55%;
+  top: 5%;
+  animation-delay: -2s;
+}
+
+.needle-icon:nth-child(6) {
+  left: 68%;
+  top: 14%;
+  animation-delay: -4s;
+  transform: rotate(10deg);
+}
+
+.needle-icon:nth-child(7) {
+  left: 82%;
+  top: 9%;
+  animation-delay: -1s;
+  transform: rotate(-8deg);
+}
+
+.needle-icon:nth-child(8) {
+  left: 92%;
+  top: 18%;
+  animation-delay: -2.5s;
+}
+
+.needle-icon:nth-child(9) {
+  left: 8%;
+  top: 35%;
+  animation-delay: -3.5s;
+  transform: rotate(6deg);
+}
+
+.needle-icon:nth-child(10) {
+  left: 22%;
+  top: 42%;
+  animation-delay: -0.8s;
+  transform: rotate(-10deg);
+}
+
+.needle-icon:nth-child(11) {
+  left: 75%;
+  top: 38%;
+  animation-delay: -2.2s;
+  transform: rotate(4deg);
+}
+
+.needle-icon:nth-child(12) {
+  left: 88%;
+  top: 45%;
+  animation-delay: -4.5s;
+  transform: rotate(-6deg);
+}
+
+.needle-icon:nth-child(13) {
+  left: 12%;
+  top: 62%;
+  animation-delay: -1.2s;
+  transform: rotate(12deg);
+}
+
+.needle-icon:nth-child(14) {
+  left: 35%;
+  top: 68%;
+  animation-delay: -3.2s;
+  transform: rotate(-4deg);
+}
+
+.needle-icon:nth-child(15) {
+  left: 58%;
+  top: 72%;
+  animation-delay: -0.3s;
+  transform: rotate(7deg);
+}
+
+.needle-icon:nth-child(16) {
+  left: 78%;
+  top: 65%;
+  animation-delay: -2.8s;
+  transform: rotate(-9deg);
+}
+
+.needle-icon:nth-child(17) {
+  left: 5%;
+  top: 82%;
+  animation-delay: -4.2s;
+  transform: rotate(5deg);
+}
+
+.needle-icon:nth-child(18) {
+  left: 45%;
+  top: 88%;
+  animation-delay: -1.8s;
+  transform: rotate(-7deg);
+}
+
+.needle-icon:nth-child(19) {
+  left: 65%;
+  top: 92%;
+  animation-delay: -3.8s;
+  transform: rotate(3deg);
+}
+
+.needle-icon:nth-child(20) {
+  left: 90%;
+  top: 78%;
+  animation-delay: -0.6s;
+  transform: rotate(-11deg);
+}
+
+.needle-icon:nth-child(21) {
+  left: 50%;
+  top: 28%;
+  animation-delay: -2.3s;
+  transform: rotate(9deg);
+  opacity: 0.08;
+}
+
+.needle-icon:nth-child(22) {
+  left: 30%;
+  top: 55%;
+  animation-delay: -4s;
+  transform: rotate(-3deg);
+  opacity: 0.08;
+}
+
+.needle-icon:nth-child(23) {
+  left: 70%;
+  top: 52%;
+  animation-delay: -1.4s;
+  transform: rotate(6deg);
+  opacity: 0.08;
+}
+
+.needle-icon:nth-child(24) {
+  left: 15%;
+  top: 78%;
+  animation-delay: -3.3s;
+  transform: rotate(-8deg);
+  opacity: 0.08;
+}
+
+@keyframes needle-float {
+
+  0%,
+  100% {
+    opacity: 0.05;
+  }
+
+  50% {
+    opacity: 0.1;
+  }
+}
+
+@media (max-width: 960px) {
+
+  .landing-page .portals-grid,
+  .landing-page .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-page .landing-header {
+    align-items: flex-start;
+  }
+}
+
 @media (max-width: 640px) {
   .landing-page {
     padding: var(--space-md) var(--space-sm) var(--space-lg);
   }
+
   .landing-page .landing-header {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-sm);
   }
+
   .landing-page .hero-main {
     padding: var(--space-md) var(--space-sm) !important;
   }
+
   .landing-page .portal-card {
     padding: var(--space-md) !important;
   }

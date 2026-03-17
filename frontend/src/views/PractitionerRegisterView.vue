@@ -25,10 +25,6 @@ async function goHome() {
             <div class="value">Step 2</div>
             <div class="label">Continue to SMART sign in</div>
           </div>
-          <div class="metric">
-            <div class="value">FHIR</div>
-            <div class="label">Practitioner resource + auth metadata</div>
-          </div>
         </div>
 
         <div class="record-card" style="margin-bottom: 18px">

@@ -1,0 +1,20 @@
+- Endpoints:
+    - Overview works
+    - Related person works
+    - Immunizations works
+    - Recommendations works
+    - Adding a care plan does not work yet; updating works
+    - Adding goal resources does not work yet; updating partially works
+    - Adding and updating an appointment does not work yet
+    - Adding an encounter button does not exist yet; updating works
+    - Adding an observation does not work; updating works
+    - Adding a condition does not work; updating works
+    - Adding abd updating an allergy works
+    - Adding and updatding a communication does not work
+    - Adding and updating adverse events works
+- Should the related person be able to have more than one child? If so, is that already possible in the backend?
+- Related person can currently also add immunizations, etc. Is that on purpose?
+- Real related person registration by the doctor still needed or should that even be possible? How will we solve this with the password so the practitioner does not know it?
+- Related person email is too large for the card
+- Human readable errors need to be added to the frontend
+- Validation of all forms for the endpoints (e.g. consents) needs to be checked and added

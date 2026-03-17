@@ -17,7 +17,7 @@ async function goHome() {
         <div class="kicker">Related person portal</div>
         <h1 style="margin: 8px 0 12px">Register a parent or guardian account</h1>
         <p class="muted" style="margin: 0 0 22px">
-          Create a related-person account linked to one child patient id. After registration, continue with the same SMART on FHIR sign-in flow already used by the family workspace.
+          Create a related-person account linked to one child patient id.
         </p>
 
         <div class="metric-grid" style="margin-bottom: 22px">
@@ -29,17 +29,10 @@ async function goHome() {
             <div class="value">Step 2</div>
             <div class="label">Continue to SMART sign in</div>
           </div>
-          <div class="metric">
-            <div class="value">Demo</div>
-            <div class="label">Child id example: patient-001</div>
-          </div>
         </div>
 
         <div class="record-card" style="margin-bottom: 18px">
           <strong style="display: block; margin-bottom: 10px">Already have an account?</strong>
-          <p class="muted" style="margin: 0 0 14px">
-            Use the existing parent sign-in. The registration form is for creating a new related-person account linked to a child.
-          </p>
           <div class="toolbar">
             <va-button @click="startSmartLogin('related-person')">Parent sign in</va-button>
             <va-button preset="secondary" color="secondary" @click="goHome">Back to home</va-button>
