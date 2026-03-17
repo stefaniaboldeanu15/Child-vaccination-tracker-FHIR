@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Hero illustration – child + specialist symbol (optional use)
 defineProps<{
   class?: string
 }>()

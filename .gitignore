@@ -5,3 +5,4 @@ target/
 ..dev.sh.kate-swp.kate-swp
 .idea/
 *.iml
+hapi-fhir-jpaserver-starter/
