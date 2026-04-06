@@ -1,8 +1,8 @@
 - Endpoints:
     - Overview works
-    - Related person works
-    - Immunizations works
-    - Recommendations works
+    - Adding and updating (email, phone and address) related person works
+    - Adding and updating immunizations work
+    - Adding and updating recommendations work
     - Adding a care plan does not work yet; updating works
     - Adding goal resources does not work yet; updating partially works
     - Adding and updating an appointment does not work yet
@@ -18,3 +18,5 @@
 - Related person email is too large for the card
 - Human readable errors need to be added to the frontend
 - Validation of all forms for the endpoints (e.g. consents) needs to be checked and added
+- Do we also want to offer the possiblility to delete a patient and/or related person?
+- Shouldn't the practitioner and related person not be able to update the related person name?
