@@ -12,11 +12,15 @@
     - Adding abd updating an allergy works
     - Adding and updatding a communication does not work
     - Adding and updating adverse events works
-- Should the related person be able to have more than one child? If so, is that already possible in the backend?
-- Related person can currently also add immunizations, etc. Is that on purpose?
-- Real related person registration by the doctor still needed or should that even be possible? How will we solve this with the password so the practitioner does not know it?
+- Add possibility in the frontend for the related person to have more than one child
+(its about how to enter data in the frontend. You should add the required fields for the child and because the parent is already logged in, in the fhir server it will automatically be added under related person id... same happens on the practitioner side)
+- Remove possibility for related person to add immunizations
+- Real related person registration by the doctor still needed or should that even be possible? How will we solve this with the password so the practitioner does not know it? --> Token registration, check the seed bundle to see how it looks like. Password is in the extension and username is in the identifier
 - Related person email is too large for the card
 - Human readable errors need to be added to the frontend
 - Validation of all forms for the endpoints (e.g. consents) needs to be checked and added
-- Do we also want to offer the possiblility to delete a patient and/or related person?
+- Do we also want to offer the possiblility to delete a patient and/or related person? --> no delete at all
 - Shouldn't the practitioner and related person not be able to update the related person name?
+--> Nope, once entered, you should not be able to change the name, or birth date.
+- Add mock Google and ID Austria registration/login
+- The related person should only add children, and update(!) the consent ... and create communication, appointments, anything thats not related to medical info
