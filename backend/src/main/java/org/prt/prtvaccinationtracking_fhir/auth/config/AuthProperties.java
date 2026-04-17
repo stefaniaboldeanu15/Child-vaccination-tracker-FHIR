@@ -25,7 +25,10 @@ public class AuthProperties {
 
     public static class Smart {
         private String clientId = "child-vax-ui";
-        private List<String> redirectUris = List.of("http://localhost:5173/auth/callback");
+        private List<String> redirectUris = List.of(
+                "http://localhost:5173/auth/callback",
+                "http://localhost:5174/auth/callback"
+        );
         private long authorizationCodeTtlSeconds = 180;
         private long accessTokenTtlSeconds = 3600;
 
@@ -84,7 +87,10 @@ public class AuthProperties {
     }
 
     public static class Cors {
-        private List<String> allowedOrigins = List.of("http://localhost:5173");
+        private List<String> allowedOrigins = List.of(
+                "http://localhost:5173",
+                "http://localhost:5174"
+        );
 
         public List<String> getAllowedOrigins() {
             return allowedOrigins;

@@ -15,6 +15,8 @@ type HeroSlide = {
 type Language = 'en' | 'de'
 
 const language = ref<Language>('en')
+const isLaunching = ref(false)
+const loginError = ref('')
 
 const i18n = {
   en: {
@@ -192,6 +194,21 @@ function setLanguage(nextLanguage: Language) {
   language.value = nextLanguage
 }
 
+async function handleLogin() {
+  loginError.value = ''
+  isLaunching.value = true
+  try {
+    await startSmartLogin('practitioner')
+  } catch (error) {
+    loginError.value =
+      error instanceof Error
+        ? `Login could not start: ${error.message}`
+        : 'Login could not start. Please check if backend is running on port 8081.'
+  } finally {
+    isLaunching.value = false
+  }
+}
+
 onMounted(() => {
   slideTimer = setInterval(() => {
     activeSlide.value = (activeSlide.value + 1) % heroSlides.length
@@ -308,13 +325,14 @@ onBeforeUnmount(() => {
           <p class="hero-actions-title">{{ t.getStartedTitle }}</p>
           <p class="hero-actions-label">{{ t.getStartedSubtitle }}</p>
           <div class="toolbar landing-toolbar">
-            <va-button size="large" class="btn-practitioner" @click="startSmartLogin('practitioner')">
+            <va-button size="large" class="btn-practitioner" :disabled="isLaunching" @click="handleLogin">
               {{ t.login }}
             </va-button>
             <va-button size="large" preset="secondary" class="btn-idaustria" disabled>
               {{ t.loginWithIdAustria }}
             </va-button>
           </div>
+          <p v-if="loginError" class="login-error">{{ loginError }}</p>
         </div>
         <p class="hero-actions-title built-with-title">{{ t.builtWith }}</p>
         <div class="metric-grid">
@@ -825,6 +843,13 @@ onBeforeUnmount(() => {
   letter-spacing: 0.04em;
   color: var(--text-muted);
   margin: 0 0 var(--space-sm);
+}
+
+.landing-page .login-error {
+  margin: 8px 0 0;
+  color: #b91c1c;
+  font-size: 0.84rem;
+  font-weight: 600;
 }
 
 .landing-page .hero-actions-title {

@@ -106,22 +106,21 @@ public class SmartLaunchController {
             <style>
               body { margin: 0; font-family: Inter, system-ui, sans-serif; background: linear-gradient(135deg, #f4f8ff 0%%, #effcf4 100%%); color: #13213f; }
               .shell { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
-              .card { width: min(520px, 100%%); background: rgba(255,255,255,0.98); border: 1px solid #d7e3f2; border-radius: 22px; padding: 28px; box-shadow: 0 24px 48px rgba(19,33,63,0.08); }
+              .card { width: min(520px, 100%%); background: rgba(255,255,255,0.98); border: 1px solid #d7e3f2; border-radius: 22px; padding: 30px; box-shadow: 0 24px 48px rgba(19,33,63,0.08); }
               .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
               .brand-mark { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, #2f82ff, #1d4ed8); color: #fff; display: grid; place-items: center; font-size: 18px; font-weight: 800; }
               .brand-name { font-size: 13px; font-weight: 700; letter-spacing: .08em; color: #1d4ed8; text-transform: uppercase; }
               h1 { margin: 0 0 6px; font-size: 30px; }
-              .subtitle { margin: 0; color: #5f6f92; line-height: 1.5; }
+              .subtitle { margin: 0; color: #5f6f92; line-height: 1.5; font-size: 17px; }
               .alert { margin-top: 14px; padding: 10px 12px; border-radius: 12px; border: 1px solid #fecaca; background: #fef2f2; color: #b91c1c; font-size: 14px; font-weight: 600; }
-              label { display:block; margin: 16px 0 8px; font-weight: 700; color: #1f2937; font-size: 14px; }
-              input { width: 100%%; box-sizing: border-box; border: 1px solid #cfd8ea; border-radius: 14px; padding: 12px 14px; font-size: 15px; }
+              label { display:block; margin: 18px 0 8px; font-weight: 700; color: #1f2937; font-size: 14px; }
+              input { width: 100%%; box-sizing: border-box; border: 1px solid #cfd8ea; border-radius: 14px; padding: 13px 14px; font-size: 15px; transition: border-color .2s ease, box-shadow .2s ease; }
               input:focus { outline: none; border-color: #2c82ff; box-shadow: 0 0 0 3px rgba(44,130,255,0.15); }
-              .role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
-              .role-input { position: absolute; opacity: 0; pointer-events: none; }
-              .role-option { border: 1px solid #d1def0; border-radius: 12px; padding: 10px 12px; cursor: pointer; font-size: 14px; font-weight: 700; color: #1e3a8a; background: #f8fbff; text-align: center; }
-              .role-input:checked + .role-option { background: #eaf2ff; border-color: #2c82ff; box-shadow: inset 0 0 0 1px #2c82ff; }
-              button { margin-top: 20px; width: 100%%; border: 0; border-radius: 14px; padding: 12px 16px; font-size: 15px; font-weight: 700; background: #1d4ed8; color: white; cursor: pointer; }
+              select { width: 100%%; box-sizing: border-box; border: 1px solid #cfd8ea; border-radius: 14px; padding: 13px 14px; font-size: 15px; color: #1e3a8a; font-weight: 700; background: #f8fbff; transition: border-color .2s ease, box-shadow .2s ease; }
+              select:focus { outline: none; border-color: #2c82ff; box-shadow: 0 0 0 3px rgba(44,130,255,0.15); }
+              button { margin-top: 22px; width: 100%%; border: 0; border-radius: 14px; padding: 13px 16px; font-size: 15px; font-weight: 700; background: #1d4ed8; color: white; cursor: pointer; transition: background-color .2s ease, transform .15s ease; }
               button:hover { background: #1e40af; }
+              button:active { transform: translateY(1px); }
               .hint-wrap { margin-top: 14px; border-radius: 14px; border: 1px solid #dbe8f6; background: #f9fcff; padding: 12px; }
               .hint-title { margin: 0 0 8px; font-size: 12px; letter-spacing: .08em; color: #1d4ed8; text-transform: uppercase; font-weight: 800; }
               .hint { margin: 0; font-size: 13px; color: #5f6f92; line-height: 1.45; }
@@ -139,16 +138,10 @@ public class SmartLaunchController {
                 %s
 
                 <label for="role">Role</label>
-                <div class="role-grid">
-                  <label>
-                    <input class="role-input" type="radio" name="role" value="practitioner" %s/>
-                    <span class="role-option">Practitioner</span>
-                  </label>
-                  <label>
-                    <input class="role-input" type="radio" name="role" value="related-person" %s/>
-                    <span class="role-option">Related person</span>
-                  </label>
-                </div>
+                <select id="role" name="role">
+                  <option value="practitioner" %s>Practitioner</option>
+                  <option value="related-person" %s>Related person</option>
+                </select>
 
                 <label for="username">Username</label>
                 <input id="username" name="username" autocomplete="username" required/>

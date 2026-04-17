@@ -214,8 +214,8 @@ export const resourceConfigs: ResourceConfig[] = [
   },
   {
     key: 'goals',
-    label: 'Goal resources',
-    singularLabel: 'goal resource',
+    label: 'Goals',
+    singularLabel: 'goal',
     description: 'Vaccines left to do inside a care plan.',
     searchPath: (patientId) => [
       `/fhir/Goal?patient=${encodeURIComponent(patientId)}`,
