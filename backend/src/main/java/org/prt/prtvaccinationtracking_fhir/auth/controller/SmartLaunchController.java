@@ -87,10 +87,14 @@ public class SmartLaunchController {
             @RequestParam String state,
             @RequestParam String code_challenge,
             @RequestParam String code_challenge_method,
-            @RequestParam(required = false) String role
+            @RequestParam(required = false) String role,
+            @RequestParam(required = false) String error
     ) {
         validateAuthorizationRequest(response_type, client_id, redirect_uri, code_challenge_method);
         String safeRole = role == null || role.isBlank() ? UserRole.PRACTITIONER.externalValue() : role;
+        String errorBanner = (error != null && !error.isBlank())
+                ? "<div class=\"alert\">Sign in failed. Please check your credentials and try again.</div>"
+                : "";
 
         String html = """
         <!doctype html>
@@ -98,30 +102,53 @@ public class SmartLaunchController {
           <head>
             <meta charset="utf-8"/>
             <meta name="viewport" content="width=device-width, initial-scale=1"/>
-            <title>SMART on FHIR Sign in</title>
+            <title>Child Vaccination Portal - SMART Sign in</title>
             <style>
-              body { margin: 0; font-family: Inter, system-ui, sans-serif; background: linear-gradient(135deg, #f5f7ff 0%%, #eef7f6 100%%); color: #13213f; }
+              body { margin: 0; font-family: Inter, system-ui, sans-serif; background: linear-gradient(135deg, #f4f8ff 0%%, #effcf4 100%%); color: #13213f; }
               .shell { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
-              .card { width: min(480px, 100%%); background: rgba(255,255,255,0.96); border: 1px solid #dbe2f2; border-radius: 24px; padding: 28px; box-shadow: 0 24px 48px rgba(19,33,63,0.08); }
-              h1 { margin: 0 0 8px; font-size: 28px; }
-              p { color: #5f6f92; line-height: 1.55; }
-              label { display:block; margin: 16px 0 8px; font-weight: 600; }
-              input, select { width: 100%%; box-sizing: border-box; border: 1px solid #cfd8ea; border-radius: 14px; padding: 12px 14px; font-size: 15px; }
-              button { margin-top: 20px; width: 100%%; border: 0; border-radius: 14px; padding: 12px 16px; font-size: 15px; font-weight: 700; background: #2c82ff; color: white; cursor: pointer; }
-              .hint { margin-top: 16px; font-size: 13px; color: #6f7d9d; }
+              .card { width: min(520px, 100%%); background: rgba(255,255,255,0.98); border: 1px solid #d7e3f2; border-radius: 22px; padding: 28px; box-shadow: 0 24px 48px rgba(19,33,63,0.08); }
+              .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+              .brand-mark { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, #2f82ff, #1d4ed8); color: #fff; display: grid; place-items: center; font-size: 18px; font-weight: 800; }
+              .brand-name { font-size: 13px; font-weight: 700; letter-spacing: .08em; color: #1d4ed8; text-transform: uppercase; }
+              h1 { margin: 0 0 6px; font-size: 30px; }
+              .subtitle { margin: 0; color: #5f6f92; line-height: 1.5; }
+              .alert { margin-top: 14px; padding: 10px 12px; border-radius: 12px; border: 1px solid #fecaca; background: #fef2f2; color: #b91c1c; font-size: 14px; font-weight: 600; }
+              label { display:block; margin: 16px 0 8px; font-weight: 700; color: #1f2937; font-size: 14px; }
+              input { width: 100%%; box-sizing: border-box; border: 1px solid #cfd8ea; border-radius: 14px; padding: 12px 14px; font-size: 15px; }
+              input:focus { outline: none; border-color: #2c82ff; box-shadow: 0 0 0 3px rgba(44,130,255,0.15); }
+              .role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
+              .role-input { position: absolute; opacity: 0; pointer-events: none; }
+              .role-option { border: 1px solid #d1def0; border-radius: 12px; padding: 10px 12px; cursor: pointer; font-size: 14px; font-weight: 700; color: #1e3a8a; background: #f8fbff; text-align: center; }
+              .role-input:checked + .role-option { background: #eaf2ff; border-color: #2c82ff; box-shadow: inset 0 0 0 1px #2c82ff; }
+              button { margin-top: 20px; width: 100%%; border: 0; border-radius: 14px; padding: 12px 16px; font-size: 15px; font-weight: 700; background: #1d4ed8; color: white; cursor: pointer; }
+              button:hover { background: #1e40af; }
+              .hint-wrap { margin-top: 14px; border-radius: 14px; border: 1px solid #dbe8f6; background: #f9fcff; padding: 12px; }
+              .hint-title { margin: 0 0 8px; font-size: 12px; letter-spacing: .08em; color: #1d4ed8; text-transform: uppercase; font-weight: 800; }
+              .hint { margin: 0; font-size: 13px; color: #5f6f92; line-height: 1.45; }
             </style>
           </head>
           <body>
             <div class="shell">
               <form class="card" method="post" action="/auth/smart/authorize">
-                <h1>SMART on FHIR sign in</h1>
-                <p>Use your practitioner or related person credentials to continue the standalone launch flow.</p>
+                <div class="brand">
+                  <div class="brand-mark">+</div>
+                  <div class="brand-name">Child Vaccination Portal</div>
+                </div>
+                <h1>Sign in to continue</h1>
+                <p class="subtitle">Use your practitioner or parent credentials to continue the secure SMART launch flow.</p>
+                %s
 
                 <label for="role">Role</label>
-                <select id="role" name="role">
-                  <option value="practitioner" %s>Practitioner</option>
-                  <option value="related-person" %s>Related person</option>
-                </select>
+                <div class="role-grid">
+                  <label>
+                    <input class="role-input" type="radio" name="role" value="practitioner" %s/>
+                    <span class="role-option">Practitioner</span>
+                  </label>
+                  <label>
+                    <input class="role-input" type="radio" name="role" value="related-person" %s/>
+                    <span class="role-option">Related person</span>
+                  </label>
+                </div>
 
                 <label for="username">Username</label>
                 <input id="username" name="username" autocomplete="username" required/>
@@ -137,15 +164,19 @@ public class SmartLaunchController {
                 <input type="hidden" name="code_challenge" value="%s"/>
                 <input type="hidden" name="code_challenge_method" value="%s"/>
 
-                <button type="submit">Continue</button>
-                <div class="hint">Practitioner demo: dr.mueller / pwMueller01 · Related person demo: anna.gruber.parent / Parent123!</div>
+                <button type="submit">Sign in securely</button>
+                <div class="hint-wrap">
+                  <p class="hint-title">Demo credentials</p>
+                  <p class="hint">Practitioner: dr.mueller / pwMueller01<br/>Parent: anna.gruber.parent / Parent123!</p>
+                </div>
               </form>
             </div>
           </body>
         </html>
         """.formatted(
-                UserRole.PRACTITIONER.externalValue().equals(safeRole) ? "selected" : "",
-                UserRole.RELATED_PERSON.externalValue().equals(safeRole) ? "selected" : "",
+                errorBanner,
+                UserRole.PRACTITIONER.externalValue().equals(safeRole) ? "checked" : "",
+                UserRole.RELATED_PERSON.externalValue().equals(safeRole) ? "checked" : "",
                 escapeHtml(response_type),
                 escapeHtml(client_id),
                 escapeHtml(redirect_uri),
@@ -189,7 +220,8 @@ public class SmartLaunchController {
                     + "&state=" + encode(state)
                     + "&code_challenge=" + encode(code_challenge)
                     + "&code_challenge_method=" + encode(code_challenge_method)
-                    + "&role=" + encode(requestedRole.externalValue()));
+                    + "&role=" + encode(requestedRole.externalValue())
+                    + "&error=invalid_credentials");
             return ResponseEntity.status(302).header(HttpHeaders.LOCATION, location.toString()).build();
         }
 
