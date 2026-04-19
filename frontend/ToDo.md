@@ -1,7 +1,0 @@
-- [ ] fix encounters
-- [ ] give colour to ui
-- [ ] fix search
-- [ ] only add necessary info to ui
-- [ ] add Stephanias ui
-- [ ] add most recent backend
-- [ ] fix adding new patient

@@ -1,164 +1,410 @@
 
 # Vaccination Tracking Made Easy: A FHIR-Based Registry for Patients and Providers
 
-##  Project Overview
-This project presents a FHIR-based Vaccination Registry designed to improve how immunization data is managed and accessed by healthcare providers and parents/legal guardians.  
-The system demonstrates how HL7 FHIR standards can be applied to achieve interoperability, scalability, and data security in modern healthcare applications.
+A FHIR-based child vaccination tracking platform with two user experiences:
+
+- **Practitioner portal** for searching, reviewing, creating, and updating child clinical data
+- **Related person portal** for parents/guardians to review the linked children and their vaccination-related information
+
+The application uses:
+
+- **Spring Boot + Maven** for the backend
+- **Vue 3 + Vite + TypeScript + Vuestic UI** for the frontend
+- **HAPI FHIR R5** as the FHIR persistence layer
+- **SMART on FHIR standalone launch** style authentication flow for login
 
 ---
-##  Project Goals
-### Main Objective
-To build a functional FHIR-based Vaccination Registry that provides secure, standardized, and user-friendly management of immunization data.
 
-### Specific Goals
-1. Design and implement a FHIR-based vaccination registry to record, store, and retrieve vaccination data.
-2. Enable parents or guardians to securely access their children’s vaccination records online.
-3. Ensure interoperability using HL7 FHIR resources such as:
-    - `Patient`
-    - `Immunization`
-    - `Practitioner`
-    - `Observation`
-    - `Consent`
-4. Connect the Vue.js-based frontend and a Java developed backend (Spring Boot) using HAPI FHIR client.
-5. Integrate vaccination schedules and automatic reminders.
-6. Evaluate usability, performance, and data compliance.
-7. Promote digital health literacy and patient empowerment.
+## Project Summary
+
+This project implements a child vaccination tracking system based on **HL7 FHIR** resources.  
+It supports practitioner-facing workflows and parent/guardian-facing workflows while keeping the data model interoperable and structured around FHIR resources.
+
+The platform includes:
+
+- child search and child profile loading
+- immunization history
+- care plans and goals
+- appointments
+- observations
+- allergies and conditions
+- consents
+- communications
+- adverse events
+- practitioner and related person login flows
+- local FHIR seeding for demo data
 
 ---
+
+## Main Features
+
+### Practitioner portal
+The practitioner workspace can:
+
+- search children by **name** and **SVNR**
+- open a child profile
+- view all DTO-backed resources exposed by the backend
+- create and update child-related records
+- manage care plans and goal resources
+- review encounter-linked immunization and observation data
+
+### Related person portal
+The related person workspace can:
+
+- sign in as a parent/guardian
+- view linked children
+- open one child at a time
+- review the same core clinical information in a simpler workspace
+- access immunizations, care plans, appointments, and the rest of the available backend-driven data
+
+### SMART on FHIR auth
+The project includes a SMART-on-FHIR style auth flow with:
+
+- standalone launch entry
+- login form
+- authorization code flow components
+- role-based login for practitioner and related person
+- token/session handling between backend and frontend
+
+---
+
+## Architecture
+
 ### Components
-| Component   | Description                                                                                         |
-|------------ |-----------------------------------------------------------------------------------------------------|
-| Frontend    | Built with Vue.js, user-friendly interfaces.                                                        |
-| Backend     | Java 17 Spring Boot application, build with Apache Maven, using REST APIs for server data transfers |
-| FHIR Server | Public HAPI FHIR R5 server storing structured data.                                                 |
-| Version Control | Managed via Git and GitHub.                                                                         |
----
-### Data Flow
-1. User interacts with the web frontend (practitioner/related person of the patient)
-2. Frontend sends REST API requests (JSON) to the backend.
-3. Backend validates the request and maps it to FHIR resources. 
-4. Backend communicates with the FHIR server via HAPI FHIR. 
-5. FHIR server stores or retrieves the data. 
-6. FHIR server returns standardized FHIR resources. 
-7. Backend maps FHIR data to DTOs and responds to the frontend.
+
+| Component | Description |
+|---|---|
+| Frontend | Vue 3 + Vite + TypeScript + Vuestic UI |
+| Backend | Spring Boot backend with DTOs, mappers, services, controllers |
+| FHIR Server | HAPI FHIR R5 server used as the data store |
+| Auth Layer | SMART-on-FHIR style login and authorization flow |
+| Seed Data | Local transaction bundle used to preload demo data |
+
+### Data flow
+
+1. User opens the frontend
+2. User signs in through the SMART login flow
+3. Frontend calls backend APIs
+4. Backend maps requests to FHIR resources and DTOs
+5. Backend reads/writes data from/to the FHIR server
+6. Backend returns mapped DTOs to the frontend
+7. Frontend renders role-specific practitioner or related-person views
 
 ---
 
-##  FHIR Resources Used
-| Resource      | Purpose |
-|-----------    |----------|
-| Patient       | Stores demographic and contact information. |
-| Practitioner  | Identifies healthcare professionals administering vaccines. |
-| Immunization  | Records vaccine details (type, dose, date, practitioner). |
-| Consent       | Stores consent information from parents/guardians. |
-| Observation   | Documents side effects or vaccination-related notes. |
+## FHIR Resources Used
+
+The application works with these resources:
+
+- `Patient`
+- `Practitioner`
+- `RelatedPerson`
+- `Immunization`
+- `CarePlan`
+- `Goal`
+- `Appointment`
+- `Encounter`
+- `Observation`
+- `Condition`
+- `AllergyIntolerance`
+- `Consent`
+- `Communication`
+- `AdverseEvent`
+- `Organization`
+- `Location`
+
+### Important project-specific meaning
+
+- **Goal** resources are used as “vaccines left to do”
+- **CarePlan** groups pending vaccination goals
+- **Encounter** is used together with linked immunization, observation, location, and organization context
 
 ---
 
-##  Installation & Setup
+## Demo Credentials
 
-### Prerequisites
-- Vue.js (v18+)
-- Java 17+
-- Git
+### Practitioner
+- **Username:** `dr.mueller`
+- **Password:** `pwMueller01`
 
-### 1. Clone the repository
-```bash
-git clone https://github.com/stefaniaboldeanu15/Child-vaccination-tracker-FHIR.git
-````
+### Related person
+- **Username:** `anna.gruber.parent`
+- **Password:** `Parent123!`
 
-### 2. Backend (REST API)
+These credentials depend on the seeded demo bundle being uploaded to the local FHIR server.
 
-```bash
-cd backend
-mvn clean install
-mvn spring-boot:run
+---
+
+## Ports Used
+
+The project is currently configured to run with:
+
+- **FHIR server:** `http://localhost:8080/fhir`
+- **Backend API:** `http://localhost:8081`
+- **Frontend:** `http://localhost:5173`
+
+If another project is already using port `8081`, stop that project first or move it to another port.
+
+---
+
+## Prerequisites
+
+Install the following before running the project:
+
+- **Java 17+**
+- **Apache Maven wrapper support** via `mvnw.cmd`
+- **Node.js 20+**
+- **npm**
+- **A local HAPI FHIR server running on port 8080**
+- **Windows PowerShell** if you want to use `dev.ps1`
+
+---
+
+## Project Structure
+
+```text
+Child-vaccination-tracker-FHIR/
+├── backend/
+│   ├── .mvn/
+│   ├── seed/
+│   │   └── practitioner-view-bundle.json
+│   ├── src/
+│   │   └── main/
+│   │       ├── java/org/prt/prtvaccinationtracking_fhir/
+│   │       │   ├── auth/
+│   │       │   ├── config/
+│   │       │   ├── controller/
+│   │       │   ├── dto/
+│   │       │   ├── exception/
+│   │       │   ├── fhir/
+│   │       │   ├── mapper/
+│   │       │   ├── service/
+│   │       │   └── PrtVaccinationTrackingFhirApplication.java
+│   │       └── resources/
+│   ├── mvnw
+│   ├── mvnw.cmd
+│   └── pom.xml
+├── frontend/
+│   ├── .vite/
+│   ├── node_modules/
+│   ├── src/
+│   │   ├── api/
+│   │   ├── auth/
+│   │   ├── components/
+│   │   ├── config/
+│   │   ├── utils/
+│   │   ├── views/
+│   │   ├── App.vue
+│   │   ├── router.ts
+│   │   ├── styles.css
+│   │   └── main.ts
+│   ├── .env.example
+│   ├── env.d.ts
+│   ├── index.html
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── tsconfig.json
+│   └── vite.config.ts
+├── dev.ps1
+└── README.md
 ```
 
-### 3. Frontend (Vue.js)
+---
+
+## Installation
+
+### 1. Clone the repository
 
 ```bash
-npm i
+git clone https://github.com/stefaniaboldeanu15/Child-vaccination-tracker-FHIR.git
+```
+
+### 2. Open the project root
+
+Example:
+
+```powershell
+cd "D:\MASTER\PRT - Vaccination Tracking FHIR - IntelliJ IDEA\Child-vaccination-tracker-FHIR"
+```
+
+---
+
+## Running the Application
+
+## Option A: Start everything manually
+
+### 1. Start the FHIR server
+Make sure your local HAPI FHIR server is already running on:
+
+```text
+http://localhost:8080/fhir
+```
+
+### 2. Start the backend
+
+```powershell
+cd ".\backend"
+.\mvnw.cmd spring-boot:run
+```
+
+The backend should run on:
+
+```text
+http://localhost:8081
+```
+
+### 3. Start the frontend
+
+Open a second terminal:
+
+```powershell
+cd ".\frontend"
+npm install
 npm run dev
 ```
 
-### 4. HAPI FHIR Server Connection
+The frontend should run on:
 
-The system is configured to connect to:
-
-```
-https://hapi.fhir.org/baseR5
+```text
+http://localhost:5173
 ```
 
-### Dev Script
-Starts and runs all services for dev environment
-First run (seeds localFHIR server db):
-```
-./dev-up.sh --seed
-```
-
-Start all services (keeps the seeded data via the prt-hapi-data Docker volume, and does not reseed):
-```
-./dev-up.sh
-```
-
-Optional reset (wipe DB + reseed):
-```
-./dev-up.sh --reset-fhir --seed
-```
 ---
 
-##  Testing
+## Option B: Start using `dev.ps1`
 
-* Use Postman or cURL to test endpoints (GET, POST, PUT, DELETE).
-* Example:
+Install dependencies, start services, and seed demo data:
+
+```powershell
+.\dev.ps1 -Install -Seed
+```
+
+### What `dev.ps1` does
+
+- checks for backend and frontend structure
+- starts backend on `8081` if it is not already running
+- starts frontend on `5173` if it is not already running
+- uploads the demo transaction bundle to the FHIR server if `-Seed` is used
+
+---
+
+## Seeding Demo Data
+
+The demo bundle is stored here:
+
+```text
+backend\seed\practitioner-view-bundle.json
+```
+
+It contains demo resources for:
+
+- practitioner
+- related person
+- patient
+- care plan
+- goals
+- encounter
+- immunization
+- appointment
+- observation
+- organization
+- location
+- allergy/condition
+- consent
+- communication
+- adverse event
+
+## Frontend Notes
+
+The frontend uses:
+
+- Vue 3
+- Vite
+- TypeScript
+- Vue Router
+- Vuestic UI
+
+### Important structure
+The frontend must contain at least:
+
+```text
+frontend/
+  package.json
+  index.html
+  vite.config.ts
+  tsconfig.json
+  env.d.ts
+  src/
+    main.ts
+    App.vue
+    router.ts
+    styles.css
+```
+
+### Vite proxy behavior
+The frontend proxies requests to:
+
+- `/api/*` → backend on `http://localhost:8081`
+- `/fhir/*` → FHIR server on `http://localhost:8080`
+
+---
+
+## Backend Notes
+
+The backend includes:
+
+- practitioner endpoints
+- related person endpoints
+- DTO mapping layer
+- auth layer
+- FHIR gateway integration
+
+### Auth behavior
+The backend auth flow:
+
+- serves the SMART login page
+- authenticates practitioner and related person users against seeded FHIR data
+- uses seeded identifiers and password extensions from the demo bundle
+- issues authorization flow state and tokens used by the frontend session
+
+---
+
+## Testing
+
+### Backend / API
+Use Swagger, Postman, or cURL to test backend endpoints.
+
+### FHIR
+Use browser, Postman, or cURL against the local FHIR server, for example:
 
 ```bash
-GET https://hapi.fhir.org/baseR4/Patient
-POST https://hapi.fhir.org/baseR4/Immunization
-```
-<img width="923" height="321" alt="image" src="https://github.com/user-attachments/assets/2b991270-348a-400a-8043-f0a9314743cc" />
-
-Unit and integration testing performed for backend endpoints and FHIR resource transactions.
-
----
-## Project Structure
-
-```
-Child-vaccination-tracker-FHIR/│
-├── backend/src/main/java/org.prt.prtvaccinationtracking_fhir  # REST APIs + Java (SpringBoot)
-│   ├── auth/ 
-│   ├── config/
-│   ├── controllers/ #for practitioner & related person users
-│   ├── dto/
-│   ├── mapper/
-│   ├── service/
-│   └── PrtVaccinationTrackingFhirApplication.java
-│ 
-├── frontend/
-├── server/
-└── README.md 
+GET http://localhost:8080/fhir/Patient
+GET http://localhost:8080/fhir/Practitioner?identifier=dr.mueller
+GET http://localhost:8080/fhir/RelatedPerson?identifier=anna.gruber.parent
 ```
 
----
+### Frontend
+Open:
 
-##  References
+```text
+http://localhost:5173
+```
 
-1. Klausen et al., “A Digital Vaccination Pass Using Fast Healthcare Interoperability Resources: A Proof of Concept,” Digital (2024).
-2. Khurshid et al., “FHIRedApp: A LEAP in Health Information Technology for Promoting Patient Access,”JAMIA Open (2021).
-3. Yu et al., “A Digital Certificate System That Complies with International Standards,” Standards (2023).
-4. Karol & Thakare, “Strengthening Immunisation Services in India through Digital Transformation,” Preventive Medicine (2024).
-6. Wilford et al., “The Digital Network of Networks: Regulatory Risk and Policy Challenges of Vaccine Passports,” Eur. J. Risk Regulation (2021).
+Then test both:
 
----
-
-##  Team Members
-| Name                        |                                | Email                                                           |
-| --------------------------- |--------------------------------| --------------------------------------------------------------- |
-| Stefania-Diana Boldeanu     | backend - practitioner user    | [me25m028@technikum-wien.at](mailto:me25m028@technikum-wien.at) |
-| Lena Stadlinger             | frontend                       | [me25m031@technikum-wien.at](mailto:me25m031@technikum-wien.at) |
-| Yusra Sefef                 | backend - related person user  | [me25m030@technikum-wien.at](mailto:me25m030@technikum-wien.at) |
-
+- practitioner login
+- related person login
 
 ---
 
+## References
+
+1. HL7 FHIR Specification
+2. HAPI FHIR
+3. SMART App Launch Framework
+4. Vue 3 Documentation
+5. Spring Boot Documentation
+
+---
+
+## Team Members

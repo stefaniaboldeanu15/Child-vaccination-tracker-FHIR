@@ -1,11 +1,11 @@
 package org.prt.prtvaccinationtracking_fhir.service.relatedPerson;
 
 import org.hl7.fhir.r5.model.AdverseEvent;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.adverseEvent.AdverseEventDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.adverseEvent.CreateAdverseEventRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.adverseEvent.UpdateAdverseEventRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.adverseEvent.AdverseEventDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.adverseEvent.CreateAdverseEventRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.adverseEvent.UpdateAdverseEventRequestDTO;
 import org.prt.prtvaccinationtracking_fhir.fhir.FhirGateway;
-import org.prt.prtvaccinationtracking_fhir.mapper.practitioner.AdverseEventMapper;
+import org.prt.prtvaccinationtracking_fhir.mapper.relatedPerson.AdverseEventMapper;
 import org.springframework.stereotype.Service;
 
 @Service("relatedPersonAdverseEventService")

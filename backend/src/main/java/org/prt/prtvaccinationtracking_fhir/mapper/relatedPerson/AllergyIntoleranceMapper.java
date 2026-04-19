@@ -4,9 +4,9 @@ import org.hl7.fhir.r5.model.AllergyIntolerance;
 import org.hl7.fhir.r5.model.CodeableConcept;
 import org.hl7.fhir.r5.model.Coding;
 import org.hl7.fhir.r5.model.Enumeration;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.allergyIntolerance.AllergyIntoleranceDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.allergyIntolerance.CreateAllergyIntoleranceRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.allergyIntolerance.UpdateAllergyIntoleranceRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.allergyIntolerance.AllergyIntoleranceDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.allergyIntolerance.CreateAllergyIntoleranceRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.allergyIntolerance.UpdateAllergyIntoleranceRequestDTO;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

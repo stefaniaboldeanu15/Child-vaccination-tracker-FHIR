@@ -1,9 +1,15 @@
+// backend/src/main/java/org/prt/prtvaccinationtracking_fhir/mapper/relatedPerson/AppointmentMapper.java
 package org.prt.prtvaccinationtracking_fhir.mapper.relatedPerson;
 
-import org.hl7.fhir.r5.model.*;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.appointment.AppointmentDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.appointment.CreateAppointmentRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.appointment.UpdateAppointmentRequestDTO;
+import org.hl7.fhir.r5.model.Appointment;
+import org.hl7.fhir.r5.model.CodeableConcept;
+import org.hl7.fhir.r5.model.CodeableReference;
+import org.hl7.fhir.r5.model.HumanName;
+import org.hl7.fhir.r5.model.Practitioner;
+import org.hl7.fhir.r5.model.Reference;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.appointment.AppointmentDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.appointment.CreateAppointmentRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.appointment.UpdateAppointmentRequestDTO;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;

@@ -1,11 +1,11 @@
 package org.prt.prtvaccinationtracking_fhir.service.relatedPerson;
 
 import org.hl7.fhir.r5.model.Location;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.location.CreateLocationRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.location.LocationDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.location.UpdateLocationRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.location.CreateLocationRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.location.LocationDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.location.UpdateLocationRequestDTO;
 import org.prt.prtvaccinationtracking_fhir.fhir.FhirGateway;
-import org.prt.prtvaccinationtracking_fhir.mapper.practitioner.LocationMapper;
+import org.prt.prtvaccinationtracking_fhir.mapper.relatedPerson.LocationMapper;
 import org.springframework.stereotype.Service;
 
 @Service("relatedPersonLocationService")

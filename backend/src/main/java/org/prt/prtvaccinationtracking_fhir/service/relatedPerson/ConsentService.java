@@ -1,11 +1,11 @@
 package org.prt.prtvaccinationtracking_fhir.service.relatedPerson;
 
 import org.hl7.fhir.r5.model.Consent;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.consent.ConsentDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.consent.CreateConsentRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.consent.UpdateConsentRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.consent.ConsentDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.consent.CreateConsentRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.consent.UpdateConsentRequestDTO;
 import org.prt.prtvaccinationtracking_fhir.fhir.FhirGateway;
-import org.prt.prtvaccinationtracking_fhir.mapper.practitioner.ConsentMapper;
+import org.prt.prtvaccinationtracking_fhir.mapper.relatedPerson.ConsentMapper;
 import org.springframework.stereotype.Service;
 
 @Service("relatedPersonConsentService")

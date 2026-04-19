@@ -1,11 +1,12 @@
+// backend/src/main/java/org/prt/prtvaccinationtracking_fhir/service/relatedPerson/PractitionerService.java
 package org.prt.prtvaccinationtracking_fhir.service.relatedPerson;
 
 import org.hl7.fhir.r5.model.Practitioner;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.practitioner.CreatePractitionerRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.practitioner.PractitionerDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.practitioner.UpdatePractitionerRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.practitioner.CreatePractitionerRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.practitioner.PractitionerDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.practitioner.UpdatePractitionerRequestDTO;
 import org.prt.prtvaccinationtracking_fhir.fhir.FhirGateway;
-import org.prt.prtvaccinationtracking_fhir.mapper.practitioner.PractitionerMapper;
+import org.prt.prtvaccinationtracking_fhir.mapper.relatedPerson.PractitionerMapper;
 import org.springframework.stereotype.Service;
 
 @Service("relatedPersonPractitionerService")
@@ -36,5 +37,4 @@ public class PractitionerService {
         Practitioner updated = fhir.update(existing);
         return mapper.toDTO(updated);
     }
-
 }

@@ -1,11 +1,11 @@
 package org.prt.prtvaccinationtracking_fhir.service.relatedPerson;
 
 import org.hl7.fhir.r5.model.Immunization;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.immunization.CreateImmunizationRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.immunization.ImmunizationDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.immunization.UpdateImmunizationRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.immunization.CreateImmunizationRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.immunization.ImmunizationDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.immunization.UpdateImmunizationRequestDTO;
 import org.prt.prtvaccinationtracking_fhir.fhir.FhirGateway;
-import org.prt.prtvaccinationtracking_fhir.mapper.practitioner.ImmunizationMapper;
+import org.prt.prtvaccinationtracking_fhir.mapper.relatedPerson.ImmunizationMapper;
 import org.springframework.stereotype.Service;
 
 @Service("relatedPersonImmunizationService")

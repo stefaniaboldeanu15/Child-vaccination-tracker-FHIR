@@ -4,9 +4,9 @@ import org.hl7.fhir.r5.model.CodeableConcept;
 import org.hl7.fhir.r5.model.Coding;
 import org.hl7.fhir.r5.model.ImmunizationRecommendation;
 import org.hl7.fhir.r5.model.Reference;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.recommendation.CreateImmunizationRecommendationRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.recommendation.ImmunizationRecommendationDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.recommendation.UpdateImmunizationRecommendationRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.recommendation.CreateImmunizationRecommendationRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.recommendation.ImmunizationRecommendationDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.recommendation.UpdateImmunizationRecommendationRequestDTO;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;

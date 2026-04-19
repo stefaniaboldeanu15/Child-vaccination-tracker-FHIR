@@ -4,9 +4,9 @@ import org.hl7.fhir.r5.model.CodeableConcept;
 import org.hl7.fhir.r5.model.DateType;
 import org.hl7.fhir.r5.model.Goal;
 import org.hl7.fhir.r5.model.Identifier;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.goal.CreateGoalRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.goal.GoalDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.goal.UpdateGoalRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.goal.CreateGoalRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.goal.GoalDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.goal.UpdateGoalRequestDTO;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;

@@ -1,11 +1,11 @@
 package org.prt.prtvaccinationtracking_fhir.service.relatedPerson;
 
 import org.hl7.fhir.r5.model.AllergyIntolerance;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.allergyIntolerance.AllergyIntoleranceDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.allergyIntolerance.CreateAllergyIntoleranceRequestDTO;
-import org.prt.prtvaccinationtracking_fhir.dto.practitioner.allergyIntolerance.UpdateAllergyIntoleranceRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.allergyIntolerance.AllergyIntoleranceDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.allergyIntolerance.CreateAllergyIntoleranceRequestDTO;
+import org.prt.prtvaccinationtracking_fhir.dto.relatedPerson.allergyIntolerance.UpdateAllergyIntoleranceRequestDTO;
 import org.prt.prtvaccinationtracking_fhir.fhir.FhirGateway;
-import org.prt.prtvaccinationtracking_fhir.mapper.practitioner.AllergyIntoleranceMapper;
+import org.prt.prtvaccinationtracking_fhir.mapper.relatedPerson.AllergyIntoleranceMapper;
 import org.springframework.stereotype.Service;
 
 @Service("relatedPersonAllergyIntoleranceService")
