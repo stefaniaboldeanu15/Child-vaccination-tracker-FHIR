@@ -149,11 +149,22 @@ a {
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 }
 
+.record-item {
+  min-width: 0;
+}
+
 .record-item strong {
   display: block;
   color: #66708b;
   font-size: 0.86rem;
   margin-bottom: 3px;
+}
+
+.record-item span {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .form-grid {
