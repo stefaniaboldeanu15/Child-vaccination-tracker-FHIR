@@ -3,7 +3,7 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { backendJson, backendFetch, fhirJson } from '@/api/http'
 import ResourceSection from '@/components/ResourceSection.vue'
 import RecordFormModal from '@/components/RecordFormModal.vue'
-import { patientCreateFields, patientUpdateFields, resourceConfigs, type ResourceConfig } from '@/config/resources'
+import { getPatientCreateFields, getPatientUpdateFields, getResourceConfigs, type LocalizedResourceConfig } from '@/config/resources'
 
 type SessionRole = 'practitioner' | 'related-person'
 type Language = 'en' | 'de'
@@ -117,6 +117,9 @@ const i18n = {
 } as const
 
 const t = computed(() => i18n[props.language ?? 'en'])
+const patientCreateFields = computed(() => getPatientCreateFields(props.language ?? 'en'))
+const patientUpdateFields = computed(() => getPatientUpdateFields(props.language ?? 'en'))
+const resourceConfigs = computed(() => getResourceConfigs(props.language ?? 'en'))
 
 const patientQuery = ref('')
 const patients = ref<PatientSummary[]>([])
@@ -134,39 +137,19 @@ const editPatientOpen = ref(false)
 const workspaceMessage = ref<string | null>(null)
 
 const resources = reactive<Record<string, { items: Record<string, any>[]; loading: boolean; error: string | null }>>(
-    Object.fromEntries(resourceConfigs.map((config) => [config.key, { items: [], loading: false, error: null }])),
+    Object.fromEntries(getResourceConfigs('en').map((config) => [config.key, { items: [], loading: false, error: null }])),
 )
 
 const linkedChildrenCount = computed(() => props.patientIds?.length ?? 0)
 const counts = computed(() =>
-    Object.fromEntries(resourceConfigs.map((config) => [config.key, resources[config.key].items.length])),
+    Object.fromEntries(resourceConfigs.value.map((config) => [config.key, resources[config.key].items.length])),
 )
 const currentSectionConfig = computed(() =>
-    resourceConfigs.find((config) => config.key === selectedSection.value) ?? null,
+    resourceConfigs.value.find((config) => config.key === selectedSection.value) ?? null,
 )
 const primaryResourceKeys = ['immunizations', 'recommendations', 'appointments', 'encounters'] as const
-const primaryResourceConfigs = computed(() => resourceConfigs.filter((config) => primaryResourceKeys.includes(config.key as any)))
-const secondaryResourceConfigs = computed(() => resourceConfigs.filter((config) => !primaryResourceKeys.includes(config.key as any)))
-
-function localizedResourceLabel(config: ResourceConfig) {
-  if ((props.language ?? 'en') !== 'de') return config.label
-  const deLabels: Record<string, string> = {
-    relatedPersons: 'Bezugs­personen',
-    immunizations: 'Impfungen',
-    recommendations: 'Empfehlungen',
-    carePlans: 'Versorgungspläne',
-    goals: 'Ziele',
-    appointments: 'Termine',
-    encounters: 'Begegnungen',
-    observations: 'Beobachtungen',
-    conditions: 'Diagnosen',
-    allergies: 'Allergien',
-    consents: 'Einwilligungen',
-    communications: 'Mitteilungen',
-    adverseEvents: 'Nebenwirkungen',
-  }
-  return deLabels[config.key] ?? config.label
-}
+const primaryResourceConfigs = computed(() => resourceConfigs.value.filter((config) => primaryResourceKeys.includes(config.key as any)))
+const secondaryResourceConfigs = computed(() => resourceConfigs.value.filter((config) => !primaryResourceKeys.includes(config.key as any)))
 
 function patientResourceToSummary(resource: any): PatientSummary {
   const name = resource?.name?.[0]
@@ -274,7 +257,7 @@ async function loadPatients() {
   }
 }
 
-async function loadResource(config: ResourceConfig) {
+async function loadResource(config: LocalizedResourceConfig) {
   if (!selectedPatientId.value) return
 
   resources[config.key].loading = true
@@ -321,7 +304,7 @@ async function loadSelectedPatient() {
   try {
     patientDetails.value = await backendJsonForRole<Record<string, any>>(`/api/practitioner/patients/${selectedPatientId.value}`)
 
-    for (const config of resourceConfigs) {
+    for (const config of resourceConfigs.value) {
       await loadResource(config)
     }
   } catch (error) {
@@ -370,7 +353,7 @@ async function updatePatient(payload: Record<string, any>) {
   await loadPatients()
 }
 
-async function createResource(config: ResourceConfig, payload: Record<string, any>) {
+async function createResource(config: LocalizedResourceConfig, payload: Record<string, any>) {
   if (!selectedPatientId.value || !config.createPath) return
 
   const path = typeof config.createPath === 'function' ? config.createPath(selectedPatientId.value) : config.createPath
@@ -382,11 +365,11 @@ async function createResource(config: ResourceConfig, payload: Record<string, an
     body: JSON.stringify(finalPayload),
   })
 
-  workspaceMessage.value = `${localizedResourceLabel(config)} ${t.value.createdSuccessfully}`
+  workspaceMessage.value = `${config.label} ${t.value.createdSuccessfully}`
   await loadResource(config)
 }
 
-async function updateResource(config: ResourceConfig, id: string, payload: Record<string, any>) {
+async function updateResource(config: LocalizedResourceConfig, id: string, payload: Record<string, any>) {
   if (!config.updatePath) return
 
   await backendFetchForRole(config.updatePath(id), {
@@ -395,7 +378,7 @@ async function updateResource(config: ResourceConfig, id: string, payload: Recor
     body: JSON.stringify(enrichPayload(config.key, payload, selectedPatientId.value)),
   })
 
-  workspaceMessage.value = `${localizedResourceLabel(config)} ${t.value.updatedSuccessfully}`
+  workspaceMessage.value = `${config.label} ${t.value.updatedSuccessfully}`
   await loadResource(config)
 }
 
@@ -560,7 +543,7 @@ onMounted(async () => {
                   :class="{ active: selectedSection === config.key }"
                   @click="selectedSection = config.key"
               >
-                {{ localizedResourceLabel(config) }}
+                {{ config.label }}
               </button>
             </div>
             <div class="resource-row-label secondary">{{ t.secondary }}</div>
@@ -572,7 +555,7 @@ onMounted(async () => {
                   :class="{ active: selectedSection === config.key }"
                   @click="selectedSection = config.key"
               >
-                {{ localizedResourceLabel(config) }}
+                {{ config.label }}
               </button>
             </div>
           </div>
@@ -612,6 +595,7 @@ onMounted(async () => {
           <ResourceSection
               v-else-if="currentSectionConfig"
               :config="currentSectionConfig"
+              :language="props.language ?? 'en'"
               :items="resources[currentSectionConfig.key].items"
               :loading="resources[currentSectionConfig.key].loading"
               :error="resources[currentSectionConfig.key].error"

@@ -68,6 +68,10 @@ const i18n = {
     childrenInfoText: 'Manage profiles for each child and check vaccine status separately.',
     recordsInfoTitle: 'Records',
     recordsInfoText: 'View stored vaccination history, dose dates, and record details.',
+    pauseSlideshow: 'Pause slideshow',
+    playSlideshow: 'Resume slideshow',
+    pauseShort: 'Pause',
+    playShort: 'Play',
   },
   de: {
     builtWith: 'Erstellt mit',
@@ -119,6 +123,10 @@ const i18n = {
     childrenInfoText: 'Verwalten Sie Profile je Kind und prüfen Sie den Impfstatus getrennt.',
     recordsInfoTitle: 'Unterlagen',
     recordsInfoText: 'Sehen Sie gespeicherte Impfverläufe, Dosisdaten und Dokumentdetails.',
+    pauseSlideshow: 'Slideshow pausieren',
+    playSlideshow: 'Slideshow fortsetzen',
+    pauseShort: 'Pausieren',
+    playShort: 'Weiter',
   },
 } as const
 
@@ -184,10 +192,33 @@ const heroSlides: HeroSlide[] = [
 ]
 
 const activeSlide = ref(0)
+const isCarouselPaused = ref(false)
 let slideTimer: ReturnType<typeof setInterval> | null = null
 
 function setSlide(index: number) {
   activeSlide.value = index
+}
+
+function stopSlideTimer() {
+  if (slideTimer) {
+    clearInterval(slideTimer)
+    slideTimer = null
+  }
+}
+
+function startSlideTimer() {
+  stopSlideTimer()
+
+  if (isCarouselPaused.value) return
+
+  slideTimer = setInterval(() => {
+    activeSlide.value = (activeSlide.value + 1) % heroSlides.length
+  }, 2600)
+}
+
+function toggleCarouselPause() {
+  isCarouselPaused.value = !isCarouselPaused.value
+  startSlideTimer()
 }
 
 function setLanguage(nextLanguage: Language) {
@@ -210,13 +241,11 @@ async function handleLogin() {
 }
 
 onMounted(() => {
-  slideTimer = setInterval(() => {
-    activeSlide.value = (activeSlide.value + 1) % heroSlides.length
-  }, 2600)
+  startSlideTimer()
 })
 
 onBeforeUnmount(() => {
-  if (slideTimer) clearInterval(slideTimer)
+  stopSlideTimer()
 })
 </script>
 
@@ -275,16 +304,27 @@ onBeforeUnmount(() => {
               :alt="slide.alt"
             />
           </figure>
-          <div class="carousel-dots" aria-label="Select slide">
+          <div class="carousel-controls">
             <button
-              v-for="(slide, index) in heroSlides"
-              :key="slide.alt"
               type="button"
-              class="carousel-dot"
-              :class="{ 'is-active': index === activeSlide }"
-              :aria-label="`Show slide ${index + 1}`"
-              @click="setSlide(index)"
-            />
+              class="carousel-toggle"
+              :aria-label="isCarouselPaused ? t.playSlideshow : t.pauseSlideshow"
+              :aria-pressed="isCarouselPaused"
+              @click="toggleCarouselPause"
+            >
+              {{ isCarouselPaused ? t.playShort : t.pauseShort }}
+            </button>
+            <div class="carousel-dots" aria-label="Select slide">
+              <button
+                v-for="(slide, index) in heroSlides"
+                :key="slide.alt"
+                type="button"
+                class="carousel-dot"
+                :class="{ 'is-active': index === activeSlide }"
+                :aria-label="`Show slide ${index + 1}`"
+                @click="setSlide(index)"
+              />
+            </div>
           </div>
         </div>
         <div class="trust-badges">
@@ -716,11 +756,44 @@ onBeforeUnmount(() => {
   background: transparent;
 }
 
+.landing-page .carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.landing-page .carousel-toggle {
+  border: 1px solid rgba(29, 78, 216, 0.28);
+  background: rgba(239, 246, 255, 0.96);
+  color: #1d4ed8;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background-color 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.landing-page .carousel-toggle:hover {
+  background: #1d4ed8;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.landing-page .carousel-toggle:focus-visible {
+  outline: 2px solid rgba(29, 78, 216, 0.35);
+  outline-offset: 2px;
+}
+
 .landing-page .carousel-dots {
   display: flex;
   justify-content: center;
   gap: 8px;
-  margin-top: 10px;
+  flex: 1;
 }
 
 .landing-page .carousel-dot {
@@ -1107,6 +1180,15 @@ onBeforeUnmount(() => {
   }
   .landing-page .carousel-stage {
     min-height: 250px;
+  }
+  .landing-page .carousel-controls {
+    align-items: stretch;
+  }
+  .landing-page .carousel-toggle {
+    width: 100%;
+  }
+  .landing-page .carousel-dots {
+    width: 100%;
   }
 }
 </style>
