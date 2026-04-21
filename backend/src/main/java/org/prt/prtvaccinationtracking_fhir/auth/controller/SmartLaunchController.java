@@ -1,8 +1,12 @@
 package org.prt.prtvaccinationtracking_fhir.auth.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+
+import org.hl7.fhir.r5.model.Practitioner;
+import org.hl7.fhir.r5.model.RelatedPerson;
 import org.prt.prtvaccinationtracking_fhir.auth.config.AuthProperties;
 import org.prt.prtvaccinationtracking_fhir.auth.dto.AuthSessionResponse;
+import org.prt.prtvaccinationtracking_fhir.auth.dto.RegisterPractitionerRequest;
 import org.prt.prtvaccinationtracking_fhir.auth.dto.RegisterRelatedPersonRequest;
 import org.prt.prtvaccinationtracking_fhir.auth.dto.SmartConfigurationResponse;
 import org.prt.prtvaccinationtracking_fhir.auth.dto.TokenResponse;
@@ -279,10 +283,25 @@ public class SmartLaunchController {
 
     @PostMapping("/api/auth/related-person/register")
     public AuthSessionResponse registerRelatedPerson(@RequestBody RegisterRelatedPersonRequest request) {
-        authService.registerRelatedPerson(request);
-        AuthenticatedUser user = authService.authenticateRelatedPerson(request.username(), request.password())
-                .orElseThrow(() -> new IllegalStateException("Related person registration completed but login failed"));
+        RelatedPerson relatedPerson = authService.registerRelatedPerson(request);
 
+        if (relatedPerson == null || !relatedPerson.getIdElement().hasIdPart()) {
+            throw new IllegalStateException("Related person registration completed but created resource could not be resolved");
+        }
+
+        AuthenticatedUser user = authService.authenticatedRelatedPerson(relatedPerson, request.username());
+        return authService.buildSessionResponse(user);
+    }
+
+    @PostMapping("/api/auth/practitioner/register")
+    public AuthSessionResponse registerPractitioner(@RequestBody RegisterPractitionerRequest request) {
+        Practitioner practitioner = authService.registerPractitioner(request);
+
+        if (practitioner == null || !practitioner.getIdElement().hasIdPart()) {
+            throw new IllegalStateException("Practitioner registration completed but created resource could not be resolved");
+        }
+
+        AuthenticatedUser user = authService.authenticatedPractitioner(practitioner, request.username());
         return authService.buildSessionResponse(user);
     }
 

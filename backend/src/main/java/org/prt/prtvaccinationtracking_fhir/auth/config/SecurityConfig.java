@@ -29,7 +29,7 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/auth/**", "/.well-known/**"))
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/auth/**", "/.well-known/**", "/api/auth/**"))
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -38,7 +38,8 @@ public class SecurityConfig {
                                 "/.well-known/smart-configuration",
                                 "/auth/smart/authorize",
                                 "/auth/smart/token",
-                                "/api/auth/related-person/register"
+                                "/api/auth/related-person/register",
+                                "/api/auth/practitioner/register"
                         ).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/**").authenticated()
