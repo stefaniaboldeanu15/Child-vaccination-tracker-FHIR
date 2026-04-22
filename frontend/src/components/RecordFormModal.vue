@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, reactive, watch } from 'vue'
-import type { FieldConfig } from '@/config/resources'
+import { computed, reactive, ref, watch } from 'vue'
+import type { LocalizedFieldConfig } from '@/config/resources'
 
 const props = defineProps<{
   modelValue: boolean
   title: string
-  fields: FieldConfig[]
+  fields: LocalizedFieldConfig[]
+  onSave: (payload: Record<string, any>) => Promise<void> | void
   initialValue?: Record<string, any>
   kickerLabel?: string
   cancelLabel?: string
@@ -14,10 +15,12 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:modelValue': [boolean]
-  save: [Record<string, any>]
 }>()
 
 const draft = reactive<Record<string, any>>({})
+const submitAttempted = ref(false)
+const isSaving = ref(false)
+const submitError = ref<string | null>(null)
 
 function applyInitialValue() {
   props.fields.forEach((field) => {
@@ -30,7 +33,12 @@ function applyInitialValue() {
 watch(
   () => [props.modelValue, props.initialValue],
   () => {
-    if (props.modelValue) applyInitialValue()
+    if (props.modelValue) {
+      applyInitialValue()
+      submitAttempted.value = false
+      submitError.value = null
+      isSaving.value = false
+    }
   },
   { immediate: true, deep: true },
 )
@@ -40,27 +48,87 @@ const isOpen = computed({
   set: (value: boolean) => emit('update:modelValue', value),
 })
 
-function formatValueForField(value: unknown, type: FieldConfig['type']) {
+function formatValueForField(value: unknown, type: LocalizedFieldConfig['type']) {
   if (value == null) return ''
   if (type === 'datetime') return String(value).slice(0, 16)
   return value
 }
 
-function normalizeFieldValue(value: unknown, field: FieldConfig) {
+function normalizeFieldValue(value: unknown, field: LocalizedFieldConfig) {
   if (value === '' || value === undefined || value === null) return null
   if (field.type === 'number') return Number(value)
   return value
 }
 
-function submit() {
+function isValidDateValue(value: string) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00`))
+}
+
+function isValidDateTimeValue(value: string) {
+  return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value) && !Number.isNaN(Date.parse(value))
+}
+
+function getFieldError(field: LocalizedFieldConfig) {
+  const rawValue = draft[field.key]
+  const normalizedValue = normalizeFieldValue(rawValue, field)
+
+  if (field.required && normalizedValue === null) {
+    return field.validation?.requiredMessage ?? 'This field is required.'
+  }
+
+  if (normalizedValue === null) {
+    return ''
+  }
+
+  if (field.type === 'number' && !Number.isFinite(normalizedValue)) {
+    return field.validation?.invalidMessage ?? 'Enter a valid number.'
+  }
+
+  if (field.type === 'date' && typeof normalizedValue === 'string' && !isValidDateValue(normalizedValue)) {
+    return field.validation?.invalidMessage ?? 'Enter a valid date.'
+  }
+
+  if (field.type === 'datetime' && typeof normalizedValue === 'string' && !isValidDateTimeValue(normalizedValue)) {
+    return field.validation?.invalidMessage ?? 'Enter a valid date and time.'
+  }
+
+  if (field.type === 'select' && field.options?.length) {
+    const allowedValues = new Set(field.options.map((option) => option.value))
+    if (typeof normalizedValue !== 'string' || !allowedValues.has(normalizedValue)) {
+      return field.validation?.invalidMessage ?? 'Choose a valid option.'
+    }
+  }
+
+  return ''
+}
+
+const fieldErrors = computed<Record<string, string>>(() =>
+  Object.fromEntries(props.fields.map((field) => [field.key, getFieldError(field)])),
+)
+
+const hasErrors = computed(() => Object.values(fieldErrors.value).some(Boolean))
+
+async function submit() {
+  submitAttempted.value = true
+  if (hasErrors.value) return
+
   const payload = Object.fromEntries(
     props.fields
       .map((field) => [field.key, normalizeFieldValue(draft[field.key], field)])
       .filter(([, value]) => value !== null),
   )
 
-  emit('save', payload)
-  isOpen.value = false
+  isSaving.value = true
+  submitError.value = null
+
+  try {
+    await props.onSave(payload)
+    isOpen.value = false
+  } catch (error) {
+    submitError.value = error instanceof Error ? error.message : String(error)
+  } finally {
+    isSaving.value = false
+  }
 }
 </script>
 
@@ -85,6 +153,13 @@ function submit() {
         </div>
       </div>
 
+      <va-alert v-if="submitError" color="danger" outline class="modal-error">
+        {{ submitError }}
+      </va-alert>
+      <va-alert v-else-if="isSaving" color="info" outline class="modal-error">
+        Saving and refreshing data…
+      </va-alert>
+
       <div class="form-grid">
         <div v-for="field in fields" :key="field.key" :class="{ full: field.full }">
           <va-input
@@ -92,6 +167,9 @@ function submit() {
             v-model="draft[field.key]"
             :label="field.label"
             :type="field.type === 'datetime' ? 'datetime-local' : field.type"
+            :disabled="isSaving"
+            :error="submitAttempted && Boolean(fieldErrors[field.key])"
+            :error-messages="submitAttempted && fieldErrors[field.key] ? [fieldErrors[field.key]] : []"
           />
           <va-select
             v-else-if="field.type === 'select'"
@@ -100,19 +178,25 @@ function submit() {
             :options="field.options ?? []"
             text-by="label"
             value-by="value"
+            :disabled="isSaving"
+            :error="submitAttempted && Boolean(fieldErrors[field.key])"
+            :error-messages="submitAttempted && fieldErrors[field.key] ? [fieldErrors[field.key]] : []"
           />
           <va-textarea
             v-else
             v-model="draft[field.key]"
             :label="field.label"
             :min-rows="field.full ? 4 : 2"
+            :disabled="isSaving"
+            :error="submitAttempted && Boolean(fieldErrors[field.key])"
+            :error-messages="submitAttempted && fieldErrors[field.key] ? [fieldErrors[field.key]] : []"
           />
         </div>
       </div>
 
       <div class="toolbar modal-actions">
-        <va-button preset="secondary" @click="isOpen = false">{{ props.cancelLabel ?? 'Cancel' }}</va-button>
-        <va-button @click="submit">{{ props.saveLabel ?? 'Save' }}</va-button>
+        <va-button preset="secondary" :disabled="isSaving" @click="isOpen = false">{{ props.cancelLabel ?? 'Cancel' }}</va-button>
+        <va-button :loading="isSaving" :disabled="isSaving" @click="submit">{{ props.saveLabel ?? 'Save' }}</va-button>
       </div>
     </div>
   </va-modal>
@@ -191,6 +275,10 @@ function submit() {
   justify-content: flex-end;
   margin-top: 12px;
   gap: 10px;
+}
+
+.modal-error {
+  margin-bottom: 12px;
 }
 
 :deep(.va-modal__dialog) {

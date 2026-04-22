@@ -6,8 +6,13 @@ type LocalizedText = {
 }
 
 export type Option = { label: LocalizedText; value: string }
+export type LocalizedOption = { label: string; value: string }
 
 export type FieldType = 'text' | 'textarea' | 'date' | 'datetime' | 'number' | 'select'
+export type FieldValidation = {
+  requiredMessage?: LocalizedText
+  invalidMessage?: LocalizedText
+}
 
 export type FieldConfig = {
   key: string
@@ -17,12 +22,17 @@ export type FieldConfig = {
   required?: boolean
   options?: Option[]
   full?: boolean
+  validation?: FieldValidation
 }
 
 export type LocalizedFieldConfig = Omit<FieldConfig, 'label' | 'placeholder' | 'options'> & {
   label: string
   placeholder?: string
-  options?: { label: string; value: string }[]
+  options?: LocalizedOption[]
+  validation?: {
+    requiredMessage?: string
+    invalidMessage?: string
+  }
 }
 
 export type ResourceConfig = {
@@ -69,6 +79,12 @@ function localizeField(field: FieldConfig, language: Language): LocalizedFieldCo
     label: localizeText(field.label, language) ?? '',
     placeholder: localizeText(field.placeholder, language),
     options: field.options?.map((option) => localizeOption(option, language)),
+    validation: field.validation
+      ? {
+          requiredMessage: localizeText(field.validation.requiredMessage, language),
+          invalidMessage: localizeText(field.validation.invalidMessage, language),
+        }
+      : undefined,
   }
 }
 
@@ -102,12 +118,91 @@ const recommendationStatusOptions: Option[] = [
   { label: t('overdue', 'überfällig'), value: 'overdue' },
 ]
 
+const requestStatusOptions: Option[] = [
+  { label: t('draft', 'Entwurf'), value: 'draft' },
+  { label: t('active', 'aktiv'), value: 'active' },
+  { label: t('on-hold', 'pausiert'), value: 'on-hold' },
+  { label: t('revoked', 'widerrufen'), value: 'revoked' },
+  { label: t('completed', 'abgeschlossen'), value: 'completed' },
+  { label: t('entered-in-error', 'irrtümlich erfasst'), value: 'entered-in-error' },
+  { label: t('unknown', 'unbekannt'), value: 'unknown' },
+]
+
 const goalStatusOptions: Option[] = [
   { label: t('planned', 'geplant'), value: 'planned' },
   { label: t('active', 'aktiv'), value: 'active' },
   { label: t('on-hold', 'pausiert'), value: 'on-hold' },
   { label: t('completed', 'abgeschlossen'), value: 'completed' },
   { label: t('cancelled', 'abgebrochen'), value: 'cancelled' },
+]
+
+const appointmentStatusOptions: Option[] = [
+  { label: t('proposed', 'vorgeschlagen'), value: 'proposed' },
+  { label: t('pending', 'ausstehend'), value: 'pending' },
+  { label: t('booked', 'gebucht'), value: 'booked' },
+  { label: t('arrived', 'angekommen'), value: 'arrived' },
+  { label: t('fulfilled', 'erfüllt'), value: 'fulfilled' },
+  { label: t('cancelled', 'abgesagt'), value: 'cancelled' },
+  { label: t('noshow', 'nicht erschienen'), value: 'noshow' },
+  { label: t('entered-in-error', 'irrtümlich erfasst'), value: 'entered-in-error' },
+  { label: t('checked-in', 'eingecheckt'), value: 'checked-in' },
+  { label: t('waitlist', 'warteliste'), value: 'waitlist' },
+]
+
+const encounterStatusOptions: Option[] = [
+  { label: t('planned', 'geplant'), value: 'planned' },
+  { label: t('in-progress', 'in Bearbeitung'), value: 'in-progress' },
+  { label: t('on-hold', 'pausiert'), value: 'on-hold' },
+  { label: t('discharged', 'entlassen'), value: 'discharged' },
+  { label: t('completed', 'abgeschlossen'), value: 'completed' },
+  { label: t('cancelled', 'abgebrochen'), value: 'cancelled' },
+  { label: t('discontinued', 'eingestellt'), value: 'discontinued' },
+  { label: t('entered-in-error', 'irrtümlich erfasst'), value: 'entered-in-error' },
+  { label: t('unknown', 'unbekannt'), value: 'unknown' },
+]
+
+const communicationStatusOptions: Option[] = [
+  { label: t('preparation', 'vorbereitung'), value: 'preparation' },
+  { label: t('in-progress', 'in Bearbeitung'), value: 'in-progress' },
+  { label: t('not-done', 'nicht durchgeführt'), value: 'not-done' },
+  { label: t('on-hold', 'pausiert'), value: 'on-hold' },
+  { label: t('stopped', 'gestoppt'), value: 'stopped' },
+  { label: t('completed', 'abgeschlossen'), value: 'completed' },
+  { label: t('entered-in-error', 'irrtümlich erfasst'), value: 'entered-in-error' },
+  { label: t('unknown', 'unbekannt'), value: 'unknown' },
+]
+
+const communicationMediumOptions: Option[] = [
+  { label: t('sms', 'SMS'), value: 'sms' },
+  { label: t('email', 'E-Mail'), value: 'email' },
+  { label: t('portal', 'Portal'), value: 'portal' },
+]
+
+const consentStatusOptions: Option[] = [
+  { label: t('draft', 'Entwurf'), value: 'draft' },
+  { label: t('active', 'aktiv'), value: 'active' },
+  { label: t('inactive', 'inaktiv'), value: 'inactive' },
+  { label: t('not-done', 'nicht durchgeführt'), value: 'not-done' },
+  { label: t('entered-in-error', 'irrtümlich erfasst'), value: 'entered-in-error' },
+  { label: t('unknown', 'unbekannt'), value: 'unknown' },
+]
+
+const conditionClinicalStatusOptions: Option[] = [
+  { label: t('active', 'aktiv'), value: 'active' },
+  { label: t('recurrence', 'rezidiv'), value: 'recurrence' },
+  { label: t('relapse', 'rückfall'), value: 'relapse' },
+  { label: t('inactive', 'inaktiv'), value: 'inactive' },
+  { label: t('remission', 'remission'), value: 'remission' },
+  { label: t('resolved', 'gelöst'), value: 'resolved' },
+]
+
+const conditionVerificationStatusOptions: Option[] = [
+  { label: t('unconfirmed', 'unbestätigt'), value: 'unconfirmed' },
+  { label: t('provisional', 'vorläufig'), value: 'provisional' },
+  { label: t('differential', 'differentialdiagnose'), value: 'differential' },
+  { label: t('confirmed', 'bestätigt'), value: 'confirmed' },
+  { label: t('refuted', 'widerlegt'), value: 'refuted' },
+  { label: t('entered-in-error', 'irrtümlich erfasst'), value: 'entered-in-error' },
 ]
 
 const allergyClinicalStatusOptions: Option[] = [
@@ -204,10 +299,10 @@ const resourceConfigs: ResourceConfig[] = [
       { key: 'vaccineCode', label: t('Vaccine code', 'Impfstoffcode'), type: 'text', required: true },
       { key: 'vaccineDisplay', label: t('Display', 'Bezeichnung'), type: 'text', required: true },
       { key: 'administrationDate', label: t('Administration date', 'Verabreichungsdatum'), type: 'date', required: true },
-      { key: 'lotNumber', label: t('Lot number', 'Chargennummer'), type: 'text' },
+      { key: 'lotNumber', label: t('Lot number', 'Chargennummer'), type: 'number' },
       { key: 'site', label: t('Site', 'Applikationsstelle'), type: 'text' },
       { key: 'doseNumber', label: t('Dose number', 'Dosisnummer'), type: 'number' },
-      { key: 'encounterId', label: t('Encounter id', 'Begegnungs-ID'), type: 'text' },
+      { key: 'encounterId', label: t('Encounter id', 'Begegnungs-ID'), type: 'select', options: [] },
     ],
     updateFields: [
       { key: 'lotNumber', label: t('Lot number', 'Chargennummer'), type: 'text' },
@@ -259,13 +354,13 @@ const resourceConfigs: ResourceConfig[] = [
       { key: 'note', label: t('Note', 'Notiz'), type: 'textarea', full: true },
       { key: 'startDate', label: t('Start date', 'Startdatum'), type: 'date' },
       { key: 'endDate', label: t('End date', 'Enddatum'), type: 'date' },
-      { key: 'status', label: t('Status', 'Status'), type: 'text', required: true },
+      { key: 'status', label: t('Status', 'Status'), type: 'select', options: requestStatusOptions, required: true },
     ],
     updateFields: [
       { key: 'title', label: t('Title', 'Titel'), type: 'text' },
       { key: 'description', label: t('Description', 'Beschreibung'), type: 'textarea', full: true },
       { key: 'endDate', label: t('End date', 'Enddatum'), type: 'date' },
-      { key: 'status', label: t('Status', 'Status'), type: 'text' },
+      { key: 'status', label: t('Status', 'Status'), type: 'select', options: requestStatusOptions },
     ],
   },
   {
@@ -288,7 +383,7 @@ const resourceConfigs: ResourceConfig[] = [
       { key: 'description', label: t('Description', 'Beschreibung'), type: 'textarea', required: true, full: true },
       { key: 'targetDueDate', label: t('Target due date', 'Ziel-Fälligkeitsdatum'), type: 'date' },
       { key: 'startDate', label: t('Start date', 'Startdatum'), type: 'date' },
-      { key: 'carePlanId', label: t('Care plan id', 'Versorgungsplan-ID'), type: 'text' },
+      { key: 'carePlanId', label: t('Care plan id', 'Versorgungsplan-ID'), type: 'select', options: [] },
     ],
     updateFields: [
       { key: 'lifecycleStatus', label: t('Lifecycle status', 'Lebenszyklusstatus'), type: 'select', options: goalStatusOptions, required: true },
@@ -313,12 +408,12 @@ const resourceConfigs: ResourceConfig[] = [
       { key: 'start', label: t('Start', 'Beginn'), type: 'datetime', required: true },
       { key: 'end', label: t('End', 'Ende'), type: 'datetime' },
       { key: 'reason', label: t('Reason', 'Grund'), type: 'text' },
-      { key: 'locationId', label: t('Location id', 'Standort-ID'), type: 'text' },
+      { key: 'locationId', label: t('Location id', 'Standort-ID'), type: 'select', options: [] },
     ],
     updateFields: [
       { key: 'start', label: t('Start', 'Beginn'), type: 'datetime' },
       { key: 'end', label: t('End', 'Ende'), type: 'datetime' },
-      { key: 'status', label: t('Status', 'Status'), type: 'text' },
+      { key: 'status', label: t('Status', 'Status'), type: 'select', options: appointmentStatusOptions },
     ],
   },
   {
@@ -332,15 +427,22 @@ const resourceConfigs: ResourceConfig[] = [
       `/fhir/Encounter?subject=${encodeURIComponent(patientId)}`,
     ],
     getPath: (id) => `/api/practitioner/encounters/${id}`,
+    createPath: '/api/practitioner/encounters',
     updatePath: (id) => `/api/practitioner/encounters/${id}`,
-    canCreate: false,
+    canCreate: true,
     canEdit: true,
+    createFields: [
+      { key: 'start', label: t('Start', 'Beginn'), type: 'datetime' },
+      { key: 'end', label: t('End', 'Ende'), type: 'datetime' },
+      { key: 'reason', label: t('Reason', 'Grund'), type: 'text' },
+      { key: 'location', label: t('Location', 'Ort'), type: 'select', options: [] },
+    ],
     updateFields: [
       { key: 'start', label: t('Start', 'Beginn'), type: 'datetime' },
       { key: 'end', label: t('End', 'Ende'), type: 'datetime' },
       { key: 'reason', label: t('Reason', 'Grund'), type: 'text' },
       { key: 'location', label: t('Location', 'Ort'), type: 'text' },
-      { key: 'status', label: t('Status', 'Status'), type: 'text' },
+      { key: 'status', label: t('Status', 'Status'), type: 'select', options: encounterStatusOptions },
     ],
   },
   {
@@ -364,7 +466,7 @@ const resourceConfigs: ResourceConfig[] = [
       { key: 'value', label: t('Value', 'Wert'), type: 'text' },
       { key: 'unit', label: t('Unit', 'Einheit'), type: 'text' },
       { key: 'effectiveDateTime', label: t('Effective date', 'Wirksamkeitsdatum'), type: 'datetime' },
-      { key: 'encounterId', label: t('Encounter id', 'Begegnungs-ID'), type: 'text' },
+      { key: 'encounterId', label: t('Encounter id', 'Begegnungs-ID'), type: 'select', options: [] },
     ],
     updateFields: [
       { key: 'value', label: t('Value', 'Wert'), type: 'text' },
@@ -388,14 +490,14 @@ const resourceConfigs: ResourceConfig[] = [
     createFields: [
       { key: 'code', label: t('Code', 'Code'), type: 'text', required: true },
       { key: 'display', label: t('Display', 'Bezeichnung'), type: 'text', required: true },
-      { key: 'clinicalStatus', label: t('Clinical status', 'Klinischer Status'), type: 'text' },
-      { key: 'verificationStatus', label: t('Verification status', 'Verifizierungsstatus'), type: 'text' },
+      { key: 'clinicalStatus', label: t('Clinical status', 'Klinischer Status'), type: 'select', options: conditionClinicalStatusOptions },
+      { key: 'verificationStatus', label: t('Verification status', 'Verifizierungsstatus'), type: 'select', options: conditionVerificationStatusOptions },
       { key: 'onsetDate', label: t('Onset date', 'Beginn-Datum'), type: 'date' },
       { key: 'notes', label: t('Notes', 'Notizen'), type: 'textarea', full: true },
     ],
     updateFields: [
-      { key: 'clinicalStatus', label: t('Clinical status', 'Klinischer Status'), type: 'text' },
-      { key: 'verificationStatus', label: t('Verification status', 'Verifizierungsstatus'), type: 'text' },
+      { key: 'clinicalStatus', label: t('Clinical status', 'Klinischer Status'), type: 'select', options: conditionClinicalStatusOptions },
+      { key: 'verificationStatus', label: t('Verification status', 'Verifizierungsstatus'), type: 'select', options: conditionVerificationStatusOptions },
       { key: 'notes', label: t('Notes', 'Notizen'), type: 'textarea', full: true },
     ],
   },
@@ -416,7 +518,7 @@ const resourceConfigs: ResourceConfig[] = [
       { key: 'category', label: t('Category', 'Kategorie'), type: 'select', options: allergyCategoryOptions, required: true },
       { key: 'criticality', label: t('Criticality', 'Kritikalität'), type: 'select', options: allergyCriticalityOptions, required: true },
       { key: 'code', label: t('Code', 'Code'), type: 'text', required: true },
-      { key: 'encounterId', label: t('Encounter id', 'Begegnungs-ID'), type: 'text' },
+      { key: 'encounterId', label: t('Encounter id', 'Begegnungs-ID'), type: 'select', options: [] },
     ],
     updateFields: [
       { key: 'clinicalStatus', label: t('Clinical status', 'Klinischer Status'), type: 'select', options: allergyClinicalStatusOptions },
@@ -438,13 +540,13 @@ const resourceConfigs: ResourceConfig[] = [
     canCreate: true,
     canEdit: true,
     createFields: [
-      { key: 'relatedPersonId', label: t('Related person id', 'Bezugs­personen-ID'), type: 'text' },
+      { key: 'relatedPersonId', label: t('Related person id', 'Bezugs­personen-ID'), type: 'select', options: [] },
       { key: 'scope', label: t('Scope', 'Geltungsbereich'), type: 'text', required: true },
-      { key: 'status', label: t('Status', 'Status'), type: 'text', required: true },
+      { key: 'status', label: t('Status', 'Status'), type: 'select', options: consentStatusOptions, required: true },
       { key: 'dateGiven', label: t('Date given', 'Erteilungsdatum'), type: 'date' },
     ],
     updateFields: [
-      { key: 'status', label: t('Status', 'Status'), type: 'text' },
+      { key: 'status', label: t('Status', 'Status'), type: 'select', options: consentStatusOptions },
     ],
   },
   {
@@ -463,14 +565,14 @@ const resourceConfigs: ResourceConfig[] = [
     canCreate: true,
     canEdit: true,
     createFields: [
-      { key: 'relatedPersonId', label: t('Related person id', 'Bezugs­personen-ID'), type: 'text' },
-      { key: 'recommendationId', label: t('Recommendation id', 'Empfehlungs-ID'), type: 'text' },
-      { key: 'medium', label: t('Medium', 'Medium'), type: 'text' },
+      { key: 'relatedPersonId', label: t('Related person id', 'Bezugs­personen-ID'), type: 'select', options: [] },
+      { key: 'recommendationId', label: t('Recommendation id', 'Empfehlungs-ID'), type: 'select', options: [] },
+      { key: 'medium', label: t('Medium', 'Medium'), type: 'select', options: communicationMediumOptions },
       { key: 'message', label: t('Message', 'Nachricht'), type: 'textarea', full: true },
       { key: 'sentDate', label: t('Sent date', 'Sendedatum'), type: 'datetime' },
     ],
     updateFields: [
-      { key: 'status', label: t('Status', 'Status'), type: 'text' },
+      { key: 'status', label: t('Status', 'Status'), type: 'select', options: communicationStatusOptions },
     ],
   },
   {
@@ -493,7 +595,7 @@ const resourceConfigs: ResourceConfig[] = [
       { key: 'actuality', label: t('Actuality', 'Tatsächlichkeit'), type: 'select', options: adverseActualityOptions, required: true },
       { key: 'category', label: t('Category', 'Kategorie'), type: 'text' },
       { key: 'recordedDate', label: t('Recorded date', 'Erfassungsdatum'), type: 'date' },
-      { key: 'encounter', label: t('Encounter id', 'Begegnungs-ID'), type: 'text' },
+      { key: 'encounter', label: t('Encounter id', 'Begegnungs-ID'), type: 'select', options: [] },
     ],
     updateFields: [
       { key: 'status', label: t('Status', 'Status'), type: 'select', options: adverseStatusOptions },

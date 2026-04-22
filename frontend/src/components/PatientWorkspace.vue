@@ -3,7 +3,14 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { backendJson, backendFetch, fhirJson } from '@/api/http'
 import ResourceSection from '@/components/ResourceSection.vue'
 import RecordFormModal from '@/components/RecordFormModal.vue'
-import { getPatientCreateFields, getPatientUpdateFields, getResourceConfigs, type LocalizedResourceConfig } from '@/config/resources'
+import {
+  getPatientCreateFields,
+  getPatientUpdateFields,
+  getResourceConfigs,
+  type LocalizedFieldConfig,
+  type LocalizedOption,
+  type LocalizedResourceConfig,
+} from '@/config/resources'
 
 type SessionRole = 'practitioner' | 'related-person'
 type Language = 'en' | 'de'
@@ -119,6 +126,11 @@ const i18n = {
 const t = computed(() => i18n[props.language ?? 'en'])
 const patientCreateFields = computed(() => getPatientCreateFields(props.language ?? 'en'))
 const patientUpdateFields = computed(() => getPatientUpdateFields(props.language ?? 'en'))
+const patientEditableFields = computed(() =>
+  props.role === 'related-person'
+    ? patientUpdateFields.value.filter((field) => ['phone', 'email', 'address'].includes(field.key))
+    : patientUpdateFields.value,
+)
 const resourceConfigs = computed(() => getResourceConfigs(props.language ?? 'en'))
 
 const patientQuery = ref('')
@@ -135,21 +147,190 @@ const patientDetailsError = ref<string | null>(null)
 const createPatientOpen = ref(false)
 const editPatientOpen = ref(false)
 const workspaceMessage = ref<string | null>(null)
+const locationItems = ref<Record<string, any>[]>([])
 
 const resources = reactive<Record<string, { items: Record<string, any>[]; loading: boolean; error: string | null }>>(
     Object.fromEntries(getResourceConfigs('en').map((config) => [config.key, { items: [], loading: false, error: null }])),
 )
 
 const linkedChildrenCount = computed(() => props.patientIds?.length ?? 0)
+const hiddenResourceKeys = new Set(['communications'])
+const visibleResourceConfigs = computed(() =>
+  resourceConfigs.value.filter((config) => !hiddenResourceKeys.has(config.key)),
+)
 const counts = computed(() =>
-    Object.fromEntries(resourceConfigs.value.map((config) => [config.key, resources[config.key].items.length])),
+    Object.fromEntries(visibleResourceConfigs.value.map((config) => [config.key, resources[config.key].items.length])),
 )
 const currentSectionConfig = computed(() =>
-    resourceConfigs.value.find((config) => config.key === selectedSection.value) ?? null,
+    visibleResourceConfigs.value.find((config) => config.key === selectedSection.value) ?? null,
 )
 const primaryResourceKeys = ['immunizations', 'recommendations', 'appointments', 'encounters'] as const
-const primaryResourceConfigs = computed(() => resourceConfigs.value.filter((config) => primaryResourceKeys.includes(config.key as any)))
-const secondaryResourceConfigs = computed(() => resourceConfigs.value.filter((config) => !primaryResourceKeys.includes(config.key as any)))
+const primaryResourceConfigs = computed(() => visibleResourceConfigs.value.filter((config) => primaryResourceKeys.includes(config.key as any)))
+const secondaryResourceConfigs = computed(() => visibleResourceConfigs.value.filter((config) => !primaryResourceKeys.includes(config.key as any)))
+const relatedPersonCreatableResourceKeys = new Set([
+  'relatedPersons',
+  'appointments',
+  'consents',
+])
+const relatedPersonEditableResourceKeys = new Set([
+  'relatedPersons',
+  'appointments',
+  'consents',
+])
+const carePlanIdOptions = computed<LocalizedOption[]>(() =>
+  resources.carePlans.items
+    .filter((item) => item?.id)
+    .map((item) => ({
+      value: String(item.id),
+      label: item.title ? `${item.id} · ${item.title}` : String(item.id),
+    })),
+)
+const locationIdOptions = computed<LocalizedOption[]>(() =>
+  locationItems.value
+    .filter((item) => item?.id)
+    .map((item) => ({
+      value: String(item.id),
+      label: item.name ? `${item.id} · ${item.name}` : String(item.id),
+    })),
+)
+const encounterLocationOptions = computed<LocalizedOption[]>(() =>
+  locationItems.value
+    .filter((item) => item?.id)
+    .map((item) => ({
+      value: `Location/${item.id}`,
+      label: item.name ? `${item.id} · ${item.name}` : String(item.id),
+    })),
+)
+const encounterIdOptions = computed<LocalizedOption[]>(() =>
+  resources.encounters.items
+    .filter((item) => item?.id)
+    .map((item) => ({
+      value: String(item.id),
+      label: item.reason ? `${item.id} · ${item.reason}` : String(item.id),
+    })),
+)
+const adverseEventEncounterOptions = computed<LocalizedOption[]>(() =>
+  resources.encounters.items
+    .filter((item) => item?.id)
+    .map((item) => ({
+      value: String(item.id),
+      label: item.reason ? `${item.id} · ${item.reason}` : String(item.id),
+    })),
+)
+const relatedPersonIdOptions = computed<LocalizedOption[]>(() =>
+  resources.relatedPersons.items
+    .filter((item) => item?.id)
+    .map((item) => ({
+      value: String(item.id),
+      label: item.fullName ? `${item.id} · ${item.fullName}` : String(item.id),
+    })),
+)
+const recommendationIdOptions = computed<LocalizedOption[]>(() =>
+  resources.recommendations.items
+    .filter((item) => item?.id)
+    .map((item) => ({
+      value: String(item.id),
+      label: item.vaccineDisplay ? `${item.id} · ${item.vaccineDisplay}` : String(item.id),
+    })),
+)
+const patientOverviewEntries = computed(() =>
+  Object.entries(patientDetails.value ?? {}).filter(([key]) => key !== 'parent'),
+)
+const currentSectionConfigWithDynamicOptions = computed(() =>
+  currentSectionConfig.value ? withDynamicFieldOptions(currentSectionConfig.value) : null,
+)
+
+function withDynamicFieldSelectOptions(fields: LocalizedFieldConfig[] | undefined) {
+  if (!fields) return fields
+
+  return fields.map((field) => {
+    if (field.key === 'carePlanId') {
+      return {
+        ...field,
+        options: carePlanIdOptions.value,
+      }
+    }
+
+    if (field.key === 'locationId') {
+      return {
+        ...field,
+        options: locationIdOptions.value,
+      }
+    }
+
+    if (field.key === 'location') {
+      return {
+        ...field,
+        options: encounterLocationOptions.value,
+      }
+    }
+
+    if (field.key === 'encounterId') {
+      return {
+        ...field,
+        options: encounterIdOptions.value,
+      }
+    }
+
+    if (field.key === 'encounter') {
+      return {
+        ...field,
+        options: adverseEventEncounterOptions.value,
+      }
+    }
+
+    if (field.key === 'relatedPersonId') {
+      return {
+        ...field,
+        options: relatedPersonIdOptions.value,
+      }
+    }
+
+    if (field.key === 'recommendationId') {
+      return {
+        ...field,
+        options: recommendationIdOptions.value,
+      }
+    }
+
+    return field
+  })
+}
+
+function withDynamicFieldOptions(config: LocalizedResourceConfig): LocalizedResourceConfig {
+  if (!['immunizations', 'goals', 'appointments', 'observations', 'encounters', 'allergies', 'consents', 'communications', 'adverseEvents'].includes(config.key)) return config
+
+  return {
+    ...config,
+    createFields: withDynamicFieldSelectOptions(config.createFields),
+    updateFields: withDynamicFieldSelectOptions(config.updateFields),
+  }
+}
+
+function canCreateResource(key: string) {
+  if (props.role === 'practitioner') return true
+  return relatedPersonCreatableResourceKeys.has(key)
+}
+
+function canEditResource(key: string) {
+  if (props.role === 'practitioner') return true
+  return relatedPersonEditableResourceKeys.has(key)
+}
+
+async function loadLocations() {
+  try {
+    const bundle = await fhirJson<FhirBundle>('/fhir/Location?_count=100')
+    const ids = (bundle.entry ?? [])
+      .map((entry) => entry.resource?.id as string | undefined)
+      .filter(Boolean) as string[]
+
+    locationItems.value = await Promise.all(
+      ids.map((id) => backendJsonForRole<Record<string, any>>(`/api/practitioner/locations/${id}`)),
+    )
+  } catch {
+    locationItems.value = []
+  }
+}
 
 function patientResourceToSummary(resource: any): PatientSummary {
   const name = resource?.name?.[0]
@@ -258,6 +439,32 @@ async function loadPatients() {
 }
 
 async function loadResource(config: LocalizedResourceConfig) {
+  return loadResourceWithOptions(config)
+}
+
+function mergeItemsById(preferredItems: Record<string, any>[], fallbackItems: Record<string, any>[]) {
+  const merged = new Map<string, Record<string, any>>()
+  const withoutIds: Record<string, any>[] = []
+
+  for (const item of [...preferredItems, ...fallbackItems]) {
+    const id = item?.id
+    if (!id) {
+      withoutIds.push(item)
+      continue
+    }
+
+    if (!merged.has(String(id))) {
+      merged.set(String(id), item)
+    }
+  }
+
+  return [...merged.values(), ...withoutIds]
+}
+
+async function loadResourceWithOptions(
+  config: LocalizedResourceConfig,
+  options: { mergeWithExisting?: boolean } = {},
+) {
   if (!selectedPatientId.value) return
 
   resources[config.key].loading = true
@@ -270,9 +477,13 @@ async function loadResource(config: LocalizedResourceConfig) {
         .filter(Boolean) as string[]
 
     const items = await Promise.all(ids.map((id) => backendJsonForRole<Record<string, any>>(config.getPath(id))))
-    resources[config.key].items = items
+    resources[config.key].items = options.mergeWithExisting
+      ? mergeItemsById(items, resources[config.key].items)
+      : items
   } catch (error) {
-    resources[config.key].items = []
+    if (!options.mergeWithExisting) {
+      resources[config.key].items = []
+    }
     resources[config.key].error = String(error)
   } finally {
     resources[config.key].loading = false
@@ -359,14 +570,19 @@ async function createResource(config: LocalizedResourceConfig, payload: Record<s
   const path = typeof config.createPath === 'function' ? config.createPath(selectedPatientId.value) : config.createPath
   const finalPayload = enrichPayload(config.key, payload, selectedPatientId.value)
 
-  await backendFetchForRole(path, {
+  const response = await backendFetchForRole(path, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(finalPayload),
   })
+  const createdItem = await response.json().catch(() => null)
+
+  if (config.key === 'carePlans' && createdItem?.id) {
+    resources[config.key].items = mergeItemsById([createdItem], resources[config.key].items)
+  }
 
   workspaceMessage.value = `${config.label} ${t.value.createdSuccessfully}`
-  await loadResource(config)
+  await loadResourceWithOptions(config, { mergeWithExisting: config.key === 'carePlans' })
 }
 
 async function updateResource(config: LocalizedResourceConfig, id: string, payload: Record<string, any>) {
@@ -402,6 +618,7 @@ function enrichPayload(key: string, payload: Record<string, any>, patientId: str
 }
 
 onMounted(async () => {
+  await loadLocations()
   await loadPatients()
   if (selectedPatientId.value) {
     await loadSelectedPatient()
@@ -508,7 +725,7 @@ onMounted(async () => {
             </div>
           <div class="toolbar workspace-actions">
               <va-button
-                  v-if="role === 'practitioner'"
+                  v-if="role === 'practitioner' || role === 'related-person'"
                 preset="primary"
                   @click="editPatientOpen = true"
               >
@@ -584,7 +801,7 @@ onMounted(async () => {
               <div class="kicker">{{ t.childProfile }}</div>
               <h2 class="record-title">{{ t.selectedChildOverview }}</h2>
               <div class="record-grid">
-                <div v-for="(value, key) in patientDetails" :key="key" class="record-item">
+                <div v-for="[key, value] in patientOverviewEntries" :key="key" class="record-item">
                   <strong>{{ key }}</strong>
                   <span>{{ value || '—' }}</span>
                 </div>
@@ -593,16 +810,16 @@ onMounted(async () => {
           </section>
 
           <ResourceSection
-              v-else-if="currentSectionConfig"
-              :config="currentSectionConfig"
+              v-else-if="currentSectionConfigWithDynamicOptions"
+              :config="currentSectionConfigWithDynamicOptions"
               :language="props.language ?? 'en'"
-              :items="resources[currentSectionConfig.key].items"
-              :loading="resources[currentSectionConfig.key].loading"
-              :error="resources[currentSectionConfig.key].error"
-              :can-create="role === 'practitioner' || role === 'related-person'"
-              :can-edit="role === 'practitioner' || role === 'related-person'"
-              @create="createResource"
-              @update="updateResource"
+              :items="resources[currentSectionConfigWithDynamicOptions.key].items"
+              :loading="resources[currentSectionConfigWithDynamicOptions.key].loading"
+              :error="resources[currentSectionConfigWithDynamicOptions.key].error"
+              :can-create="canCreateResource(currentSectionConfigWithDynamicOptions.key)"
+              :can-edit="canEditResource(currentSectionConfigWithDynamicOptions.key)"
+              :on-create="createResource"
+              :on-update="updateResource"
           />
         </template>
 
@@ -625,19 +842,19 @@ onMounted(async () => {
       :cancel-label="t.cancel"
       :save-label="t.save"
       :fields="patientCreateFields"
-      @save="createPatient"
+      :on-save="createPatient"
   />
 
   <RecordFormModal
-      v-if="patientDetails && role === 'practitioner'"
+      v-if="patientDetails"
       v-model="editPatientOpen"
       :title="t.updateChild"
       :kicker-label="t.editPayload"
       :cancel-label="t.cancel"
       :save-label="t.save"
-      :fields="patientUpdateFields"
+      :fields="patientEditableFields"
       :initial-value="patientDetails"
-      @save="updatePatient"
+      :on-save="updatePatient"
   />
 </template>
 

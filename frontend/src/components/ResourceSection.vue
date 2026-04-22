@@ -12,11 +12,8 @@ const props = defineProps<{
   canCreate: boolean
   canEdit: boolean
   language?: Language
-}>()
-
-const emit = defineEmits<{
-  create: [LocalizedResourceConfig, Record<string, any>]
-  update: [LocalizedResourceConfig, string, Record<string, any>]
+  onCreate: (config: LocalizedResourceConfig, payload: Record<string, any>) => Promise<void> | void
+  onUpdate: (config: LocalizedResourceConfig, id: string, payload: Record<string, any>) => Promise<void> | void
 }>()
 
 const i18n = {
@@ -69,6 +66,15 @@ function renderValue(value: unknown) {
   if (typeof value === 'object') return JSON.stringify(value)
   return String(value)
 }
+
+function handleCreate(payload: Record<string, any>) {
+  return props.onCreate(props.config, payload)
+}
+
+function handleUpdate(payload: Record<string, any>) {
+  if (!editingRecord.value?.id) return
+  return props.onUpdate(props.config, String(editingRecord.value.id), payload)
+}
 </script>
 
 <template>
@@ -118,7 +124,7 @@ function renderValue(value: unknown) {
       v-model="createOpen"
       :title="`${t.create} ${config.singularLabel ?? config.label}`"
       :fields="config.createFields"
-      @save="emit('create', config, $event)"
+      :on-save="handleCreate"
     />
 
     <RecordFormModal
@@ -127,7 +133,7 @@ function renderValue(value: unknown) {
       :title="`${t.update} ${config.singularLabel ?? config.label}`"
       :fields="config.updateFields"
       :initial-value="editingRecord"
-      @save="emit('update', config, String(editingRecord?.id), $event)"
+      :on-save="handleUpdate"
     />
   </section>
 </template>
