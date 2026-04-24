@@ -149,11 +149,22 @@ a {
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 }
 
+.record-item {
+  min-width: 0;
+}
+
 .record-item strong {
   display: block;
   color: #66708b;
   font-size: 0.86rem;
   margin-bottom: 3px;
+}
+
+.record-item span {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .form-grid {
@@ -210,4 +221,14 @@ code.inline-code {
   .form-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.auth-card {
+  width: 100%;
+}
+
+.auth-card .va-input-wrapper,
+.auth-card .va-select,
+.auth-card .va-textarea {
+  width: 100%;
 }

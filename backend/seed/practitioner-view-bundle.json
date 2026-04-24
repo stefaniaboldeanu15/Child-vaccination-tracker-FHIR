@@ -41,6 +41,25 @@
       }
     },
     {
+      "fullUrl": "urn:uuid:loc-002",
+      "resource": {
+        "resourceType": "Location",
+        "id": "loc-002",
+        "status": "active",
+        "name": "Family Consultation Room",
+        "managingOrganization": {
+          "reference": "Organization/org-001"
+        },
+        "address": {
+          "text": "Strada Clinicii 12, Vienna"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Location/loc-002"
+      }
+    },
+    {
       "fullUrl": "urn:uuid:prac-001",
       "resource": {
         "resourceType": "Practitioner",
@@ -105,6 +124,70 @@
       }
     },
     {
+      "fullUrl": "urn:uuid:prac-002",
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "prac-002",
+        "active": true,
+        "identifier": [
+          {
+            "system": "app:username",
+            "value": "dr.schmidt"
+          },
+          {
+            "system": "app:practitioner-license",
+            "value": "LIC-DR-SCHMIDT-02"
+          },
+          {
+            "system": "app:organization-id",
+            "value": "ORG-001"
+          }
+        ],
+        "name": [
+          {
+            "family": "Schmidt",
+            "given": [
+              "Leonie"
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+43123456791"
+          },
+          {
+            "system": "email",
+            "value": "dr.schmidt@vaxcare.test"
+          }
+        ],
+        "qualification": [
+          {
+            "code": {
+              "text": "Family Medicine",
+              "coding": [
+                {
+                  "system": "app:practitioner-specialization",
+                  "code": "family-medicine",
+                  "display": "Family Medicine"
+                }
+              ]
+            }
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://example.org/extensions/password",
+            "valueString": "pwSchmidt02"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Practitioner/prac-002"
+      }
+    },
+    {
       "fullUrl": "urn:uuid:patient-001",
       "resource": {
         "resourceType": "Patient",
@@ -145,6 +228,135 @@
       "request": {
         "method": "PUT",
         "url": "Patient/patient-001"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:patient-002",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "patient-002",
+        "active": true,
+        "identifier": [
+          {
+            "system": "app:svnr",
+            "value": "SVNR-CHILD-002"
+          }
+        ],
+        "name": [
+          {
+            "family": "Huber",
+            "given": [
+              "Lukas"
+            ]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "2019-11-02",
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+43660111333"
+          },
+          {
+            "system": "email",
+            "value": "julia.huber.parent@vaxcare.test"
+          }
+        ],
+        "address": [
+          {
+            "text": "Ringstrasse 28, Vienna"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/patient-002"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:patient-003",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "patient-003",
+        "active": true,
+        "identifier": [
+          {
+            "system": "app:svnr",
+            "value": "SVNR-CHILD-003"
+          }
+        ],
+        "name": [
+          {
+            "family": "Kovac",
+            "given": [
+              "Sofia"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "2021-07-18",
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+43660111444"
+          },
+          {
+            "system": "email",
+            "value": "elena.kovac.parent@vaxcare.test"
+          }
+        ],
+        "address": [
+          {
+            "text": "Donaugasse 9, Vienna"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/patient-003"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:patient-004",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "patient-004",
+        "active": true,
+        "identifier": [
+          {
+            "system": "app:svnr",
+            "value": "SVNR-CHILD-004"
+          }
+        ],
+        "name": [
+          {
+            "family": "Aydin",
+            "given": [
+              "Noah"
+            ]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "2022-03-21",
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+43660111555"
+          },
+          {
+            "system": "email",
+            "value": "david.aydin.parent@vaxcare.test"
+          }
+        ],
+        "address": [
+          {
+            "text": "Lerchenfelder Strasse 14, Vienna"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/patient-004"
       }
     },
     {
@@ -198,6 +410,206 @@
       }
     },
     {
+      "fullUrl": "urn:uuid:rel-002",
+      "resource": {
+        "resourceType": "RelatedPerson",
+        "id": "rel-002",
+        "active": true,
+        "identifier": [
+          {
+            "system": "app:login-username",
+            "value": "martin.gruber.parent"
+          }
+        ],
+        "patient": {
+          "reference": "Patient/patient-001"
+        },
+        "name": [
+          {
+            "family": "Gruber",
+            "given": [
+              "Martin"
+            ]
+          }
+        ],
+        "relationship": [
+          {
+            "text": "father"
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+43660111223"
+          },
+          {
+            "system": "email",
+            "value": "martin.gruber.parent@vaxcare.test"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://example.org/extensions/password",
+            "valueString": "ParentEmma2!"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "RelatedPerson/rel-002"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:rel-003",
+      "resource": {
+        "resourceType": "RelatedPerson",
+        "id": "rel-003",
+        "active": true,
+        "identifier": [
+          {
+            "system": "app:login-username",
+            "value": "julia.huber.parent"
+          }
+        ],
+        "patient": {
+          "reference": "Patient/patient-002"
+        },
+        "name": [
+          {
+            "family": "Huber",
+            "given": [
+              "Julia"
+            ]
+          }
+        ],
+        "relationship": [
+          {
+            "text": "mother"
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+43660111333"
+          },
+          {
+            "system": "email",
+            "value": "julia.huber.parent@vaxcare.test"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://example.org/extensions/password",
+            "valueString": "ParentLukas3!"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "RelatedPerson/rel-003"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:rel-004",
+      "resource": {
+        "resourceType": "RelatedPerson",
+        "id": "rel-004",
+        "active": true,
+        "identifier": [
+          {
+            "system": "app:login-username",
+            "value": "elena.kovac.parent"
+          }
+        ],
+        "patient": {
+          "reference": "Patient/patient-003"
+        },
+        "name": [
+          {
+            "family": "Kovac",
+            "given": [
+              "Elena"
+            ]
+          }
+        ],
+        "relationship": [
+          {
+            "text": "mother"
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+43660111444"
+          },
+          {
+            "system": "email",
+            "value": "elena.kovac.parent@vaxcare.test"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://example.org/extensions/password",
+            "valueString": "ParentSofia4!"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "RelatedPerson/rel-004"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:rel-005",
+      "resource": {
+        "resourceType": "RelatedPerson",
+        "id": "rel-005",
+        "active": true,
+        "identifier": [
+          {
+            "system": "app:login-username",
+            "value": "david.aydin.parent"
+          }
+        ],
+        "patient": {
+          "reference": "Patient/patient-004"
+        },
+        "name": [
+          {
+            "family": "Aydin",
+            "given": [
+              "David"
+            ]
+          }
+        ],
+        "relationship": [
+          {
+            "text": "father"
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+43660111555"
+          },
+          {
+            "system": "email",
+            "value": "david.aydin.parent@vaxcare.test"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://example.org/extensions/password",
+            "valueString": "ParentNoah5!"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "RelatedPerson/rel-005"
+      }
+    },
+    {
       "fullUrl": "urn:uuid:careplan-001",
       "resource": {
         "resourceType": "CarePlan",
@@ -215,11 +627,90 @@
           {
             "reference": "Goal/goal-002"
           }
-        ]
+        ],
+        "description": "Catch-up schedule for kindergarten entry."
       },
       "request": {
         "method": "PUT",
         "url": "CarePlan/careplan-001"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:careplan-002",
+      "resource": {
+        "resourceType": "CarePlan",
+        "id": "careplan-002",
+        "status": "active",
+        "intent": "plan",
+        "title": "Lukas Huber School Booster Plan",
+        "subject": {
+          "reference": "Patient/patient-002"
+        },
+        "goal": [
+          {
+            "reference": "Goal/goal-003"
+          },
+          {
+            "reference": "Goal/goal-004"
+          }
+        ],
+        "description": "Booster planning before school enrollment."
+      },
+      "request": {
+        "method": "PUT",
+        "url": "CarePlan/careplan-002"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:careplan-003",
+      "resource": {
+        "resourceType": "CarePlan",
+        "id": "careplan-003",
+        "status": "active",
+        "intent": "plan",
+        "title": "Sofia Kovac Early Childhood Plan",
+        "subject": {
+          "reference": "Patient/patient-003"
+        },
+        "goal": [
+          {
+            "reference": "Goal/goal-005"
+          },
+          {
+            "reference": "Goal/goal-006"
+          }
+        ],
+        "description": "Routine schedule with follow-up after minor reaction."
+      },
+      "request": {
+        "method": "PUT",
+        "url": "CarePlan/careplan-003"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:careplan-004",
+      "resource": {
+        "resourceType": "CarePlan",
+        "id": "careplan-004",
+        "status": "active",
+        "intent": "plan",
+        "title": "Noah Aydin Infant Series Plan",
+        "subject": {
+          "reference": "Patient/patient-004"
+        },
+        "goal": [
+          {
+            "reference": "Goal/goal-007"
+          },
+          {
+            "reference": "Goal/goal-008"
+          }
+        ],
+        "description": "Standard infant series with staggered appointments."
+      },
+      "request": {
+        "method": "PUT",
+        "url": "CarePlan/careplan-004"
       }
     },
     {
@@ -237,7 +728,7 @@
         "target": [
           {
             "measure": {
-              "text": "MMR dose 1"
+              "text": "MMR dose 2"
             }
           }
         ]
@@ -270,6 +761,156 @@
       "request": {
         "method": "PUT",
         "url": "Goal/goal-002"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:goal-003",
+      "resource": {
+        "resourceType": "Goal",
+        "id": "goal-003",
+        "lifecycleStatus": "active",
+        "description": {
+          "text": "Finalize polio series"
+        },
+        "subject": {
+          "reference": "Patient/patient-002"
+        },
+        "target": [
+          {
+            "measure": {
+              "text": "Polio booster"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Goal/goal-003"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:goal-004",
+      "resource": {
+        "resourceType": "Goal",
+        "id": "goal-004",
+        "lifecycleStatus": "planned",
+        "description": {
+          "text": "Seasonal influenza protection"
+        },
+        "subject": {
+          "reference": "Patient/patient-002"
+        },
+        "target": [
+          {
+            "measure": {
+              "text": "Influenza dose"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Goal/goal-004"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:goal-005",
+      "resource": {
+        "resourceType": "Goal",
+        "id": "goal-005",
+        "lifecycleStatus": "active",
+        "description": {
+          "text": "Continue pneumococcal schedule"
+        },
+        "subject": {
+          "reference": "Patient/patient-003"
+        },
+        "target": [
+          {
+            "measure": {
+              "text": "PCV dose 3"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Goal/goal-005"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:goal-006",
+      "resource": {
+        "resourceType": "Goal",
+        "id": "goal-006",
+        "lifecycleStatus": "on-hold",
+        "description": {
+          "text": "Plan varicella vaccination after review"
+        },
+        "subject": {
+          "reference": "Patient/patient-003"
+        },
+        "target": [
+          {
+            "measure": {
+              "text": "Varicella dose 1"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Goal/goal-006"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:goal-007",
+      "resource": {
+        "resourceType": "Goal",
+        "id": "goal-007",
+        "lifecycleStatus": "active",
+        "description": {
+          "text": "Complete rotavirus series"
+        },
+        "subject": {
+          "reference": "Patient/patient-004"
+        },
+        "target": [
+          {
+            "measure": {
+              "text": "Rotavirus dose 2"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Goal/goal-007"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:goal-008",
+      "resource": {
+        "resourceType": "Goal",
+        "id": "goal-008",
+        "lifecycleStatus": "planned",
+        "description": {
+          "text": "Schedule hexavalent follow-up"
+        },
+        "subject": {
+          "reference": "Patient/patient-004"
+        },
+        "target": [
+          {
+            "measure": {
+              "text": "Hexavalent dose 3"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Goal/goal-008"
       }
     },
     {
@@ -313,6 +954,221 @@
       "request": {
         "method": "PUT",
         "url": "Encounter/enc-001"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:enc-002",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "enc-002",
+        "status": "completed",
+        "subject": {
+          "reference": "Patient/patient-001"
+        },
+        "actualPeriod": {
+          "start": "2026-03-04T14:00:00Z",
+          "end": "2026-03-04T14:20:00Z"
+        },
+        "location": [
+          {
+            "location": {
+              "reference": "Location/loc-002"
+            }
+          }
+        ],
+        "participant": [
+          {
+            "actor": {
+              "reference": "Practitioner/prac-002",
+              "display": "Leonie Schmidt"
+            }
+          }
+        ],
+        "reason": [
+          {
+            "use": [
+              {
+                "text": "Pre-booster review"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/enc-002"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:enc-003",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "enc-003",
+        "status": "completed",
+        "subject": {
+          "reference": "Patient/patient-002"
+        },
+        "actualPeriod": {
+          "start": "2026-02-20T08:30:00Z",
+          "end": "2026-02-20T08:55:00Z"
+        },
+        "location": [
+          {
+            "location": {
+              "reference": "Location/loc-001"
+            }
+          }
+        ],
+        "participant": [
+          {
+            "actor": {
+              "reference": "Practitioner/prac-001",
+              "display": "Daniel Mueller"
+            }
+          }
+        ],
+        "reason": [
+          {
+            "use": [
+              {
+                "text": "School readiness booster visit"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/enc-003"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:enc-004",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "enc-004",
+        "status": "completed",
+        "subject": {
+          "reference": "Patient/patient-003"
+        },
+        "actualPeriod": {
+          "start": "2026-02-28T10:15:00Z",
+          "end": "2026-02-28T10:45:00Z"
+        },
+        "location": [
+          {
+            "location": {
+              "reference": "Location/loc-001"
+            }
+          }
+        ],
+        "participant": [
+          {
+            "actor": {
+              "reference": "Practitioner/prac-002",
+              "display": "Leonie Schmidt"
+            }
+          }
+        ],
+        "reason": [
+          {
+            "use": [
+              {
+                "text": "Routine toddler follow-up"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/enc-004"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:enc-005",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "enc-005",
+        "status": "completed",
+        "subject": {
+          "reference": "Patient/patient-003"
+        },
+        "actualPeriod": {
+          "start": "2026-03-21T11:00:00Z",
+          "end": "2026-03-21T11:25:00Z"
+        },
+        "location": [
+          {
+            "location": {
+              "reference": "Location/loc-002"
+            }
+          }
+        ],
+        "participant": [
+          {
+            "actor": {
+              "reference": "Practitioner/prac-002",
+              "display": "Leonie Schmidt"
+            }
+          }
+        ],
+        "reason": [
+          {
+            "use": [
+              {
+                "text": "Post-reaction consultation"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/enc-005"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:enc-006",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "enc-006",
+        "status": "completed",
+        "subject": {
+          "reference": "Patient/patient-004"
+        },
+        "actualPeriod": {
+          "start": "2026-04-02T09:40:00Z",
+          "end": "2026-04-02T10:05:00Z"
+        },
+        "location": [
+          {
+            "location": {
+              "reference": "Location/loc-001"
+            }
+          }
+        ],
+        "participant": [
+          {
+            "actor": {
+              "reference": "Practitioner/prac-001",
+              "display": "Daniel Mueller"
+            }
+          }
+        ],
+        "reason": [
+          {
+            "use": [
+              {
+                "text": "Infant vaccine series"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/enc-006"
       }
     },
     {
@@ -361,6 +1217,556 @@
       }
     },
     {
+      "fullUrl": "urn:uuid:imm-002",
+      "resource": {
+        "resourceType": "Immunization",
+        "id": "imm-002",
+        "status": "completed",
+        "vaccineCode": {
+          "coding": [
+            {
+              "code": "DTaP",
+              "display": "Diphtheria Tetanus Pertussis"
+            }
+          ],
+          "text": "Diphtheria Tetanus Pertussis"
+        },
+        "patient": {
+          "reference": "Patient/patient-001"
+        },
+        "encounter": {
+          "reference": "Encounter/enc-002"
+        },
+        "occurrenceDateTime": "2026-03-04T14:08:00Z",
+        "lotNumber": "LOT-DTAP-2026-03",
+        "site": {
+          "text": "Right arm"
+        },
+        "performer": [
+          {
+            "actor": {
+              "reference": "Practitioner/prac-002",
+              "display": "Leonie Schmidt"
+            }
+          }
+        ],
+        "protocolApplied": [
+          {
+            "doseNumberString": "4"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Immunization/imm-002"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:imm-003",
+      "resource": {
+        "resourceType": "Immunization",
+        "id": "imm-003",
+        "status": "completed",
+        "vaccineCode": {
+          "coding": [
+            {
+              "code": "IPV",
+              "display": "Inactivated Polio Vaccine"
+            }
+          ],
+          "text": "Inactivated Polio Vaccine"
+        },
+        "patient": {
+          "reference": "Patient/patient-002"
+        },
+        "encounter": {
+          "reference": "Encounter/enc-003"
+        },
+        "occurrenceDateTime": "2026-02-20T08:42:00Z",
+        "lotNumber": "LOT-IPV-2026-02",
+        "site": {
+          "text": "Left arm"
+        },
+        "performer": [
+          {
+            "actor": {
+              "reference": "Practitioner/prac-001",
+              "display": "Daniel Mueller"
+            }
+          }
+        ],
+        "protocolApplied": [
+          {
+            "doseNumberString": "4"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Immunization/imm-003"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:imm-004",
+      "resource": {
+        "resourceType": "Immunization",
+        "id": "imm-004",
+        "status": "completed",
+        "vaccineCode": {
+          "coding": [
+            {
+              "code": "PCV",
+              "display": "Pneumococcal Conjugate Vaccine"
+            }
+          ],
+          "text": "Pneumococcal Conjugate Vaccine"
+        },
+        "patient": {
+          "reference": "Patient/patient-003"
+        },
+        "encounter": {
+          "reference": "Encounter/enc-004"
+        },
+        "occurrenceDateTime": "2026-02-28T10:24:00Z",
+        "lotNumber": "LOT-PCV-2026-02",
+        "site": {
+          "text": "Left thigh"
+        },
+        "performer": [
+          {
+            "actor": {
+              "reference": "Practitioner/prac-002",
+              "display": "Leonie Schmidt"
+            }
+          }
+        ],
+        "protocolApplied": [
+          {
+            "doseNumberString": "2"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Immunization/imm-004"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:imm-005",
+      "resource": {
+        "resourceType": "Immunization",
+        "id": "imm-005",
+        "status": "completed",
+        "vaccineCode": {
+          "coding": [
+            {
+              "code": "VAR",
+              "display": "Varicella"
+            }
+          ],
+          "text": "Varicella"
+        },
+        "patient": {
+          "reference": "Patient/patient-003"
+        },
+        "encounter": {
+          "reference": "Encounter/enc-005"
+        },
+        "occurrenceDateTime": "2026-03-21T11:08:00Z",
+        "lotNumber": "LOT-VAR-2026-03",
+        "site": {
+          "text": "Right thigh"
+        },
+        "performer": [
+          {
+            "actor": {
+              "reference": "Practitioner/prac-002",
+              "display": "Leonie Schmidt"
+            }
+          }
+        ],
+        "protocolApplied": [
+          {
+            "doseNumberString": "1"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Immunization/imm-005"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:imm-006",
+      "resource": {
+        "resourceType": "Immunization",
+        "id": "imm-006",
+        "status": "completed",
+        "vaccineCode": {
+          "coding": [
+            {
+              "code": "ROTA",
+              "display": "Rotavirus"
+            }
+          ],
+          "text": "Rotavirus"
+        },
+        "patient": {
+          "reference": "Patient/patient-004"
+        },
+        "encounter": {
+          "reference": "Encounter/enc-006"
+        },
+        "occurrenceDateTime": "2026-04-02T09:48:00Z",
+        "lotNumber": "LOT-ROTA-2026-04",
+        "site": {
+          "text": "Oral"
+        },
+        "performer": [
+          {
+            "actor": {
+              "reference": "Practitioner/prac-001",
+              "display": "Daniel Mueller"
+            }
+          }
+        ],
+        "protocolApplied": [
+          {
+            "doseNumberString": "1"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Immunization/imm-006"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:imm-007",
+      "resource": {
+        "resourceType": "Immunization",
+        "id": "imm-007",
+        "status": "completed",
+        "vaccineCode": {
+          "coding": [
+            {
+              "code": "HEXA",
+              "display": "Hexavalent Vaccine"
+            }
+          ],
+          "text": "Hexavalent Vaccine"
+        },
+        "patient": {
+          "reference": "Patient/patient-004"
+        },
+        "encounter": {
+          "reference": "Encounter/enc-006"
+        },
+        "occurrenceDateTime": "2026-04-02T09:55:00Z",
+        "lotNumber": "LOT-HEXA-2026-04",
+        "site": {
+          "text": "Left thigh"
+        },
+        "performer": [
+          {
+            "actor": {
+              "reference": "Practitioner/prac-001",
+              "display": "Daniel Mueller"
+            }
+          }
+        ],
+        "protocolApplied": [
+          {
+            "doseNumberString": "2"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Immunization/imm-007"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:rec-001",
+      "resource": {
+        "resourceType": "ImmunizationRecommendation",
+        "id": "rec-001",
+        "patient": {
+          "reference": "Patient/patient-001"
+        },
+        "authority": {
+          "display": "Austrian pediatric schedule"
+        },
+        "recommendation": [
+          {
+            "vaccineCode": [
+              {
+                "coding": [
+                  {
+                    "code": "MMR",
+                    "display": "Measles Mumps Rubella"
+                  }
+                ],
+                "text": "Measles Mumps Rubella"
+              }
+            ],
+            "forecastStatus": {
+              "text": "due"
+            },
+            "dateCriterion": [
+              {
+                "value": "2026-07-01"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ImmunizationRecommendation/rec-001"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:rec-002",
+      "resource": {
+        "resourceType": "ImmunizationRecommendation",
+        "id": "rec-002",
+        "patient": {
+          "reference": "Patient/patient-001"
+        },
+        "authority": {
+          "display": "Austrian pediatric schedule"
+        },
+        "recommendation": [
+          {
+            "vaccineCode": [
+              {
+                "coding": [
+                  {
+                    "code": "DTaP",
+                    "display": "Diphtheria Tetanus Pertussis"
+                  }
+                ],
+                "text": "Diphtheria Tetanus Pertussis"
+              }
+            ],
+            "forecastStatus": {
+              "text": "completed"
+            },
+            "dateCriterion": [
+              {
+                "value": "2026-03-04"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ImmunizationRecommendation/rec-002"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:rec-003",
+      "resource": {
+        "resourceType": "ImmunizationRecommendation",
+        "id": "rec-003",
+        "patient": {
+          "reference": "Patient/patient-002"
+        },
+        "authority": {
+          "display": "School entry review"
+        },
+        "recommendation": [
+          {
+            "vaccineCode": [
+              {
+                "coding": [
+                  {
+                    "code": "FLU",
+                    "display": "Influenza"
+                  }
+                ],
+                "text": "Influenza"
+              }
+            ],
+            "forecastStatus": {
+              "text": "due"
+            },
+            "dateCriterion": [
+              {
+                "value": "2026-10-01"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ImmunizationRecommendation/rec-003"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:rec-004",
+      "resource": {
+        "resourceType": "ImmunizationRecommendation",
+        "id": "rec-004",
+        "patient": {
+          "reference": "Patient/patient-003"
+        },
+        "authority": {
+          "display": "Austrian pediatric schedule"
+        },
+        "recommendation": [
+          {
+            "vaccineCode": [
+              {
+                "coding": [
+                  {
+                    "code": "PCV",
+                    "display": "Pneumococcal Conjugate Vaccine"
+                  }
+                ],
+                "text": "Pneumococcal Conjugate Vaccine"
+              }
+            ],
+            "forecastStatus": {
+              "text": "due"
+            },
+            "dateCriterion": [
+              {
+                "value": "2026-05-15"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ImmunizationRecommendation/rec-004"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:rec-005",
+      "resource": {
+        "resourceType": "ImmunizationRecommendation",
+        "id": "rec-005",
+        "patient": {
+          "reference": "Patient/patient-003"
+        },
+        "authority": {
+          "display": "Reaction follow-up plan"
+        },
+        "recommendation": [
+          {
+            "vaccineCode": [
+              {
+                "coding": [
+                  {
+                    "code": "VAR",
+                    "display": "Varicella"
+                  }
+                ],
+                "text": "Varicella"
+              }
+            ],
+            "forecastStatus": {
+              "text": "overdue"
+            },
+            "dateCriterion": [
+              {
+                "value": "2026-03-01"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ImmunizationRecommendation/rec-005"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:rec-006",
+      "resource": {
+        "resourceType": "ImmunizationRecommendation",
+        "id": "rec-006",
+        "patient": {
+          "reference": "Patient/patient-004"
+        },
+        "authority": {
+          "display": "Infant vaccination schedule"
+        },
+        "recommendation": [
+          {
+            "vaccineCode": [
+              {
+                "coding": [
+                  {
+                    "code": "ROTA",
+                    "display": "Rotavirus"
+                  }
+                ],
+                "text": "Rotavirus"
+              }
+            ],
+            "forecastStatus": {
+              "text": "due"
+            },
+            "dateCriterion": [
+              {
+                "value": "2026-05-02"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ImmunizationRecommendation/rec-006"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:rec-007",
+      "resource": {
+        "resourceType": "ImmunizationRecommendation",
+        "id": "rec-007",
+        "patient": {
+          "reference": "Patient/patient-004"
+        },
+        "authority": {
+          "display": "Infant vaccination schedule"
+        },
+        "recommendation": [
+          {
+            "vaccineCode": [
+              {
+                "coding": [
+                  {
+                    "code": "HEXA",
+                    "display": "Hexavalent Vaccine"
+                  }
+                ],
+                "text": "Hexavalent Vaccine"
+              }
+            ],
+            "forecastStatus": {
+              "text": "due"
+            },
+            "dateCriterion": [
+              {
+                "value": "2026-05-02"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ImmunizationRecommendation/rec-007"
+      }
+    },
+    {
       "fullUrl": "urn:uuid:obs-001",
       "resource": {
         "resourceType": "Observation",
@@ -381,6 +1787,121 @@
       "request": {
         "method": "PUT",
         "url": "Observation/obs-001"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:obs-002",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-002",
+        "status": "final",
+        "subject": {
+          "reference": "Patient/patient-001"
+        },
+        "encounter": {
+          "reference": "Encounter/enc-002"
+        },
+        "code": {
+          "text": "Weight"
+        },
+        "effectiveDateTime": "2026-03-04T14:03:00Z",
+        "valueString": "18.4 kg"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/obs-002"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:obs-003",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-003",
+        "status": "final",
+        "subject": {
+          "reference": "Patient/patient-002"
+        },
+        "encounter": {
+          "reference": "Encounter/enc-003"
+        },
+        "code": {
+          "text": "Temperature"
+        },
+        "effectiveDateTime": "2026-02-20T08:35:00Z",
+        "valueString": "36.5 C"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/obs-003"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:obs-004",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-004",
+        "status": "final",
+        "subject": {
+          "reference": "Patient/patient-003"
+        },
+        "encounter": {
+          "reference": "Encounter/enc-004"
+        },
+        "code": {
+          "text": "Weight"
+        },
+        "effectiveDateTime": "2026-02-28T10:20:00Z",
+        "valueString": "12.6 kg"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/obs-004"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:obs-005",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-005",
+        "status": "final",
+        "subject": {
+          "reference": "Patient/patient-003"
+        },
+        "encounter": {
+          "reference": "Encounter/enc-005"
+        },
+        "code": {
+          "text": "Reaction note"
+        },
+        "effectiveDateTime": "2026-03-21T11:05:00Z",
+        "valueString": "Mild rash resolved within 24 hours."
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/obs-005"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:obs-006",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-006",
+        "status": "final",
+        "subject": {
+          "reference": "Patient/patient-004"
+        },
+        "encounter": {
+          "reference": "Encounter/enc-006"
+        },
+        "code": {
+          "text": "Temperature"
+        },
+        "effectiveDateTime": "2026-04-02T09:43:00Z",
+        "valueString": "36.8 C"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/obs-006"
       }
     },
     {
@@ -414,7 +1935,7 @@
         "reason": [
           {
             "concept": {
-              "text": "DTaP booster"
+              "text": "MMR dose 2"
             }
           }
         ]
@@ -422,6 +1943,211 @@
       "request": {
         "method": "PUT",
         "url": "Appointment/appt-001"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:appt-002",
+      "resource": {
+        "resourceType": "Appointment",
+        "id": "appt-002",
+        "status": "fulfilled",
+        "start": "2026-03-04T14:00:00Z",
+        "end": "2026-03-04T14:20:00Z",
+        "participant": [
+          {
+            "actor": {
+              "reference": "Patient/patient-001"
+            },
+            "status": "accepted"
+          },
+          {
+            "actor": {
+              "reference": "Practitioner/prac-002"
+            },
+            "status": "accepted"
+          },
+          {
+            "actor": {
+              "reference": "Location/loc-002"
+            },
+            "status": "accepted"
+          }
+        ],
+        "reason": [
+          {
+            "concept": {
+              "text": "DTaP booster review"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Appointment/appt-002"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:appt-003",
+      "resource": {
+        "resourceType": "Appointment",
+        "id": "appt-003",
+        "status": "booked",
+        "start": "2026-10-08T08:30:00Z",
+        "end": "2026-10-08T08:50:00Z",
+        "participant": [
+          {
+            "actor": {
+              "reference": "Patient/patient-002"
+            },
+            "status": "accepted"
+          },
+          {
+            "actor": {
+              "reference": "Practitioner/prac-001"
+            },
+            "status": "accepted"
+          },
+          {
+            "actor": {
+              "reference": "Location/loc-001"
+            },
+            "status": "accepted"
+          }
+        ],
+        "reason": [
+          {
+            "concept": {
+              "text": "Seasonal influenza vaccination"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Appointment/appt-003"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:appt-004",
+      "resource": {
+        "resourceType": "Appointment",
+        "id": "appt-004",
+        "status": "proposed",
+        "start": "2026-05-15T10:00:00Z",
+        "end": "2026-05-15T10:25:00Z",
+        "participant": [
+          {
+            "actor": {
+              "reference": "Patient/patient-003"
+            },
+            "status": "accepted"
+          },
+          {
+            "actor": {
+              "reference": "Practitioner/prac-002"
+            },
+            "status": "accepted"
+          },
+          {
+            "actor": {
+              "reference": "Location/loc-001"
+            },
+            "status": "accepted"
+          }
+        ],
+        "reason": [
+          {
+            "concept": {
+              "text": "PCV follow-up dose"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Appointment/appt-004"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:appt-005",
+      "resource": {
+        "resourceType": "Appointment",
+        "id": "appt-005",
+        "status": "pending",
+        "start": "2026-05-02T09:30:00Z",
+        "end": "2026-05-02T10:00:00Z",
+        "participant": [
+          {
+            "actor": {
+              "reference": "Patient/patient-004"
+            },
+            "status": "accepted"
+          },
+          {
+            "actor": {
+              "reference": "Practitioner/prac-001"
+            },
+            "status": "accepted"
+          },
+          {
+            "actor": {
+              "reference": "Location/loc-001"
+            },
+            "status": "accepted"
+          }
+        ],
+        "reason": [
+          {
+            "concept": {
+              "text": "Rotavirus and hexavalent follow-up"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Appointment/appt-005"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:appt-006",
+      "resource": {
+        "resourceType": "Appointment",
+        "id": "appt-006",
+        "status": "booked",
+        "start": "2026-06-12T15:00:00Z",
+        "end": "2026-06-12T15:20:00Z",
+        "participant": [
+          {
+            "actor": {
+              "reference": "Patient/patient-001"
+            },
+            "status": "accepted"
+          },
+          {
+            "actor": {
+              "reference": "Practitioner/prac-001"
+            },
+            "status": "accepted"
+          },
+          {
+            "actor": {
+              "reference": "Location/loc-002"
+            },
+            "status": "accepted"
+          }
+        ],
+        "reason": [
+          {
+            "concept": {
+              "text": "Annual vaccination review"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Appointment/appt-006"
       }
     },
     {
@@ -460,6 +2186,111 @@
       }
     },
     {
+      "fullUrl": "urn:uuid:cond-002",
+      "resource": {
+        "resourceType": "Condition",
+        "id": "cond-002",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active",
+              "display": "Active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed",
+              "display": "Confirmed"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/patient-002"
+        },
+        "code": {
+          "text": "Mild asthma history"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Condition/cond-002"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:cond-003",
+      "resource": {
+        "resourceType": "Condition",
+        "id": "cond-003",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active",
+              "display": "Active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed",
+              "display": "Confirmed"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/patient-003"
+        },
+        "code": {
+          "text": "Past mild rash after immunization"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Condition/cond-003"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:cond-004",
+      "resource": {
+        "resourceType": "Condition",
+        "id": "cond-004",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "inactive",
+              "display": "Inactive"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed",
+              "display": "Confirmed"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/patient-004"
+        },
+        "code": {
+          "text": "Neonatal jaundice history"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Condition/cond-004"
+      }
+    },
+    {
       "fullUrl": "urn:uuid:allergy-001",
       "resource": {
         "resourceType": "AllergyIntolerance",
@@ -495,6 +2326,111 @@
       }
     },
     {
+      "fullUrl": "urn:uuid:allergy-002",
+      "resource": {
+        "resourceType": "AllergyIntolerance",
+        "id": "allergy-002",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+              "code": "active",
+              "display": "Active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+              "code": "confirmed",
+              "display": "Confirmed"
+            }
+          ]
+        },
+        "patient": {
+          "reference": "Patient/patient-002"
+        },
+        "code": {
+          "text": "Peanut intolerance"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "AllergyIntolerance/allergy-002"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:allergy-003",
+      "resource": {
+        "resourceType": "AllergyIntolerance",
+        "id": "allergy-003",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+              "code": "active",
+              "display": "Active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+              "code": "confirmed",
+              "display": "Confirmed"
+            }
+          ]
+        },
+        "patient": {
+          "reference": "Patient/patient-003"
+        },
+        "code": {
+          "text": "Adhesive tape sensitivity"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "AllergyIntolerance/allergy-003"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:allergy-004",
+      "resource": {
+        "resourceType": "AllergyIntolerance",
+        "id": "allergy-004",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+              "code": "inactive",
+              "display": "Inactive"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+              "code": "confirmed",
+              "display": "Confirmed"
+            }
+          ]
+        },
+        "patient": {
+          "reference": "Patient/patient-004"
+        },
+        "code": {
+          "text": "Cow milk protein sensitivity resolved"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "AllergyIntolerance/allergy-004"
+      }
+    },
+    {
       "fullUrl": "urn:uuid:consent-001",
       "resource": {
         "resourceType": "Consent",
@@ -520,6 +2456,81 @@
       }
     },
     {
+      "fullUrl": "urn:uuid:consent-002",
+      "resource": {
+        "resourceType": "Consent",
+        "id": "consent-002",
+        "status": "active",
+        "category": [
+          {
+            "text": "Vaccination consent"
+          }
+        ],
+        "patient": {
+          "reference": "Patient/patient-002"
+        },
+        "performer": [
+          {
+            "reference": "RelatedPerson/rel-003"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Consent/consent-002"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:consent-003",
+      "resource": {
+        "resourceType": "Consent",
+        "id": "consent-003",
+        "status": "active",
+        "category": [
+          {
+            "text": "Vaccination consent"
+          }
+        ],
+        "patient": {
+          "reference": "Patient/patient-003"
+        },
+        "performer": [
+          {
+            "reference": "RelatedPerson/rel-004"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Consent/consent-003"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:consent-004",
+      "resource": {
+        "resourceType": "Consent",
+        "id": "consent-004",
+        "status": "active",
+        "category": [
+          {
+            "text": "Vaccination consent"
+          }
+        ],
+        "patient": {
+          "reference": "Patient/patient-004"
+        },
+        "performer": [
+          {
+            "reference": "RelatedPerson/rel-005"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Consent/consent-004"
+      }
+    },
+    {
       "fullUrl": "urn:uuid:comm-001",
       "resource": {
         "resourceType": "Communication",
@@ -541,6 +2552,90 @@
       }
     },
     {
+      "fullUrl": "urn:uuid:comm-002",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "comm-002",
+        "status": "completed",
+        "subject": {
+          "reference": "Patient/patient-001"
+        },
+        "sent": "2026-03-05T08:30:00Z",
+        "payload": [
+          {
+            "contentString": "Booster reminder and hydration advice sent to both parents."
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Communication/comm-002"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:comm-003",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "comm-003",
+        "status": "completed",
+        "subject": {
+          "reference": "Patient/patient-002"
+        },
+        "sent": "2026-02-21T07:45:00Z",
+        "payload": [
+          {
+            "contentString": "School booster summary shared with guardian."
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Communication/comm-003"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:comm-004",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "comm-004",
+        "status": "completed",
+        "subject": {
+          "reference": "Patient/patient-003"
+        },
+        "sent": "2026-03-22T09:15:00Z",
+        "payload": [
+          {
+            "contentString": "Follow-up call documented after mild rash reaction."
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Communication/comm-004"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:comm-005",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "comm-005",
+        "status": "completed",
+        "subject": {
+          "reference": "Patient/patient-004"
+        },
+        "sent": "2026-04-03T08:10:00Z",
+        "payload": [
+          {
+            "contentString": "Infant series next-step reminder sent to guardian."
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Communication/comm-005"
+      }
+    },
+    {
       "fullUrl": "urn:uuid:advevent-001",
       "resource": {
         "resourceType": "AdverseEvent",
@@ -559,6 +2654,2066 @@
       "request": {
         "method": "PUT",
         "url": "AdverseEvent/advevent-001"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:advevent-002",
+      "resource": {
+        "resourceType": "AdverseEvent",
+        "id": "advevent-002",
+        "actuality": "actual",
+        "subject": {
+          "reference": "Patient/patient-003"
+        },
+        "encounter": {
+          "reference": "Encounter/enc-005"
+        },
+        "event": {
+          "text": "Localized rash at injection site"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "AdverseEvent/advevent-002"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:patient-005",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "patient-005",
+        "active": true,
+        "identifier": [
+          {
+            "system": "app:svnr",
+            "value": "SVNR-CHILD-005"
+          }
+        ],
+        "name": [
+          {
+            "family": "Gruber",
+            "given": [
+              "Mia"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "2023-08-14",
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+43660111222"
+          },
+          {
+            "system": "email",
+            "value": "anna.gruber.parent@vaxcare.test"
+          }
+        ],
+        "address": [
+          {
+            "text": "Strada Parcului 5, Vienna"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/patient-005"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:patient-006",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "patient-006",
+        "active": true,
+        "identifier": [
+          {
+            "system": "app:svnr",
+            "value": "SVNR-CHILD-006"
+          }
+        ],
+        "name": [
+          {
+            "family": "Huber",
+            "given": [
+              "Clara"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "2023-01-30",
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+43660111333"
+          },
+          {
+            "system": "email",
+            "value": "julia.huber.parent@vaxcare.test"
+          }
+        ],
+        "address": [
+          {
+            "text": "Ringstrasse 28, Vienna"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/patient-006"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:patient-007",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "patient-007",
+        "active": true,
+        "identifier": [
+          {
+            "system": "app:svnr",
+            "value": "SVNR-CHILD-007"
+          }
+        ],
+        "name": [
+          {
+            "family": "Novak",
+            "given": [
+              "Elias"
+            ]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "2018-09-09",
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+43660111666"
+          },
+          {
+            "system": "email",
+            "value": "petra.novak.parent@vaxcare.test"
+          }
+        ],
+        "address": [
+          {
+            "text": "Karmelitergasse 22, Vienna"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/patient-007"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:rel-006",
+      "resource": {
+        "resourceType": "RelatedPerson",
+        "id": "rel-006",
+        "active": true,
+        "identifier": [
+          {
+            "system": "app:login-username",
+            "value": "anna.gruber.parent"
+          }
+        ],
+        "patient": {
+          "reference": "Patient/patient-005"
+        },
+        "name": [
+          {
+            "family": "Gruber",
+            "given": [
+              "Anna"
+            ]
+          }
+        ],
+        "relationship": [
+          {
+            "text": "mother"
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+43660111222"
+          },
+          {
+            "system": "email",
+            "value": "anna.gruber.parent@vaxcare.test"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://example.org/extensions/password",
+            "valueString": "Parent123!"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "RelatedPerson/rel-006"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:rel-007",
+      "resource": {
+        "resourceType": "RelatedPerson",
+        "id": "rel-007",
+        "active": true,
+        "identifier": [
+          {
+            "system": "app:login-username",
+            "value": "martin.gruber.parent"
+          }
+        ],
+        "patient": {
+          "reference": "Patient/patient-005"
+        },
+        "name": [
+          {
+            "family": "Gruber",
+            "given": [
+              "Martin"
+            ]
+          }
+        ],
+        "relationship": [
+          {
+            "text": "father"
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+43660111223"
+          },
+          {
+            "system": "email",
+            "value": "martin.gruber.parent@vaxcare.test"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://example.org/extensions/password",
+            "valueString": "ParentEmma2!"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "RelatedPerson/rel-007"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:rel-008",
+      "resource": {
+        "resourceType": "RelatedPerson",
+        "id": "rel-008",
+        "active": true,
+        "identifier": [
+          {
+            "system": "app:login-username",
+            "value": "julia.huber.parent"
+          }
+        ],
+        "patient": {
+          "reference": "Patient/patient-006"
+        },
+        "name": [
+          {
+            "family": "Huber",
+            "given": [
+              "Julia"
+            ]
+          }
+        ],
+        "relationship": [
+          {
+            "text": "mother"
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+43660111333"
+          },
+          {
+            "system": "email",
+            "value": "julia.huber.parent@vaxcare.test"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://example.org/extensions/password",
+            "valueString": "ParentLukas3!"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "RelatedPerson/rel-008"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:rel-009",
+      "resource": {
+        "resourceType": "RelatedPerson",
+        "id": "rel-009",
+        "active": true,
+        "identifier": [
+          {
+            "system": "app:login-username",
+            "value": "petra.novak.parent"
+          }
+        ],
+        "patient": {
+          "reference": "Patient/patient-007"
+        },
+        "name": [
+          {
+            "family": "Novak",
+            "given": [
+              "Petra"
+            ]
+          }
+        ],
+        "relationship": [
+          {
+            "text": "mother"
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+43660111666"
+          },
+          {
+            "system": "email",
+            "value": "petra.novak.parent@vaxcare.test"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://example.org/extensions/password",
+            "valueString": "ParentElias6!"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "RelatedPerson/rel-009"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:rel-010",
+      "resource": {
+        "resourceType": "RelatedPerson",
+        "id": "rel-010",
+        "active": true,
+        "identifier": [
+          {
+            "system": "app:login-username",
+            "value": "renate.novak.guardian"
+          }
+        ],
+        "patient": {
+          "reference": "Patient/patient-007"
+        },
+        "name": [
+          {
+            "family": "Novak",
+            "given": [
+              "Renate"
+            ]
+          }
+        ],
+        "relationship": [
+          {
+            "text": "grandmother"
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+43660111667"
+          },
+          {
+            "system": "email",
+            "value": "renate.novak.guardian@vaxcare.test"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://example.org/extensions/password",
+            "valueString": "GrandmaHelp7!"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "RelatedPerson/rel-010"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:careplan-005",
+      "resource": {
+        "resourceType": "CarePlan",
+        "id": "careplan-005",
+        "status": "active",
+        "intent": "plan",
+        "title": "Mia Gruber Toddler Catch-up Plan",
+        "subject": {
+          "reference": "Patient/patient-005"
+        },
+        "goal": [
+          {
+            "reference": "Goal/goal-009"
+          },
+          {
+            "reference": "Goal/goal-010"
+          }
+        ],
+        "description": "Sibling catch-up schedule coordinated with Emma's visits."
+      },
+      "request": {
+        "method": "PUT",
+        "url": "CarePlan/careplan-005"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:careplan-006",
+      "resource": {
+        "resourceType": "CarePlan",
+        "id": "careplan-006",
+        "status": "active",
+        "intent": "plan",
+        "title": "Clara Huber Daycare Entry Plan",
+        "subject": {
+          "reference": "Patient/patient-006"
+        },
+        "goal": [
+          {
+            "reference": "Goal/goal-011"
+          },
+          {
+            "reference": "Goal/goal-012"
+          }
+        ],
+        "description": "Routine schedule review before daycare enrollment."
+      },
+      "request": {
+        "method": "PUT",
+        "url": "CarePlan/careplan-006"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:careplan-007",
+      "resource": {
+        "resourceType": "CarePlan",
+        "id": "careplan-007",
+        "status": "completed",
+        "intent": "plan",
+        "title": "Elias Novak Travel Readiness Plan",
+        "subject": {
+          "reference": "Patient/patient-007"
+        },
+        "goal": [
+          {
+            "reference": "Goal/goal-013"
+          },
+          {
+            "reference": "Goal/goal-014"
+          }
+        ],
+        "description": "Review of catch-up and travel-related vaccine planning."
+      },
+      "request": {
+        "method": "PUT",
+        "url": "CarePlan/careplan-007"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:goal-009",
+      "resource": {
+        "resourceType": "Goal",
+        "id": "goal-009",
+        "lifecycleStatus": "active",
+        "description": {
+          "text": "Continue hepatitis A series"
+        },
+        "subject": {
+          "reference": "Patient/patient-005"
+        },
+        "target": [
+          {
+            "measure": {
+              "text": "Hepatitis A dose 2"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Goal/goal-009"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:goal-010",
+      "resource": {
+        "resourceType": "Goal",
+        "id": "goal-010",
+        "lifecycleStatus": "planned",
+        "description": {
+          "text": "Prepare seasonal influenza vaccination"
+        },
+        "subject": {
+          "reference": "Patient/patient-005"
+        },
+        "target": [
+          {
+            "measure": {
+              "text": "Influenza dose"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Goal/goal-010"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:goal-011",
+      "resource": {
+        "resourceType": "Goal",
+        "id": "goal-011",
+        "lifecycleStatus": "active",
+        "description": {
+          "text": "Complete first MMR dose"
+        },
+        "subject": {
+          "reference": "Patient/patient-006"
+        },
+        "target": [
+          {
+            "measure": {
+              "text": "MMR dose 1"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Goal/goal-011"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:goal-012",
+      "resource": {
+        "resourceType": "Goal",
+        "id": "goal-012",
+        "lifecycleStatus": "active",
+        "description": {
+          "text": "Plan varicella vaccination"
+        },
+        "subject": {
+          "reference": "Patient/patient-006"
+        },
+        "target": [
+          {
+            "measure": {
+              "text": "Varicella dose 1"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Goal/goal-012"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:goal-013",
+      "resource": {
+        "resourceType": "Goal",
+        "id": "goal-013",
+        "lifecycleStatus": "completed",
+        "description": {
+          "text": "Complete hepatitis B catch-up"
+        },
+        "subject": {
+          "reference": "Patient/patient-007"
+        },
+        "target": [
+          {
+            "measure": {
+              "text": "Hepatitis B final dose"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Goal/goal-013"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:goal-014",
+      "resource": {
+        "resourceType": "Goal",
+        "id": "goal-014",
+        "lifecycleStatus": "active",
+        "description": {
+          "text": "Review tick-borne encephalitis vaccination"
+        },
+        "subject": {
+          "reference": "Patient/patient-007"
+        },
+        "target": [
+          {
+            "measure": {
+              "text": "TBE dose 1"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Goal/goal-014"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:enc-007",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "enc-007",
+        "status": "completed",
+        "subject": {
+          "reference": "Patient/patient-005"
+        },
+        "actualPeriod": {
+          "start": "2026-04-08T09:00:00Z",
+          "end": "2026-04-08T09:25:00Z"
+        },
+        "location": [
+          {
+            "location": {
+              "reference": "Location/loc-001"
+            }
+          }
+        ],
+        "participant": [
+          {
+            "actor": {
+              "reference": "Practitioner/prac-001",
+              "display": "Daniel Mueller"
+            }
+          }
+        ],
+        "reason": [
+          {
+            "use": [
+              {
+                "text": "Sibling catch-up visit"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/enc-007"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:enc-008",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "enc-008",
+        "status": "completed",
+        "subject": {
+          "reference": "Patient/patient-005"
+        },
+        "actualPeriod": {
+          "start": "2026-09-20T10:10:00Z",
+          "end": "2026-09-20T10:35:00Z"
+        },
+        "location": [
+          {
+            "location": {
+              "reference": "Location/loc-002"
+            }
+          }
+        ],
+        "participant": [
+          {
+            "actor": {
+              "reference": "Practitioner/prac-002",
+              "display": "Leonie Schmidt"
+            }
+          }
+        ],
+        "reason": [
+          {
+            "use": [
+              {
+                "text": "Seasonal vaccine follow-up"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/enc-008"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:enc-009",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "enc-009",
+        "status": "completed",
+        "subject": {
+          "reference": "Patient/patient-006"
+        },
+        "actualPeriod": {
+          "start": "2026-03-11T08:50:00Z",
+          "end": "2026-03-11T09:15:00Z"
+        },
+        "location": [
+          {
+            "location": {
+              "reference": "Location/loc-001"
+            }
+          }
+        ],
+        "participant": [
+          {
+            "actor": {
+              "reference": "Practitioner/prac-002",
+              "display": "Leonie Schmidt"
+            }
+          }
+        ],
+        "reason": [
+          {
+            "use": [
+              {
+                "text": "Daycare entry vaccination review"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/enc-009"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:enc-010",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "enc-010",
+        "status": "completed",
+        "subject": {
+          "reference": "Patient/patient-007"
+        },
+        "actualPeriod": {
+          "start": "2026-02-05T15:10:00Z",
+          "end": "2026-02-05T15:40:00Z"
+        },
+        "location": [
+          {
+            "location": {
+              "reference": "Location/loc-002"
+            }
+          }
+        ],
+        "participant": [
+          {
+            "actor": {
+              "reference": "Practitioner/prac-001",
+              "display": "Daniel Mueller"
+            }
+          }
+        ],
+        "reason": [
+          {
+            "use": [
+              {
+                "text": "Travel readiness consultation"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/enc-010"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:enc-011",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "enc-011",
+        "status": "completed",
+        "subject": {
+          "reference": "Patient/patient-007"
+        },
+        "actualPeriod": {
+          "start": "2026-04-18T13:30:00Z",
+          "end": "2026-04-18T13:50:00Z"
+        },
+        "location": [
+          {
+            "location": {
+              "reference": "Location/loc-001"
+            }
+          }
+        ],
+        "participant": [
+          {
+            "actor": {
+              "reference": "Practitioner/prac-001",
+              "display": "Daniel Mueller"
+            }
+          }
+        ],
+        "reason": [
+          {
+            "use": [
+              {
+                "text": "Deferred vaccination visit due to fever"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/enc-011"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:imm-008",
+      "resource": {
+        "resourceType": "Immunization",
+        "id": "imm-008",
+        "status": "completed",
+        "vaccineCode": {
+          "coding": [
+            {
+              "code": "HEPA",
+              "display": "Hepatitis A"
+            }
+          ],
+          "text": "Hepatitis A"
+        },
+        "patient": {
+          "reference": "Patient/patient-005"
+        },
+        "encounter": {
+          "reference": "Encounter/enc-007"
+        },
+        "occurrenceDateTime": "2026-04-08T09:10:00Z",
+        "lotNumber": "LOT-HEPA-2026-04",
+        "site": {
+          "text": "Right thigh"
+        },
+        "performer": [
+          {
+            "actor": {
+              "reference": "Practitioner/prac-001",
+              "display": "Daniel Mueller"
+            }
+          }
+        ],
+        "protocolApplied": [
+          {
+            "doseNumberString": "1"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Immunization/imm-008"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:imm-009",
+      "resource": {
+        "resourceType": "Immunization",
+        "id": "imm-009",
+        "status": "completed",
+        "vaccineCode": {
+          "coding": [
+            {
+              "code": "FLU",
+              "display": "Influenza"
+            }
+          ],
+          "text": "Influenza"
+        },
+        "patient": {
+          "reference": "Patient/patient-005"
+        },
+        "encounter": {
+          "reference": "Encounter/enc-008"
+        },
+        "occurrenceDateTime": "2026-09-20T10:18:00Z",
+        "lotNumber": "LOT-FLU-2026-09",
+        "site": {
+          "text": "Left arm"
+        },
+        "performer": [
+          {
+            "actor": {
+              "reference": "Practitioner/prac-002",
+              "display": "Leonie Schmidt"
+            }
+          }
+        ],
+        "protocolApplied": [
+          {
+            "doseNumberString": "1"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Immunization/imm-009"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:imm-010",
+      "resource": {
+        "resourceType": "Immunization",
+        "id": "imm-010",
+        "status": "completed",
+        "vaccineCode": {
+          "coding": [
+            {
+              "code": "MMR",
+              "display": "Measles Mumps Rubella"
+            }
+          ],
+          "text": "Measles Mumps Rubella"
+        },
+        "patient": {
+          "reference": "Patient/patient-006"
+        },
+        "encounter": {
+          "reference": "Encounter/enc-009"
+        },
+        "occurrenceDateTime": "2026-03-11T09:00:00Z",
+        "lotNumber": "LOT-MMR-2026-03",
+        "site": {
+          "text": "Left arm"
+        },
+        "performer": [
+          {
+            "actor": {
+              "reference": "Practitioner/prac-002",
+              "display": "Leonie Schmidt"
+            }
+          }
+        ],
+        "protocolApplied": [
+          {
+            "doseNumberString": "1"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Immunization/imm-010"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:imm-011",
+      "resource": {
+        "resourceType": "Immunization",
+        "id": "imm-011",
+        "status": "completed",
+        "vaccineCode": {
+          "coding": [
+            {
+              "code": "HEPB",
+              "display": "Hepatitis B"
+            }
+          ],
+          "text": "Hepatitis B"
+        },
+        "patient": {
+          "reference": "Patient/patient-007"
+        },
+        "encounter": {
+          "reference": "Encounter/enc-010"
+        },
+        "occurrenceDateTime": "2026-02-05T15:22:00Z",
+        "lotNumber": "LOT-HEPB-2026-02",
+        "site": {
+          "text": "Right arm"
+        },
+        "performer": [
+          {
+            "actor": {
+              "reference": "Practitioner/prac-001",
+              "display": "Daniel Mueller"
+            }
+          }
+        ],
+        "protocolApplied": [
+          {
+            "doseNumberString": "3"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Immunization/imm-011"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:imm-012",
+      "resource": {
+        "resourceType": "Immunization",
+        "id": "imm-012",
+        "status": "not-done",
+        "vaccineCode": {
+          "coding": [
+            {
+              "code": "TBE",
+              "display": "Tick-borne encephalitis"
+            }
+          ],
+          "text": "Tick-borne encephalitis"
+        },
+        "patient": {
+          "reference": "Patient/patient-007"
+        },
+        "encounter": {
+          "reference": "Encounter/enc-011"
+        },
+        "occurrenceDateTime": "2026-04-18T13:42:00Z",
+        "lotNumber": "DEFERRED-TBE-2026-04",
+        "site": {
+          "text": "Deferred due to acute fever"
+        },
+        "performer": [
+          {
+            "actor": {
+              "reference": "Practitioner/prac-001",
+              "display": "Daniel Mueller"
+            }
+          }
+        ],
+        "protocolApplied": [
+          {
+            "doseNumberString": "1"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Immunization/imm-012"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:rec-008",
+      "resource": {
+        "resourceType": "ImmunizationRecommendation",
+        "id": "rec-008",
+        "patient": {
+          "reference": "Patient/patient-005"
+        },
+        "authority": {
+          "display": "Sibling catch-up review"
+        },
+        "recommendation": [
+          {
+            "vaccineCode": [
+              {
+                "coding": [
+                  {
+                    "code": "HEPA",
+                    "display": "Hepatitis A"
+                  }
+                ],
+                "text": "Hepatitis A"
+              }
+            ],
+            "forecastStatus": {
+              "text": "due"
+            },
+            "dateCriterion": [
+              {
+                "value": "2026-10-08"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ImmunizationRecommendation/rec-008"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:rec-009",
+      "resource": {
+        "resourceType": "ImmunizationRecommendation",
+        "id": "rec-009",
+        "patient": {
+          "reference": "Patient/patient-005"
+        },
+        "authority": {
+          "display": "Seasonal vaccine program"
+        },
+        "recommendation": [
+          {
+            "vaccineCode": [
+              {
+                "coding": [
+                  {
+                    "code": "FLU",
+                    "display": "Influenza"
+                  }
+                ],
+                "text": "Influenza"
+              }
+            ],
+            "forecastStatus": {
+              "text": "completed"
+            },
+            "dateCriterion": [
+              {
+                "value": "2026-09-20"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ImmunizationRecommendation/rec-009"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:rec-010",
+      "resource": {
+        "resourceType": "ImmunizationRecommendation",
+        "id": "rec-010",
+        "patient": {
+          "reference": "Patient/patient-006"
+        },
+        "authority": {
+          "display": "Daycare enrollment checklist"
+        },
+        "recommendation": [
+          {
+            "vaccineCode": [
+              {
+                "coding": [
+                  {
+                    "code": "VAR",
+                    "display": "Varicella"
+                  }
+                ],
+                "text": "Varicella"
+              }
+            ],
+            "forecastStatus": {
+              "text": "due"
+            },
+            "dateCriterion": [
+              {
+                "value": "2026-05-06"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ImmunizationRecommendation/rec-010"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:rec-011",
+      "resource": {
+        "resourceType": "ImmunizationRecommendation",
+        "id": "rec-011",
+        "patient": {
+          "reference": "Patient/patient-006"
+        },
+        "authority": {
+          "display": "Daycare enrollment checklist"
+        },
+        "recommendation": [
+          {
+            "vaccineCode": [
+              {
+                "coding": [
+                  {
+                    "code": "MMR",
+                    "display": "Measles Mumps Rubella"
+                  }
+                ],
+                "text": "Measles Mumps Rubella"
+              }
+            ],
+            "forecastStatus": {
+              "text": "completed"
+            },
+            "dateCriterion": [
+              {
+                "value": "2026-03-11"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ImmunizationRecommendation/rec-011"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:rec-012",
+      "resource": {
+        "resourceType": "ImmunizationRecommendation",
+        "id": "rec-012",
+        "patient": {
+          "reference": "Patient/patient-007"
+        },
+        "authority": {
+          "display": "Travel consultation"
+        },
+        "recommendation": [
+          {
+            "vaccineCode": [
+              {
+                "coding": [
+                  {
+                    "code": "TBE",
+                    "display": "Tick-borne encephalitis"
+                  }
+                ],
+                "text": "Tick-borne encephalitis"
+              }
+            ],
+            "forecastStatus": {
+              "text": "overdue"
+            },
+            "dateCriterion": [
+              {
+                "value": "2026-04-18"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ImmunizationRecommendation/rec-012"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:rec-013",
+      "resource": {
+        "resourceType": "ImmunizationRecommendation",
+        "id": "rec-013",
+        "patient": {
+          "reference": "Patient/patient-007"
+        },
+        "authority": {
+          "display": "Catch-up confirmation"
+        },
+        "recommendation": [
+          {
+            "vaccineCode": [
+              {
+                "coding": [
+                  {
+                    "code": "HEPB",
+                    "display": "Hepatitis B"
+                  }
+                ],
+                "text": "Hepatitis B"
+              }
+            ],
+            "forecastStatus": {
+              "text": "completed"
+            },
+            "dateCriterion": [
+              {
+                "value": "2026-02-05"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ImmunizationRecommendation/rec-013"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:obs-007",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-007",
+        "status": "final",
+        "subject": {
+          "reference": "Patient/patient-005"
+        },
+        "encounter": {
+          "reference": "Encounter/enc-007"
+        },
+        "code": {
+          "text": "Weight"
+        },
+        "effectiveDateTime": "2026-04-08T09:05:00Z",
+        "valueString": "13.1 kg"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/obs-007"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:obs-008",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-008",
+        "status": "final",
+        "subject": {
+          "reference": "Patient/patient-005"
+        },
+        "encounter": {
+          "reference": "Encounter/enc-008"
+        },
+        "code": {
+          "text": "Temperature"
+        },
+        "effectiveDateTime": "2026-09-20T10:15:00Z",
+        "valueString": "36.4 C"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/obs-008"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:obs-009",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-009",
+        "status": "final",
+        "subject": {
+          "reference": "Patient/patient-006"
+        },
+        "encounter": {
+          "reference": "Encounter/enc-009"
+        },
+        "code": {
+          "text": "Weight"
+        },
+        "effectiveDateTime": "2026-03-11T08:55:00Z",
+        "valueString": "14.8 kg"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/obs-009"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:obs-010",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-010",
+        "status": "final",
+        "subject": {
+          "reference": "Patient/patient-007"
+        },
+        "encounter": {
+          "reference": "Encounter/enc-010"
+        },
+        "code": {
+          "text": "Blood pressure"
+        },
+        "effectiveDateTime": "2026-02-05T15:15:00Z",
+        "valueString": "104/66"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/obs-010"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:obs-011",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-011",
+        "status": "final",
+        "subject": {
+          "reference": "Patient/patient-007"
+        },
+        "encounter": {
+          "reference": "Encounter/enc-011"
+        },
+        "code": {
+          "text": "Temperature"
+        },
+        "effectiveDateTime": "2026-04-18T13:35:00Z",
+        "valueString": "38.5 C"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/obs-011"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:appt-007",
+      "resource": {
+        "resourceType": "Appointment",
+        "id": "appt-007",
+        "status": "booked",
+        "start": "2026-10-08T09:00:00Z",
+        "end": "2026-10-08T09:25:00Z",
+        "participant": [
+          {
+            "actor": {
+              "reference": "Patient/patient-005"
+            },
+            "status": "accepted"
+          },
+          {
+            "actor": {
+              "reference": "Practitioner/prac-001"
+            },
+            "status": "accepted"
+          },
+          {
+            "actor": {
+              "reference": "Location/loc-001"
+            },
+            "status": "accepted"
+          }
+        ],
+        "reason": [
+          {
+            "concept": {
+              "text": "Hepatitis A dose 2"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Appointment/appt-007"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:appt-008",
+      "resource": {
+        "resourceType": "Appointment",
+        "id": "appt-008",
+        "status": "waitlist",
+        "start": "2026-05-06T08:45:00Z",
+        "end": "2026-05-06T09:05:00Z",
+        "participant": [
+          {
+            "actor": {
+              "reference": "Patient/patient-006"
+            },
+            "status": "accepted"
+          },
+          {
+            "actor": {
+              "reference": "Practitioner/prac-002"
+            },
+            "status": "accepted"
+          },
+          {
+            "actor": {
+              "reference": "Location/loc-002"
+            },
+            "status": "accepted"
+          }
+        ],
+        "reason": [
+          {
+            "concept": {
+              "text": "Varicella first dose"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Appointment/appt-008"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:appt-009",
+      "resource": {
+        "resourceType": "Appointment",
+        "id": "appt-009",
+        "status": "fulfilled",
+        "start": "2026-02-05T15:10:00Z",
+        "end": "2026-02-05T15:40:00Z",
+        "participant": [
+          {
+            "actor": {
+              "reference": "Patient/patient-007"
+            },
+            "status": "accepted"
+          },
+          {
+            "actor": {
+              "reference": "Practitioner/prac-001"
+            },
+            "status": "accepted"
+          },
+          {
+            "actor": {
+              "reference": "Location/loc-002"
+            },
+            "status": "accepted"
+          }
+        ],
+        "reason": [
+          {
+            "concept": {
+              "text": "Travel consultation and catch-up"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Appointment/appt-009"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:appt-010",
+      "resource": {
+        "resourceType": "Appointment",
+        "id": "appt-010",
+        "status": "cancelled",
+        "start": "2026-04-18T13:30:00Z",
+        "end": "2026-04-18T13:50:00Z",
+        "participant": [
+          {
+            "actor": {
+              "reference": "Patient/patient-007"
+            },
+            "status": "accepted"
+          },
+          {
+            "actor": {
+              "reference": "Practitioner/prac-001"
+            },
+            "status": "accepted"
+          },
+          {
+            "actor": {
+              "reference": "Location/loc-001"
+            },
+            "status": "accepted"
+          }
+        ],
+        "reason": [
+          {
+            "concept": {
+              "text": "Cancelled TBE administration because of fever"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Appointment/appt-010"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:appt-011",
+      "resource": {
+        "resourceType": "Appointment",
+        "id": "appt-011",
+        "status": "proposed",
+        "start": "2026-05-03T11:00:00Z",
+        "end": "2026-05-03T11:20:00Z",
+        "participant": [
+          {
+            "actor": {
+              "reference": "Patient/patient-007"
+            },
+            "status": "accepted"
+          },
+          {
+            "actor": {
+              "reference": "Practitioner/prac-001"
+            },
+            "status": "accepted"
+          },
+          {
+            "actor": {
+              "reference": "Location/loc-001"
+            },
+            "status": "accepted"
+          }
+        ],
+        "reason": [
+          {
+            "concept": {
+              "text": "Rescheduled TBE review"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Appointment/appt-011"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:cond-005",
+      "resource": {
+        "resourceType": "Condition",
+        "id": "cond-005",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active",
+              "display": "Active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed",
+              "display": "Confirmed"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/patient-005"
+        },
+        "code": {
+          "text": "Frequent otitis media history"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Condition/cond-005"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:cond-006",
+      "resource": {
+        "resourceType": "Condition",
+        "id": "cond-006",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active",
+              "display": "Active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed",
+              "display": "Confirmed"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/patient-006"
+        },
+        "code": {
+          "text": "Mild eczema"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Condition/cond-006"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:cond-007",
+      "resource": {
+        "resourceType": "Condition",
+        "id": "cond-007",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "inactive",
+              "display": "Inactive"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed",
+              "display": "Confirmed"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/patient-007"
+        },
+        "code": {
+          "text": "Resolved iron deficiency"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Condition/cond-007"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:allergy-005",
+      "resource": {
+        "resourceType": "AllergyIntolerance",
+        "id": "allergy-005",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+              "code": "active",
+              "display": "Active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+              "code": "confirmed",
+              "display": "Confirmed"
+            }
+          ]
+        },
+        "patient": {
+          "reference": "Patient/patient-005"
+        },
+        "code": {
+          "text": "Amoxicillin rash history"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "AllergyIntolerance/allergy-005"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:allergy-006",
+      "resource": {
+        "resourceType": "AllergyIntolerance",
+        "id": "allergy-006",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+              "code": "active",
+              "display": "Active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+              "code": "confirmed",
+              "display": "Confirmed"
+            }
+          ]
+        },
+        "patient": {
+          "reference": "Patient/patient-006"
+        },
+        "code": {
+          "text": "Kiwi sensitivity"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "AllergyIntolerance/allergy-006"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:allergy-007",
+      "resource": {
+        "resourceType": "AllergyIntolerance",
+        "id": "allergy-007",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+              "code": "inactive",
+              "display": "Inactive"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+              "code": "confirmed",
+              "display": "Confirmed"
+            }
+          ]
+        },
+        "patient": {
+          "reference": "Patient/patient-007"
+        },
+        "code": {
+          "text": "Resolved strawberry intolerance"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "AllergyIntolerance/allergy-007"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:consent-005",
+      "resource": {
+        "resourceType": "Consent",
+        "id": "consent-005",
+        "status": "active",
+        "category": [
+          {
+            "text": "Vaccination consent"
+          }
+        ],
+        "patient": {
+          "reference": "Patient/patient-005"
+        },
+        "performer": [
+          {
+            "reference": "RelatedPerson/rel-006"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Consent/consent-005"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:consent-006",
+      "resource": {
+        "resourceType": "Consent",
+        "id": "consent-006",
+        "status": "active",
+        "category": [
+          {
+            "text": "Vaccination consent"
+          }
+        ],
+        "patient": {
+          "reference": "Patient/patient-006"
+        },
+        "performer": [
+          {
+            "reference": "RelatedPerson/rel-008"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Consent/consent-006"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:consent-007",
+      "resource": {
+        "resourceType": "Consent",
+        "id": "consent-007",
+        "status": "active",
+        "category": [
+          {
+            "text": "Vaccination consent"
+          }
+        ],
+        "patient": {
+          "reference": "Patient/patient-007"
+        },
+        "performer": [
+          {
+            "reference": "RelatedPerson/rel-009"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Consent/consent-007"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:comm-006",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "comm-006",
+        "status": "completed",
+        "subject": {
+          "reference": "Patient/patient-005"
+        },
+        "sent": "2026-04-08T16:20:00Z",
+        "payload": [
+          {
+            "contentString": "Sibling coordination note sent to Anna and Martin Gruber."
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Communication/comm-006"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:comm-007",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "comm-007",
+        "status": "completed",
+        "subject": {
+          "reference": "Patient/patient-006"
+        },
+        "sent": "2026-03-11T12:00:00Z",
+        "payload": [
+          {
+            "contentString": "Daycare vaccination checklist sent to Julia Huber."
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Communication/comm-007"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:comm-008",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "comm-008",
+        "status": "completed",
+        "subject": {
+          "reference": "Patient/patient-007"
+        },
+        "sent": "2026-02-06T09:00:00Z",
+        "payload": [
+          {
+            "contentString": "Travel consultation summary sent to Petra Novak."
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Communication/comm-008"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:comm-009",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "comm-009",
+        "status": "completed",
+        "subject": {
+          "reference": "Patient/patient-007"
+        },
+        "sent": "2026-04-18T17:10:00Z",
+        "payload": [
+          {
+            "contentString": "Deferred vaccination notice sent to Petra Novak and Renate Novak."
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Communication/comm-009"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:comm-010",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "comm-010",
+        "status": "completed",
+        "subject": {
+          "reference": "Patient/patient-005"
+        },
+        "sent": "2026-09-21T08:40:00Z",
+        "payload": [
+          {
+            "contentString": "Post-influenza aftercare message sent after seasonal visit."
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Communication/comm-010"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:advevent-003",
+      "resource": {
+        "resourceType": "AdverseEvent",
+        "id": "advevent-003",
+        "actuality": "actual",
+        "subject": {
+          "reference": "Patient/patient-005"
+        },
+        "encounter": {
+          "reference": "Encounter/enc-008"
+        },
+        "event": {
+          "text": "Mild fatigue after influenza vaccination"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "AdverseEvent/advevent-003"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:advevent-004",
+      "resource": {
+        "resourceType": "AdverseEvent",
+        "id": "advevent-004",
+        "actuality": "actual",
+        "subject": {
+          "reference": "Patient/patient-007"
+        },
+        "encounter": {
+          "reference": "Encounter/enc-011"
+        },
+        "event": {
+          "text": "Vaccination deferred because of febrile illness"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "AdverseEvent/advevent-004"
       }
     }
   ]

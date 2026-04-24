@@ -1,9 +1,12 @@
 package org.prt.prtvaccinationtracking_fhir.auth.service;
 
+import ca.uhn.fhir.rest.api.SearchStyleEnum;
 import ca.uhn.fhir.rest.gclient.TokenClientParam;
+import ca.uhn.fhir.rest.api.CacheControlDirective;
 import org.hl7.fhir.r5.model.*;
 import org.prt.prtvaccinationtracking_fhir.auth.dto.AuthSessionResponse;
 import org.prt.prtvaccinationtracking_fhir.auth.dto.RegisterRelatedPersonRequest;
+import org.prt.prtvaccinationtracking_fhir.auth.dto.RegisterPractitionerRequest;
 import org.prt.prtvaccinationtracking_fhir.auth.model.AuthenticatedUser;
 import org.prt.prtvaccinationtracking_fhir.auth.model.UserRole;
 import org.prt.prtvaccinationtracking_fhir.fhir.FhirGateway;
@@ -22,6 +25,11 @@ public class FhirAuthService {
     public static final String PASSWORD_EXTENSION_URL = "http://example.org/extensions/password";
     public static final String RELATED_PERSON_USERNAME_SYSTEM = "app:login-username";
 
+    public static final String PRACTITIONER_USERNAME_SYSTEM = "app:username";
+    public static final String PRACTITIONER_LICENSE_SYSTEM = "app:practitioner-license";
+    public static final String PRACTITIONER_SPECIALIZATION_SYSTEM = "app:practitioner-specialization";
+    public static final String PRACTITIONER_ORGANIZATION_SYSTEM = "app:organization-id";
+
     private final FhirGateway fhir;
     private final PasswordService passwordService;
 
@@ -30,13 +38,44 @@ public class FhirAuthService {
         this.passwordService = passwordService;
     }
 
+    public AuthSessionResponse buildSessionResponse(AuthenticatedUser user) {
+        return new AuthSessionResponse(
+                user.username(),
+                user.role().externalValue(),
+                user.displayName(),
+                user.fhirUser(),
+                user.practitionerId(),
+                user.relatedPersonIds(),
+                user.patientIds());
+    }
+
+    public AuthSessionResponse sessionFromJwt(org.springframework.security.oauth2.jwt.Jwt jwt) {
+        return new AuthSessionResponse(
+                jwt.getClaimAsString("username"),
+                jwt.getClaimAsString("role"),
+                jwt.getClaimAsString("display_name"),
+                jwt.getClaimAsString("fhirUser"),
+                jwt.getClaimAsString("practitioner_id"),
+                stringList(jwt, "related_person_ids"),
+                stringList(jwt, "patient_ids"));
+    }
+
+    public AuthenticatedUser authenticatedPractitioner(Practitioner practitioner, String username) {
+        String practitionerId = practitioner.getIdElement().getIdPart();
+
+        return new AuthenticatedUser(
+                "Practitioner/" + practitionerId,
+                username,
+                UserRole.PRACTITIONER,
+                practitionerDisplayName(practitioner),
+                "Practitioner/" + practitionerId,
+                practitionerId,
+                List.of(),
+                List.of());
+    }
+
     public Optional<AuthenticatedUser> authenticatePractitioner(String username, String password) {
-        Bundle bundle = fhir.client()
-                .search()
-                .forResource(Practitioner.class)
-                .where(new TokenClientParam("identifier").exactly().code(username))
-                .returnBundle(Bundle.class)
-                .execute();
+        Bundle bundle = practitionerByUsernameSearch(username);
 
         for (Practitioner practitioner : resources(bundle, Practitioner.class)) {
             String storedPassword = extensionString(practitioner, PASSWORD_EXTENSION_URL);
@@ -54,20 +93,14 @@ public class FhirAuthService {
                     "Practitioner/" + practitionerId,
                     practitionerId,
                     List.of(),
-                    List.of()
-            ));
+                    List.of()));
         }
 
         return Optional.empty();
     }
 
     public Optional<AuthenticatedUser> authenticateRelatedPerson(String username, String password) {
-        Bundle bundle = fhir.client()
-                .search()
-                .forResource(RelatedPerson.class)
-                .where(new TokenClientParam("identifier").exactly().systemAndCode(RELATED_PERSON_USERNAME_SYSTEM, username))
-                .returnBundle(Bundle.class)
-                .execute();
+        Bundle bundle = relatedPersonByUsernameSearch(username);
 
         List<RelatedPerson> matches = new ArrayList<>();
         for (RelatedPerson relatedPerson : resources(bundle, RelatedPerson.class)) {
@@ -105,35 +138,80 @@ public class FhirAuthService {
                 "RelatedPerson/" + relatedPersonId,
                 null,
                 List.copyOf(relatedPersonIds),
-                List.copyOf(patientIds)
-        ));
+                List.copyOf(patientIds)));
     }
 
-    public AuthSessionResponse buildSessionResponse(AuthenticatedUser user) {
-        return new AuthSessionResponse(
-                user.username(),
-                user.role().externalValue(),
-                user.displayName(),
-                user.fhirUser(),
-                user.practitionerId(),
-                user.relatedPersonIds(),
-                user.patientIds()
-        );
+    public AuthenticatedUser authenticatedRelatedPerson(RelatedPerson relatedPerson, String username) {
+        String relatedPersonId = relatedPerson.getIdElement().getIdPart();
+        List<String> patientIds = List.of();
+
+        if (relatedPerson.hasPatient() && relatedPerson.getPatient().hasReference()) {
+            String[] parts = relatedPerson.getPatient().getReference().split("/");
+            patientIds = List.of(parts[parts.length - 1]);
+        }
+
+        return new AuthenticatedUser(
+                "RelatedPerson/" + relatedPersonId,
+                username,
+                UserRole.RELATED_PERSON,
+                relatedPersonDisplayName(relatedPerson),
+                "RelatedPerson/" + relatedPersonId,
+                null,
+                List.of(relatedPersonId),
+                patientIds);
     }
 
-    public AuthSessionResponse sessionFromJwt(org.springframework.security.oauth2.jwt.Jwt jwt) {
-        return new AuthSessionResponse(
-                jwt.getClaimAsString("username"),
-                jwt.getClaimAsString("role"),
-                jwt.getClaimAsString("display_name"),
-                jwt.getClaimAsString("fhirUser"),
-                jwt.getClaimAsString("practitioner_id"),
-                stringList(jwt, "related_person_ids"),
-                stringList(jwt, "patient_ids")
-        );
+    private void ensurePractitionerUsernameAvailable(String username) {
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("username is required");
+        }
+
+        if (!resources(practitionerByUsernameSearch(username), Practitioner.class).isEmpty()) {
+            throw new IllegalStateException("Practitioner username already exists");
+        }
+    }
+
+    private void ensureRelatedPersonUsernameAvailable(String username) {
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("username is required");
+        }
+
+        if (!resources(relatedPersonByUsernameSearch(username), RelatedPerson.class).isEmpty()) {
+            throw new IllegalStateException("Related person username already exists");
+        }
+    }
+
+    private Bundle practitionerByUsernameSearch(String username) {
+        return fhir.client()
+                .search()
+                .forResource(Practitioner.class)
+                .usingStyle(SearchStyleEnum.POST)
+                .where(new TokenClientParam("identifier")
+                        .exactly()
+                        .systemAndCode(PRACTITIONER_USERNAME_SYSTEM, username))
+                .cacheControl(CacheControlDirective.noCache())
+                .withAdditionalHeader("Pragma", "no-cache")
+                .returnBundle(Bundle.class)
+                .execute();
+    }
+
+    private Bundle relatedPersonByUsernameSearch(String username) {
+        return fhir.client()
+                .search()
+                .forResource(RelatedPerson.class)
+                .usingStyle(SearchStyleEnum.POST)
+                .where(new TokenClientParam("identifier")
+                        .exactly()
+                        .systemAndCode(RELATED_PERSON_USERNAME_SYSTEM, username))
+                .cacheControl(CacheControlDirective.noCache())
+                .withAdditionalHeader("Pragma", "no-cache")
+                .returnBundle(Bundle.class)
+                .execute();
     }
 
     public RelatedPerson registerRelatedPerson(RegisterRelatedPersonRequest request) {
+        ensureRelatedPersonUsernameAvailable(request.username());
+
         RelatedPerson resource = new RelatedPerson();
 
         if (request.patientId() != null && !request.patientId().isBlank()) {
@@ -175,10 +253,71 @@ public class FhirAuthService {
                 .setSystem(RELATED_PERSON_USERNAME_SYSTEM)
                 .setValue(request.username()));
 
-        resource.addExtension(new Extension(PASSWORD_EXTENSION_URL, new StringType(passwordService.encode(request.password()))));
+        resource.addExtension(
+                new Extension(PASSWORD_EXTENSION_URL, new StringType(passwordService.encode(request.password()))));
         return fhir.create(resource);
     }
 
+    public Practitioner registerPractitioner(RegisterPractitionerRequest request) {
+        ensurePractitionerUsernameAvailable(request.username());
+
+        Practitioner resource = new Practitioner();
+
+        if (request.firstName() != null || request.lastName() != null) {
+            HumanName name = new HumanName();
+            if (request.firstName() != null && !request.firstName().isBlank()) {
+                name.addGiven(request.firstName());
+            }
+            if (request.lastName() != null && !request.lastName().isBlank()) {
+                name.setFamily(request.lastName());
+            }
+            resource.addName(name);
+        }
+
+        resource.addIdentifier(new Identifier()
+                .setSystem(PRACTITIONER_USERNAME_SYSTEM)
+                .setValue(request.username()));
+
+        if (request.identifier() != null && !request.identifier().isBlank()) {
+            resource.addIdentifier(new Identifier()
+                    .setSystem(PRACTITIONER_LICENSE_SYSTEM)
+                    .setValue(request.identifier()));
+        }
+
+        if (request.organizationId() != null && !request.organizationId().isBlank()) {
+            resource.addIdentifier(new Identifier()
+                    .setSystem(PRACTITIONER_ORGANIZATION_SYSTEM)
+                    .setValue(request.organizationId()));
+        }
+
+        if (request.specialization() != null && !request.specialization().isBlank()) {
+            resource.addQualification(new Practitioner.PractitionerQualificationComponent()
+                    .setCode(new CodeableConcept()
+                            .addCoding(new Coding()
+                                    .setSystem(PRACTITIONER_SPECIALIZATION_SYSTEM)
+                                    .setCode(request.specialization())
+                                    .setDisplay(request.specialization()))
+                            .setText(request.specialization())));
+        }
+
+        if (request.phone() != null && !request.phone().isBlank()) {
+            resource.addTelecom(new ContactPoint()
+                    .setSystem(ContactPoint.ContactPointSystem.PHONE)
+                    .setValue(request.phone()));
+        }
+
+        if (request.email() != null && !request.email().isBlank()) {
+            resource.addTelecom(new ContactPoint()
+                    .setSystem(ContactPoint.ContactPointSystem.EMAIL)
+                    .setValue(request.email()));
+        }
+
+        resource.addExtension(new Extension(
+                PASSWORD_EXTENSION_URL,
+                new StringType(passwordService.encode(request.password()))));
+
+        return fhir.create(resource);
+    }
 
     private List<String> stringList(org.springframework.security.oauth2.jwt.Jwt jwt, String claim) {
         List<String> values = jwt.getClaimAsStringList(claim);

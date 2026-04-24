@@ -3,9 +3,17 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { backendJson, backendFetch, fhirJson } from '@/api/http'
 import ResourceSection from '@/components/ResourceSection.vue'
 import RecordFormModal from '@/components/RecordFormModal.vue'
-import { patientCreateFields, patientUpdateFields, resourceConfigs, type ResourceConfig } from '@/config/resources'
+import {
+  getPatientCreateFields,
+  getPatientUpdateFields,
+  getResourceConfigs,
+  type LocalizedFieldConfig,
+  type LocalizedOption,
+  type LocalizedResourceConfig,
+} from '@/config/resources'
 
 type SessionRole = 'practitioner' | 'related-person'
+type Language = 'en' | 'de'
 
 type BundleEntry<T = any> = { resource?: T }
 type FhirBundle<T = any> = { entry?: BundleEntry<T>[] }
@@ -23,7 +31,107 @@ const props = defineProps<{
   displayName: string
   patientIds?: string[]
   practitionerId?: string | null
+  language?: Language
 }>()
+
+const i18n = {
+  en: {
+    practitionerPortal: 'Practitioner portal',
+    relatedPersonPortal: 'Related person portal',
+    practitionerIntro: 'Search child profiles and manage clinical records in one place.',
+    relatedIntro: 'Choose one of your linked children and review the same clinical details in a clean, family-friendly workspace.',
+    childProfiles: 'Child profiles',
+    immunizations: 'Immunizations',
+    linkedProfiles: 'Linked profiles',
+    searchPlaceholder: 'Search child by name or SVNR',
+    search: 'Search',
+    reload: 'Reload',
+    addChild: 'Add child',
+    loadingPatients: 'Loading patients…',
+    noChildRecords: 'No child records found.',
+    unknown: 'unknown',
+    dob: 'DOB',
+    selectedChild: 'Selected child',
+    fhirPatientId: 'FHIR Patient ID',
+    editChildProfile: 'Edit child profile',
+    refreshAll: 'Refresh all',
+    resourceNavigation: 'Resource navigation',
+    primary: 'Primary',
+    secondary: 'Secondary',
+    overview: 'Overview',
+    relatedPersons: 'Related persons',
+    recommendations: 'Recommendations',
+    goals: 'Goals',
+    appointments: 'Appointments',
+    childProfile: 'Child profile',
+    selectedChildOverview: 'Selected child overview',
+    loadingChildWorkspace: 'Loading child workspace…',
+    couldNotLoadWorkspace: 'Could not load the selected child workspace.',
+    selectChildHint: 'Select a child from the left side to open the portal workspace.',
+    createChildSuccess: 'Child record created successfully.',
+    updateChildSuccess: 'Child profile updated successfully.',
+    createdSuccessfully: 'created successfully.',
+    updatedSuccessfully: 'updated successfully.',
+    createChild: 'Create child',
+    updateChild: 'Update child',
+    editPayload: 'Edit payload',
+    cancel: 'Cancel',
+    save: 'Save',
+  },
+  de: {
+    practitionerPortal: 'Fachpersonal-Portal',
+    relatedPersonPortal: 'Bezugs­personen-Portal',
+    practitionerIntro: 'Suchen Sie Kinderprofile und verwalten Sie klinische Daten an einem Ort.',
+    relatedIntro: 'Wählen Sie eines Ihrer verknüpften Kinder und prüfen Sie dieselben klinischen Details in einer übersichtlichen Oberfläche.',
+    childProfiles: 'Kinderprofile',
+    immunizations: 'Impfungen',
+    linkedProfiles: 'Verknüpfte Profile',
+    searchPlaceholder: 'Kind nach Name oder SVNR suchen',
+    search: 'Suchen',
+    reload: 'Neu laden',
+    addChild: 'Kind hinzufügen',
+    loadingPatients: 'Kinder werden geladen…',
+    noChildRecords: 'Keine Kinderdatensätze gefunden.',
+    unknown: 'unbekannt',
+    dob: 'Geburtsdatum',
+    selectedChild: 'Ausgewähltes Kind',
+    fhirPatientId: 'FHIR Patienten-ID',
+    editChildProfile: 'Kinderprofil bearbeiten',
+    refreshAll: 'Alles aktualisieren',
+    resourceNavigation: 'Ressourcen-Navigation',
+    primary: 'Primär',
+    secondary: 'Sekundär',
+    overview: 'Überblick',
+    relatedPersons: 'Bezugs­personen',
+    recommendations: 'Empfehlungen',
+    goals: 'Ziele',
+    appointments: 'Termine',
+    childProfile: 'Kinderprofil',
+    selectedChildOverview: 'Überblick ausgewähltes Kind',
+    loadingChildWorkspace: 'Kind-Arbeitsbereich wird geladen…',
+    couldNotLoadWorkspace: 'Der Arbeitsbereich des ausgewählten Kindes konnte nicht geladen werden.',
+    selectChildHint: 'Wählen Sie links ein Kind aus, um den Arbeitsbereich zu öffnen.',
+    createChildSuccess: 'Kinderdatensatz erfolgreich erstellt.',
+    updateChildSuccess: 'Kinderprofil erfolgreich aktualisiert.',
+    createdSuccessfully: 'erfolgreich erstellt.',
+    updatedSuccessfully: 'erfolgreich aktualisiert.',
+    createChild: 'Kind erstellen',
+    updateChild: 'Kind aktualisieren',
+    editPayload: 'Daten bearbeiten',
+    cancel: 'Abbrechen',
+    save: 'Speichern',
+  },
+} as const
+
+const t = computed(() => i18n[props.language ?? 'en'])
+const patientCreateFields = computed(() => getPatientCreateFields(props.language ?? 'en'))
+const patientUpdateFields = computed(() => getPatientUpdateFields(props.language ?? 'en'))
+const patientEditableFields = computed(() =>
+  props.role === 'related-person'
+    ? patientUpdateFields.value.filter((field) => ['phone', 'email', 'address'].includes(field.key))
+    : patientUpdateFields.value,
+)
+const resourceConfigs = computed(() => getResourceConfigs(props.language ?? 'en'))
 
 const patientQuery = ref('')
 const patients = ref<PatientSummary[]>([])
@@ -39,18 +147,190 @@ const patientDetailsError = ref<string | null>(null)
 const createPatientOpen = ref(false)
 const editPatientOpen = ref(false)
 const workspaceMessage = ref<string | null>(null)
+const locationItems = ref<Record<string, any>[]>([])
 
 const resources = reactive<Record<string, { items: Record<string, any>[]; loading: boolean; error: string | null }>>(
-    Object.fromEntries(resourceConfigs.map((config) => [config.key, { items: [], loading: false, error: null }])),
+    Object.fromEntries(getResourceConfigs('en').map((config) => [config.key, { items: [], loading: false, error: null }])),
 )
 
 const linkedChildrenCount = computed(() => props.patientIds?.length ?? 0)
+const hiddenResourceKeys = new Set(['communications'])
+const visibleResourceConfigs = computed(() =>
+  resourceConfigs.value.filter((config) => !hiddenResourceKeys.has(config.key)),
+)
 const counts = computed(() =>
-    Object.fromEntries(resourceConfigs.map((config) => [config.key, resources[config.key].items.length])),
+    Object.fromEntries(visibleResourceConfigs.value.map((config) => [config.key, resources[config.key].items.length])),
 )
 const currentSectionConfig = computed(() =>
-    resourceConfigs.find((config) => config.key === selectedSection.value) ?? null,
+    visibleResourceConfigs.value.find((config) => config.key === selectedSection.value) ?? null,
 )
+const primaryResourceKeys = ['immunizations', 'recommendations', 'appointments', 'encounters'] as const
+const primaryResourceConfigs = computed(() => visibleResourceConfigs.value.filter((config) => primaryResourceKeys.includes(config.key as any)))
+const secondaryResourceConfigs = computed(() => visibleResourceConfigs.value.filter((config) => !primaryResourceKeys.includes(config.key as any)))
+const relatedPersonCreatableResourceKeys = new Set([
+  'relatedPersons',
+  'appointments',
+  'consents',
+])
+const relatedPersonEditableResourceKeys = new Set([
+  'relatedPersons',
+  'appointments',
+  'consents',
+])
+const carePlanIdOptions = computed<LocalizedOption[]>(() =>
+  resources.carePlans.items
+    .filter((item) => item?.id)
+    .map((item) => ({
+      value: String(item.id),
+      label: item.title ? `${item.id} · ${item.title}` : String(item.id),
+    })),
+)
+const locationIdOptions = computed<LocalizedOption[]>(() =>
+  locationItems.value
+    .filter((item) => item?.id)
+    .map((item) => ({
+      value: String(item.id),
+      label: item.name ? `${item.id} · ${item.name}` : String(item.id),
+    })),
+)
+const encounterLocationOptions = computed<LocalizedOption[]>(() =>
+  locationItems.value
+    .filter((item) => item?.id)
+    .map((item) => ({
+      value: `Location/${item.id}`,
+      label: item.name ? `${item.id} · ${item.name}` : String(item.id),
+    })),
+)
+const encounterIdOptions = computed<LocalizedOption[]>(() =>
+  resources.encounters.items
+    .filter((item) => item?.id)
+    .map((item) => ({
+      value: String(item.id),
+      label: item.reason ? `${item.id} · ${item.reason}` : String(item.id),
+    })),
+)
+const adverseEventEncounterOptions = computed<LocalizedOption[]>(() =>
+  resources.encounters.items
+    .filter((item) => item?.id)
+    .map((item) => ({
+      value: String(item.id),
+      label: item.reason ? `${item.id} · ${item.reason}` : String(item.id),
+    })),
+)
+const relatedPersonIdOptions = computed<LocalizedOption[]>(() =>
+  resources.relatedPersons.items
+    .filter((item) => item?.id)
+    .map((item) => ({
+      value: String(item.id),
+      label: item.fullName ? `${item.id} · ${item.fullName}` : String(item.id),
+    })),
+)
+const recommendationIdOptions = computed<LocalizedOption[]>(() =>
+  resources.recommendations.items
+    .filter((item) => item?.id)
+    .map((item) => ({
+      value: String(item.id),
+      label: item.vaccineDisplay ? `${item.id} · ${item.vaccineDisplay}` : String(item.id),
+    })),
+)
+const patientOverviewEntries = computed(() =>
+  Object.entries(patientDetails.value ?? {}).filter(([key]) => key !== 'parent'),
+)
+const currentSectionConfigWithDynamicOptions = computed(() =>
+  currentSectionConfig.value ? withDynamicFieldOptions(currentSectionConfig.value) : null,
+)
+
+function withDynamicFieldSelectOptions(fields: LocalizedFieldConfig[] | undefined) {
+  if (!fields) return fields
+
+  return fields.map((field) => {
+    if (field.key === 'carePlanId') {
+      return {
+        ...field,
+        options: carePlanIdOptions.value,
+      }
+    }
+
+    if (field.key === 'locationId') {
+      return {
+        ...field,
+        options: locationIdOptions.value,
+      }
+    }
+
+    if (field.key === 'location') {
+      return {
+        ...field,
+        options: encounterLocationOptions.value,
+      }
+    }
+
+    if (field.key === 'encounterId') {
+      return {
+        ...field,
+        options: encounterIdOptions.value,
+      }
+    }
+
+    if (field.key === 'encounter') {
+      return {
+        ...field,
+        options: adverseEventEncounterOptions.value,
+      }
+    }
+
+    if (field.key === 'relatedPersonId') {
+      return {
+        ...field,
+        options: relatedPersonIdOptions.value,
+      }
+    }
+
+    if (field.key === 'recommendationId') {
+      return {
+        ...field,
+        options: recommendationIdOptions.value,
+      }
+    }
+
+    return field
+  })
+}
+
+function withDynamicFieldOptions(config: LocalizedResourceConfig): LocalizedResourceConfig {
+  if (!['immunizations', 'goals', 'appointments', 'observations', 'encounters', 'allergies', 'consents', 'communications', 'adverseEvents'].includes(config.key)) return config
+
+  return {
+    ...config,
+    createFields: withDynamicFieldSelectOptions(config.createFields),
+    updateFields: withDynamicFieldSelectOptions(config.updateFields),
+  }
+}
+
+function canCreateResource(key: string) {
+  if (props.role === 'practitioner') return true
+  return relatedPersonCreatableResourceKeys.has(key)
+}
+
+function canEditResource(key: string) {
+  if (props.role === 'practitioner') return true
+  return relatedPersonEditableResourceKeys.has(key)
+}
+
+async function loadLocations() {
+  try {
+    const bundle = await fhirJson<FhirBundle>('/fhir/Location?_count=100')
+    const ids = (bundle.entry ?? [])
+      .map((entry) => entry.resource?.id as string | undefined)
+      .filter(Boolean) as string[]
+
+    locationItems.value = await Promise.all(
+      ids.map((id) => backendJsonForRole<Record<string, any>>(`/api/practitioner/locations/${id}`)),
+    )
+  } catch {
+    locationItems.value = []
+  }
+}
 
 function patientResourceToSummary(resource: any): PatientSummary {
   const name = resource?.name?.[0]
@@ -158,7 +438,33 @@ async function loadPatients() {
   }
 }
 
-async function loadResource(config: ResourceConfig) {
+async function loadResource(config: LocalizedResourceConfig) {
+  return loadResourceWithOptions(config)
+}
+
+function mergeItemsById(preferredItems: Record<string, any>[], fallbackItems: Record<string, any>[]) {
+  const merged = new Map<string, Record<string, any>>()
+  const withoutIds: Record<string, any>[] = []
+
+  for (const item of [...preferredItems, ...fallbackItems]) {
+    const id = item?.id
+    if (!id) {
+      withoutIds.push(item)
+      continue
+    }
+
+    if (!merged.has(String(id))) {
+      merged.set(String(id), item)
+    }
+  }
+
+  return [...merged.values(), ...withoutIds]
+}
+
+async function loadResourceWithOptions(
+  config: LocalizedResourceConfig,
+  options: { mergeWithExisting?: boolean } = {},
+) {
   if (!selectedPatientId.value) return
 
   resources[config.key].loading = true
@@ -171,9 +477,13 @@ async function loadResource(config: ResourceConfig) {
         .filter(Boolean) as string[]
 
     const items = await Promise.all(ids.map((id) => backendJsonForRole<Record<string, any>>(config.getPath(id))))
-    resources[config.key].items = items
+    resources[config.key].items = options.mergeWithExisting
+      ? mergeItemsById(items, resources[config.key].items)
+      : items
   } catch (error) {
-    resources[config.key].items = []
+    if (!options.mergeWithExisting) {
+      resources[config.key].items = []
+    }
     resources[config.key].error = String(error)
   } finally {
     resources[config.key].loading = false
@@ -205,7 +515,7 @@ async function loadSelectedPatient() {
   try {
     patientDetails.value = await backendJsonForRole<Record<string, any>>(`/api/practitioner/patients/${selectedPatientId.value}`)
 
-    for (const config of resourceConfigs) {
+    for (const config of resourceConfigs.value) {
       await loadResource(config)
     }
   } catch (error) {
@@ -230,7 +540,7 @@ async function createPatient(payload: Record<string, any>) {
   })
 
   createPatientOpen.value = false
-  workspaceMessage.value = 'Child record created successfully.'
+  workspaceMessage.value = t.value.createChildSuccess
   patientQuery.value = ''
   await loadPatients()
 
@@ -249,28 +559,33 @@ async function updatePatient(payload: Record<string, any>) {
   })
 
   editPatientOpen.value = false
-  workspaceMessage.value = 'Child profile updated successfully.'
+  workspaceMessage.value = t.value.updateChildSuccess
   await loadSelectedPatient()
   await loadPatients()
 }
 
-async function createResource(config: ResourceConfig, payload: Record<string, any>) {
+async function createResource(config: LocalizedResourceConfig, payload: Record<string, any>) {
   if (!selectedPatientId.value || !config.createPath) return
 
   const path = typeof config.createPath === 'function' ? config.createPath(selectedPatientId.value) : config.createPath
   const finalPayload = enrichPayload(config.key, payload, selectedPatientId.value)
 
-  await backendFetchForRole(path, {
+  const response = await backendFetchForRole(path, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(finalPayload),
   })
+  const createdItem = await response.json().catch(() => null)
 
-  workspaceMessage.value = `${config.label} created successfully.`
-  await loadResource(config)
+  if (config.key === 'carePlans' && createdItem?.id) {
+    resources[config.key].items = mergeItemsById([createdItem], resources[config.key].items)
+  }
+
+  workspaceMessage.value = `${config.label} ${t.value.createdSuccessfully}`
+  await loadResourceWithOptions(config, { mergeWithExisting: config.key === 'carePlans' })
 }
 
-async function updateResource(config: ResourceConfig, id: string, payload: Record<string, any>) {
+async function updateResource(config: LocalizedResourceConfig, id: string, payload: Record<string, any>) {
   if (!config.updatePath) return
 
   await backendFetchForRole(config.updatePath(id), {
@@ -279,7 +594,7 @@ async function updateResource(config: ResourceConfig, id: string, payload: Recor
     body: JSON.stringify(enrichPayload(config.key, payload, selectedPatientId.value)),
   })
 
-  workspaceMessage.value = `${config.label} updated successfully.`
+  workspaceMessage.value = `${config.label} ${t.value.updatedSuccessfully}`
   await loadResource(config)
 }
 
@@ -303,6 +618,7 @@ function enrichPayload(key: string, payload: Record<string, any>, patientId: str
 }
 
 onMounted(async () => {
+  await loadLocations()
   await loadPatients()
   if (selectedPatientId.value) {
     await loadSelectedPatient()
@@ -311,64 +627,66 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="workspace-shell">
+  <div class="workspace-shell theme-official">
     <div class="workspace-grid">
       <va-card class="surface-card sidebar-card">
         <div class="section-header card-header">
           <div>
-            <div class="kicker">{{ role === 'practitioner' ? 'Practitioner portal' : 'Related person portal' }}</div>
+            <div class="kicker">{{ role === 'practitioner' ? t.practitionerPortal : t.relatedPersonPortal }}</div>
             <h2 class="card-title">{{ displayName }}</h2>
           </div>
         </div>
 
         <p class="intro-text">
           <template v-if="role === 'practitioner'">
-            Search by child name, open a profile, then create or update the DTO-backed resources already exposed by the backend.
+            {{ t.practitionerIntro }}
           </template>
           <template v-else>
-            Choose one of your linked children and review the same clinical details in a clean, family-friendly workspace.
+            {{ t.relatedIntro }}
           </template>
         </p>
 
-        <div class="metric-grid">
+        <div class="metric-grid sidebar-metrics">
           <div class="metric">
             <div class="metric-value">{{ patients.length }}</div>
-            <div class="metric-label">Loaded children</div>
+            <div class="metric-label">{{ t.childProfiles }}</div>
           </div>
           <div class="metric">
             <div class="metric-value">{{ counts.immunizations ?? 0 }}</div>
-            <div class="metric-label">Immunizations</div>
+            <div class="metric-label">{{ t.immunizations }}</div>
           </div>
           <div class="metric">
             <div class="metric-value">{{ linkedChildrenCount }}</div>
-            <div class="metric-label">Linked children</div>
+            <div class="metric-label">{{ t.linkedProfiles }}</div>
           </div>
         </div>
 
-        <div class="toolbar">
+        <div class="toolbar sidebar-actions">
           <va-input
               v-if="role === 'practitioner'"
               v-model="patientQuery"
               class="patient-search"
-              placeholder="Search child by name or SVNR"
+              :placeholder="t.searchPlaceholder"
               @keyup.enter="loadPatients"
           />
-          <va-button @click="loadPatients">
-            {{ role === 'practitioner' ? 'Search' : 'Reload' }}
-          </va-button>
-          <va-button
-              v-if="role === 'practitioner'"
-              preset="secondary"
-              @click="createPatientOpen = true"
-          >
-            Add child
-          </va-button>
+          <div class="sidebar-actions-row">
+            <va-button @click="loadPatients">
+              {{ role === 'practitioner' ? t.search : t.reload }}
+            </va-button>
+            <va-button
+                v-if="role === 'practitioner'"
+                preset="secondary"
+                @click="createPatientOpen = true"
+            >
+              {{ t.addChild }}
+            </va-button>
+          </div>
         </div>
 
         <va-alert v-if="patientsError" color="danger" outline class="alert-box">{{ patientsError }}</va-alert>
 
-        <div v-if="patientsLoading" class="empty-state">Loading patients…</div>
-        <div v-else-if="patients.length === 0" class="empty-state">No child records found.</div>
+        <div v-if="patientsLoading" class="empty-state">{{ t.loadingPatients }}</div>
+        <div v-else-if="patients.length === 0" class="empty-state">{{ t.noChildRecords }}</div>
         <div v-else class="patient-list">
           <button
               v-for="patient in patients"
@@ -382,10 +700,10 @@ onMounted(async () => {
                 <strong class="patient-name">{{ patient.fullName }}</strong>
                 <div class="patient-id">{{ patient.id }}</div>
               </div>
-              <va-badge :text="patient.gender || 'unknown'" color="primary" />
+              <va-badge :text="patient.gender || t.unknown" color="primary" />
             </div>
             <div class="patient-meta">
-              <span v-if="patient.birthDate">DOB: {{ formatDate(patient.birthDate) }}</span>
+              <span v-if="patient.birthDate">{{ t.dob }}: {{ formatDate(patient.birthDate) }}</span>
               <span v-if="patient.svnr"> · SVNR: {{ patient.svnr }}</span>
             </div>
           </button>
@@ -393,27 +711,27 @@ onMounted(async () => {
       </va-card>
 
       <va-card class="surface-card workspace-card">
-        <div v-if="patientDetailsLoading" class="empty-state">Loading child workspace…</div>
+        <div v-if="patientDetailsLoading" class="empty-state">{{ t.loadingChildWorkspace }}</div>
 
         <template v-else-if="selectedPatientId && patientDetails">
-          <div class="workspace-header">
+        <div class="workspace-header">
             <div>
-              <div class="kicker">Selected child</div>
+              <div class="kicker">{{ t.selectedChild }}</div>
               <h1 class="workspace-title">{{ patientDetails.fullName || selectedPatientId }}</h1>
               <div class="workspace-meta">
-                <span>FHIR Patient ID: <code class="inline-code">{{ patientDetails.id || selectedPatientId }}</code></span>
+                <span>{{ t.fhirPatientId }}: <code class="inline-code">{{ patientDetails.id || selectedPatientId }}</code></span>
                 <span v-if="patientDetails.svnr"> · SVNR: {{ patientDetails.svnr }}</span>
               </div>
             </div>
-            <div class="toolbar">
+          <div class="toolbar workspace-actions">
               <va-button
-                  v-if="role === 'practitioner'"
-                  preset="secondary"
+                  v-if="role === 'practitioner' || role === 'related-person'"
+                preset="primary"
                   @click="editPatientOpen = true"
               >
-                Edit child profile
+                {{ t.editChildProfile }}
               </va-button>
-              <va-button preset="secondary" @click="loadSelectedPatient">Refresh all</va-button>
+              <button class="refresh-link" type="button" @click="loadSelectedPatient">{{ t.refreshAll }}</button>
             </div>
           </div>
 
@@ -424,48 +742,66 @@ onMounted(async () => {
             {{ patientDetailsError }}
           </va-alert>
 
-          <div class="scroll-tabs">
-            <va-button
-                :preset="selectedSection === 'overview' ? 'primary' : 'secondary'"
-                @click="selectedSection = 'overview'"
-            >
-              Overview
-            </va-button>
-            <va-button
-                v-for="config in resourceConfigs"
-                :key="config.key"
-                :preset="selectedSection === config.key ? 'primary' : 'secondary'"
-                @click="selectedSection = config.key"
-            >
-              {{ config.label }}
-            </va-button>
+          <div class="resource-nav-wrap">
+            <div class="resource-nav-title">{{ t.resourceNavigation }}</div>
+            <div class="resource-row-label">{{ t.primary }}</div>
+            <div class="scroll-tabs">
+              <button
+                  class="tab-chip"
+                  :class="{ active: selectedSection === 'overview' }"
+                  @click="selectedSection = 'overview'"
+              >
+                {{ t.overview }}
+              </button>
+              <button
+                  v-for="config in primaryResourceConfigs"
+                  :key="config.key"
+                  class="tab-chip"
+                  :class="{ active: selectedSection === config.key }"
+                  @click="selectedSection = config.key"
+              >
+                {{ config.label }}
+              </button>
+            </div>
+            <div class="resource-row-label secondary">{{ t.secondary }}</div>
+            <div class="scroll-tabs secondary-tabs">
+              <button
+                  v-for="config in secondaryResourceConfigs"
+                  :key="config.key"
+                  class="tab-chip tab-chip-secondary"
+                  :class="{ active: selectedSection === config.key }"
+                  @click="selectedSection = config.key"
+              >
+                {{ config.label }}
+              </button>
+            </div>
           </div>
 
           <section v-if="selectedSection === 'overview'" class="section-stack">
             <div class="metric-grid overview-grid">
               <div class="metric">
                 <div class="metric-value">{{ counts.relatedPersons ?? 0 }}</div>
-                <div class="metric-label">Related persons</div>
+                <div class="metric-label">{{ t.relatedPersons }}</div>
               </div>
               <div class="metric">
                 <div class="metric-value">{{ counts.recommendations ?? 0 }}</div>
-                <div class="metric-label">Recommendations</div>
+                <div class="metric-label">{{ t.recommendations }}</div>
               </div>
               <div class="metric">
                 <div class="metric-value">{{ counts.goals ?? 0 }}</div>
-                <div class="metric-label">Goal resources</div>
+                <div class="metric-label">{{ t.goals }}</div>
               </div>
               <div class="metric">
                 <div class="metric-value">{{ counts.appointments ?? 0 }}</div>
-                <div class="metric-label">Appointments</div>
+                <div class="metric-label">{{ t.appointments }}</div>
               </div>
             </div>
 
             <article class="record-card">
-              <div class="kicker">Child profile</div>
-              <h2 class="record-title">Selected child overview</h2>
+              <div class="kicker">{{ t.childProfile }}</div>
+              <h2 class="record-title">{{ t.selectedChildOverview }}</h2>
               <div class="record-grid">
-                <div v-for="(value, key) in patientDetails" :key="key" class="record-item">
+                <div v-for="[key, value] in patientOverviewEntries" :key="key" class="record-item">
                   <strong>{{ key }}</strong>
                   <span>{{ value || '—' }}</span>
                 </div>
@@ -474,48 +810,91 @@ onMounted(async () => {
           </section>
 
           <ResourceSection
-              v-else-if="currentSectionConfig"
-              :config="currentSectionConfig"
-              :items="resources[currentSectionConfig.key].items"
-              :loading="resources[currentSectionConfig.key].loading"
-              :error="resources[currentSectionConfig.key].error"
-              :can-create="role === 'practitioner' || role === 'related-person'"
-              :can-edit="role === 'practitioner' || role === 'related-person'"
-              @create="createResource"
-              @update="updateResource"
+              v-else-if="currentSectionConfigWithDynamicOptions"
+              :config="currentSectionConfigWithDynamicOptions"
+              :language="props.language ?? 'en'"
+              :items="resources[currentSectionConfigWithDynamicOptions.key].items"
+              :loading="resources[currentSectionConfigWithDynamicOptions.key].loading"
+              :error="resources[currentSectionConfigWithDynamicOptions.key].error"
+              :can-create="canCreateResource(currentSectionConfigWithDynamicOptions.key)"
+              :can-edit="canEditResource(currentSectionConfigWithDynamicOptions.key)"
+              :on-create="createResource"
+              :on-update="updateResource"
           />
         </template>
 
         <div v-else-if="selectedPatientId && patientDetailsError" class="empty-state error-state">
           <div>
-            <strong>Could not load the selected child workspace.</strong>
+            <strong>{{ t.couldNotLoadWorkspace }}</strong>
             <div class="error-text">{{ patientDetailsError }}</div>
           </div>
         </div>
 
-        <div v-else class="empty-state">Select a child from the left side to open the portal workspace.</div>
+        <div v-else class="empty-state">{{ t.selectChildHint }}</div>
       </va-card>
     </div>
   </div>
 
   <RecordFormModal
       v-model="createPatientOpen"
-      title="Create child"
+      :title="t.createChild"
+      :kicker-label="t.editPayload"
+      :cancel-label="t.cancel"
+      :save-label="t.save"
       :fields="patientCreateFields"
-      @save="createPatient"
+      :on-save="createPatient"
   />
 
   <RecordFormModal
-      v-if="patientDetails && role === 'practitioner'"
+      v-if="patientDetails"
       v-model="editPatientOpen"
-      title="Update child"
-      :fields="patientUpdateFields"
+      :title="t.updateChild"
+      :kicker-label="t.editPayload"
+      :cancel-label="t.cancel"
+      :save-label="t.save"
+      :fields="patientEditableFields"
       :initial-value="patientDetails"
-      @save="updatePatient"
+      :on-save="updatePatient"
   />
 </template>
 
 <style scoped>
+.workspace-shell {
+  --surface-border: rgba(15, 57, 141, 0.2);
+  --surface-shadow: rgba(15, 57, 141, 0.12);
+  --surface-bg-end: rgba(238, 246, 255, 0.98);
+  --sidebar-bg-end: rgba(232, 248, 241, 0.92);
+  --workspace-bg-end: rgba(231, 242, 255, 0.94);
+  --kicker-color: #0a7ea8;
+  --muted-text: #3f5878;
+  --metric-bg-start: rgba(235, 247, 255, 0.95);
+  --metric-bg-end: rgba(230, 246, 238, 0.9);
+  --metric-border: rgba(15, 57, 141, 0.16);
+  --nav-bg-start: rgba(235, 246, 255, 0.9);
+  --nav-bg-end: rgba(232, 248, 241, 0.86);
+  --record-item-start: rgba(233, 246, 255, 0.94);
+  --record-item-end: rgba(232, 248, 241, 0.9);
+  --record-item-border: rgba(10, 126, 168, 0.2);
+}
+
+.workspace-shell.theme-soft {
+  --surface-border: rgba(21, 76, 84, 0.16);
+  --surface-shadow: rgba(21, 76, 84, 0.1);
+  --surface-bg-end: rgba(245, 252, 249, 0.98);
+  --sidebar-bg-end: rgba(235, 248, 239, 0.9);
+  --workspace-bg-end: rgba(231, 246, 238, 0.9);
+  --kicker-color: #188d77;
+  --muted-text: #4a6366;
+  --metric-bg-start: rgba(237, 249, 241, 0.95);
+  --metric-bg-end: rgba(233, 246, 239, 0.9);
+  --metric-border: rgba(21, 76, 84, 0.14);
+  --nav-bg-start: rgba(236, 249, 242, 0.9);
+  --nav-bg-end: rgba(232, 246, 238, 0.86);
+  --record-item-start: rgba(236, 249, 242, 0.92);
+  --record-item-end: rgba(230, 245, 236, 0.88);
+  --record-item-border: rgba(24, 141, 119, 0.2);
+}
+
 .workspace-shell {
   width: calc(100vw - 40px);
   max-width: none;
@@ -525,29 +904,29 @@ onMounted(async () => {
 
 .workspace-grid {
   display: grid;
-  grid-template-columns: 420px minmax(0, 1fr);
-  gap: 32px;
+  grid-template-columns: 390px minmax(0, 1fr);
+  gap: 24px;
   align-items: start;
 }
 
 .surface-card {
   border-radius: 30px;
-  border: 1px solid rgba(11, 45, 114, 0.12);
-  box-shadow: 0 18px 42px rgba(11, 45, 114, 0.08);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(250, 253, 255, 0.98) 100%);
+  border: 1px solid var(--surface-border);
+  box-shadow: 0 20px 46px var(--surface-shadow);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, var(--surface-bg-end) 100%);
 }
 
 .sidebar-card,
 .workspace-card {
-  padding: 30px;
+  padding: 24px;
 }
 
 .sidebar-card {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(246, 231, 188, 0.22) 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, var(--sidebar-bg-end) 100%);
 }
 
 .workspace-card {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(10, 196, 224, 0.07) 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, var(--workspace-bg-end) 100%);
   min-height: 640px;
 }
 
@@ -556,87 +935,105 @@ onMounted(async () => {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 18px;
-  margin-bottom: 16px;
+  gap: 16px;
+  margin-bottom: 14px;
 }
 
 .card-title,
 .record-title {
-  margin: 6px 0 0;
+  margin: 4px 0 0;
   color: #0b2d72;
-  font-size: 1.9rem;
-  line-height: 1.2;
+  font-size: 1.55rem;
+  line-height: 1.18;
 }
 
 .workspace-title {
-  margin: 6px 0 10px;
+  margin: 4px 0 8px;
   color: #0b2d72;
-  font-size: 2.35rem;
-  line-height: 1.12;
+  font-size: 2rem;
+  line-height: 1.14;
 }
 
 .kicker {
-  color: #0992c2;
-  font-weight: 800;
+  color: var(--kicker-color);
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 0.86rem;
+  letter-spacing: 0.07em;
+  font-size: 0.76rem;
 }
 
 .intro-text,
 .workspace-meta,
 .patient-id,
 .patient-meta {
-  color: #5d7291;
+  color: var(--muted-text);
 }
 
 .intro-text {
-  margin: 0 0 20px;
-  font-size: 1.08rem;
-  line-height: 1.72;
+  margin: 0 0 14px;
+  font-size: 0.95rem;
+  line-height: 1.58;
 }
 
 .metric-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 16px;
-  margin-bottom: 22px;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
 .overview-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
 }
 
 .metric {
-  background: rgba(246, 231, 188, 0.22);
-  border: 1px solid rgba(11, 45, 114, 0.1);
-  border-radius: 24px;
-  padding: 20px;
+  background: linear-gradient(180deg, var(--metric-bg-start) 0%, var(--metric-bg-end) 100%);
+  border: 1px solid var(--metric-border);
+  border-radius: 18px;
+  padding: 14px 16px;
+  min-height: 96px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .metric-value {
   color: #0b2d72;
-  font-size: 2.1rem;
+  font-size: 1.6rem;
   font-weight: 800;
   line-height: 1;
-  margin-bottom: 7px;
+  margin-bottom: 6px;
 }
 
 .metric-label {
-  color: #5d7291;
-  font-size: 1rem;
+  color: var(--muted-text);
+  font-size: 0.86rem;
+  line-height: 1.3;
 }
 
 .toolbar {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
+  gap: 10px;
   align-items: center;
 }
 
 .patient-search {
   flex: 1 1 260px;
   min-width: 260px;
+}
+
+.sidebar-actions {
+  margin-bottom: 14px;
+  align-items: stretch;
+}
+
+.sidebar-actions-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .alert-box {
@@ -646,16 +1043,16 @@ onMounted(async () => {
 
 .patient-list {
   display: grid;
-  gap: 16px;
+  gap: 12px;
 }
 
 .patient-tile {
   width: 100%;
   text-align: left;
   background: #ffffff;
-  border: 1px solid rgba(9, 146, 194, 0.24);
-  border-radius: 24px;
-  padding: 20px 20px 18px;
+  border: 1px solid rgba(9, 146, 194, 0.22);
+  border-radius: 18px;
+  padding: 14px 14px 12px;
   transition: 0.2s ease;
   cursor: pointer;
 }
@@ -668,7 +1065,7 @@ onMounted(async () => {
 
 .patient-tile.active {
   border-color: #0992c2;
-  background: linear-gradient(180deg, rgba(9, 146, 194, 0.08) 0%, rgba(10, 196, 224, 0.08) 100%);
+  background: linear-gradient(180deg, rgba(9, 146, 194, 0.08) 0%, rgba(74, 188, 118, 0.08) 100%);
   box-shadow: 0 12px 28px rgba(9, 146, 194, 0.14);
 }
 
@@ -680,73 +1077,135 @@ onMounted(async () => {
 
 .patient-name {
   display: block;
-  font-size: 1.24rem;
+  font-size: 1.02rem;
   line-height: 1.25;
   color: #0b2d72;
 }
 
 .patient-id {
-  margin-top: 4px;
-  font-size: 0.98rem;
+  margin-top: 2px;
+  font-size: 0.82rem;
 }
 
 .patient-meta {
-  margin-top: 10px;
-  font-size: 0.98rem;
+  margin-top: 8px;
+  font-size: 0.82rem;
+}
+
+.resource-nav-wrap {
+  border: 1px solid rgba(11, 45, 114, 0.13);
+  border-radius: 16px;
+  padding: 12px;
+  background: linear-gradient(180deg, var(--nav-bg-start) 0%, var(--nav-bg-end) 100%);
+  margin: 6px 0 16px;
+}
+
+.resource-nav-title {
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: #4b6588;
+  margin-bottom: 10px;
+}
+
+.resource-row-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: #4b6588;
+  margin: 2px 0 8px;
+}
+
+.resource-row-label.secondary {
+  margin-top: 12px;
 }
 
 .scroll-tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
-  margin: 20px 0 26px;
+  gap: 8px;
+}
+
+.secondary-tabs {
+  margin-top: 2px;
+}
+
+.tab-chip {
+  border: 1px solid rgba(11, 45, 114, 0.15);
+  background: #ffffff;
+  color: #173458;
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.16s ease;
+}
+
+.tab-chip:hover {
+  border-color: rgba(9, 146, 194, 0.38);
+  background: linear-gradient(180deg, rgba(9, 146, 194, 0.08) 0%, rgba(74, 188, 118, 0.08) 100%);
+}
+
+.tab-chip.active {
+  background: #123f9d;
+  color: #fff;
+  border-color: #123f9d;
+  box-shadow: 0 8px 16px rgba(18, 63, 157, 0.24);
+}
+
+.tab-chip-secondary {
+  color: #3c4f70;
+  border-color: rgba(11, 45, 114, 0.12);
 }
 
 .section-stack {
   display: grid;
-  gap: 22px;
+  gap: 16px;
 }
 
 .record-card {
   background: #ffffff;
-  border: 1px solid rgba(11, 45, 114, 0.1);
-  border-radius: 26px;
-  padding: 24px;
+  border: 1px solid rgba(11, 45, 114, 0.12);
+  border-radius: 18px;
+  padding: 18px;
   box-shadow: 0 12px 26px rgba(11, 45, 114, 0.05);
 }
 
 .record-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  gap: 12px;
 }
 
 .record-item {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  background: rgba(10, 196, 224, 0.06);
-  border: 1px solid rgba(9, 146, 194, 0.12);
-  border-radius: 18px;
-  padding: 16px;
-  min-height: 82px;
+  gap: 4px;
+  background: linear-gradient(180deg, var(--record-item-start) 0%, var(--record-item-end) 100%);
+  border: 1px solid var(--record-item-border);
+  border-radius: 14px;
+  padding: 10px;
+  min-height: 68px;
 }
 
 .record-item strong {
   color: #0b2d72;
-  font-size: 0.95rem;
+  font-size: 0.82rem;
   text-transform: capitalize;
 }
 
 .record-item span {
-  color: #123053;
-  font-size: 1rem;
-  line-height: 1.45;
+  color: #1a3b62;
+  font-size: 0.9rem;
+  line-height: 1.35;
   word-break: break-word;
 }
 
 .inline-code {
-  background: rgba(246, 231, 188, 0.85);
+  background: rgba(228, 241, 255, 0.92);
   color: #0b2d72;
   border-radius: 10px;
   padding: 3px 8px;
@@ -756,11 +1215,11 @@ onMounted(async () => {
 .empty-state {
   display: grid;
   place-items: center;
-  min-height: 220px;
+  min-height: 180px;
   border: 1px dashed rgba(11, 45, 114, 0.2);
   border-radius: 22px;
-  color: #5d7291;
-  font-size: 1rem;
+  color: var(--muted-text);
+  font-size: 0.93rem;
   background: rgba(255, 255, 255, 0.62);
   text-align: center;
   padding: 24px;
@@ -787,33 +1246,53 @@ onMounted(async () => {
 }
 
 :deep(.va-button) {
-  min-height: 48px;
-  padding: 0 20px;
-  border-radius: 15px;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 12px;
   font-weight: 700;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
+}
+
+.workspace-actions :deep(.va-button--primary) {
+  box-shadow: 0 8px 18px rgba(11, 45, 114, 0.19);
+}
+
+.refresh-link {
+  background: transparent;
+  border: none;
+  color: var(--muted-text);
+  font-size: 0.84rem;
+  font-weight: 600;
+  padding: 4px 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.refresh-link:hover {
+  color: #0b2d72;
 }
 
 :deep(.va-button--primary) {
-  background: #0b2d72 !important;
-  border-color: #0b2d72 !important;
+  background: #123f9d !important;
+  border-color: #123f9d !important;
   color: #ffffff !important;
 }
 
 :deep(.va-button--primary:hover) {
-  background: #123b92 !important;
-  border-color: #123b92 !important;
+  background: #0f367f !important;
+  border-color: #0f367f !important;
 }
 
 :deep(.va-button--secondary) {
-  background: rgba(9, 146, 194, 0.08) !important;
-  border-color: rgba(9, 146, 194, 0.22) !important;
-  color: #0b2d72 !important;
+  background: rgba(10, 126, 168, 0.1) !important;
+  border-color: rgba(10, 126, 168, 0.26) !important;
+  color: #0f367f !important;
 }
 
 :deep(.va-button--secondary:hover) {
-  background: rgba(10, 196, 224, 0.12) !important;
-  border-color: rgba(9, 146, 194, 0.3) !important;
+  background: rgba(10, 126, 168, 0.16) !important;
+  border-color: rgba(10, 126, 168, 0.34) !important;
 }
 
 :deep(.va-badge__text) {
@@ -827,7 +1306,7 @@ onMounted(async () => {
 
 @media (max-width: 1600px) {
   .workspace-grid {
-    grid-template-columns: 380px minmax(0, 1fr);
+    grid-template-columns: 350px minmax(0, 1fr);
   }
 }
 
@@ -850,7 +1329,7 @@ onMounted(async () => {
   }
 
   .workspace-title {
-    font-size: 1.8rem;
+    font-size: 1.65rem;
   }
 }
 
@@ -872,7 +1351,7 @@ onMounted(async () => {
   }
 
   .workspace-title {
-    font-size: 1.5rem;
+    font-size: 1.35rem;
   }
 
   .patient-tile-top,

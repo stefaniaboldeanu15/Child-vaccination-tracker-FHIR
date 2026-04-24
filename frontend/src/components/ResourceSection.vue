@@ -1,22 +1,43 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import RecordFormModal from '@/components/RecordFormModal.vue'
-import type { ResourceConfig } from '@/config/resources'
+import type { Language, LocalizedResourceConfig } from '@/config/resources'
 import { titleCase } from '@/config/resources'
 
 const props = defineProps<{
-  config: ResourceConfig
+  config: LocalizedResourceConfig
   items: Record<string, any>[]
   loading: boolean
   error: string | null
   canCreate: boolean
   canEdit: boolean
+  language?: Language
+  onCreate: (config: LocalizedResourceConfig, payload: Record<string, any>) => Promise<void> | void
+  onUpdate: (config: LocalizedResourceConfig, id: string, payload: Record<string, any>) => Promise<void> | void
 }>()
 
-const emit = defineEmits<{
-  create: [ResourceConfig, Record<string, any>]
-  update: [ResourceConfig, string, Record<string, any>]
-}>()
+const i18n = {
+  en: {
+    add: 'Add',
+    create: 'Create',
+    update: 'Update',
+    loading: 'Loading',
+    noneFound: 'No',
+    foundForChild: 'found for this child.',
+    dtoFallback: 'FHIR-backed DTO',
+  },
+  de: {
+    add: 'Hinzufügen',
+    create: 'Erstellen',
+    update: 'Aktualisieren',
+    loading: 'Lade',
+    noneFound: 'Keine',
+    foundForChild: 'für dieses Kind gefunden.',
+    dtoFallback: 'FHIR-basiertes DTO',
+  },
+} as const
+
+const t = computed(() => i18n[props.language ?? 'en'])
 
 const createOpen = ref(false)
 const editOpen = ref(false)
@@ -45,6 +66,15 @@ function renderValue(value: unknown) {
   if (typeof value === 'object') return JSON.stringify(value)
   return String(value)
 }
+
+function handleCreate(payload: Record<string, any>) {
+  return props.onCreate(props.config, payload)
+}
+
+function handleUpdate(payload: Record<string, any>) {
+  if (!editingRecord.value?.id) return
+  return props.onUpdate(props.config, String(editingRecord.value.id), payload)
+}
 </script>
 
 <template>
@@ -56,19 +86,19 @@ function renderValue(value: unknown) {
         <div class="muted">{{ config.description }}</div>
       </div>
       <va-button v-if="canCreate && config.canCreate && config.createFields?.length" @click="createOpen = true">
-        Add {{ config.singularLabel ?? (config.label.slice(0, -1) || config.label) }}
+        {{ t.add }} {{ config.singularLabel ?? (config.label.slice(0, -1) || config.label) }}
       </va-button>
     </div>
 
     <va-alert v-if="error" color="danger" outline>{{ error }}</va-alert>
-    <div v-else-if="loading" class="empty-state">Loading {{ config.label.toLowerCase() }}…</div>
-    <div v-else-if="items.length === 0" class="empty-state">No {{ config.label.toLowerCase() }} found for this child.</div>
+    <div v-else-if="loading" class="empty-state">{{ t.loading }} {{ config.label.toLowerCase() }}…</div>
+    <div v-else-if="items.length === 0" class="empty-state">{{ t.noneFound }} {{ config.label.toLowerCase() }} {{ t.foundForChild }}</div>
     <div v-else class="section-stack">
       <article v-for="item in items" :key="item.id ?? JSON.stringify(item)" class="record-card">
         <div class="section-header" style="margin-bottom: 12px">
           <div>
             <h3 style="margin: 0">{{ item.id || config.label }}</h3>
-            <div class="muted">{{ Object.values(item).find((value) => typeof value === 'string' && value && value !== item.id) || 'FHIR-backed DTO' }}</div>
+            <div class="muted">{{ Object.values(item).find((value) => typeof value === 'string' && value && value !== item.id) || t.dtoFallback }}</div>
           </div>
           <va-button
             v-if="canEdit && config.canEdit && config.updateFields?.length && item.id"
@@ -76,7 +106,7 @@ function renderValue(value: unknown) {
             size="small"
             @click="startEdit(item)"
           >
-            Update
+            {{ t.update }}
           </va-button>
         </div>
 
@@ -92,18 +122,18 @@ function renderValue(value: unknown) {
     <RecordFormModal
       v-if="config.createFields?.length"
       v-model="createOpen"
-      :title="`Create ${config.singularLabel ?? config.label}`"
+      :title="`${t.create} ${config.singularLabel ?? config.label}`"
       :fields="config.createFields"
-      @save="emit('create', config, $event)"
+      :on-save="handleCreate"
     />
 
     <RecordFormModal
       v-if="config.updateFields?.length && editingRecord"
       v-model="editOpen"
-      :title="`Update ${config.singularLabel ?? config.label}`"
+      :title="`${t.update} ${config.singularLabel ?? config.label}`"
       :fields="config.updateFields"
       :initial-value="editingRecord"
-      @save="emit('update', config, String(editingRecord?.id), $event)"
+      :on-save="handleUpdate"
     />
   </section>
 </template>

@@ -1,22 +1,45 @@
-export type Option = { label: string; value: string }
+export type Language = 'en' | 'de'
+
+type LocalizedText = {
+  en: string
+  de: string
+}
+
+export type Option = { label: LocalizedText; value: string }
+export type LocalizedOption = { label: string; value: string }
 
 export type FieldType = 'text' | 'textarea' | 'date' | 'datetime' | 'number' | 'select'
+export type FieldValidation = {
+  requiredMessage?: LocalizedText
+  invalidMessage?: LocalizedText
+}
 
 export type FieldConfig = {
   key: string
-  label: string
+  label: LocalizedText
   type: FieldType
-  placeholder?: string
+  placeholder?: LocalizedText
   required?: boolean
   options?: Option[]
   full?: boolean
+  validation?: FieldValidation
+}
+
+export type LocalizedFieldConfig = Omit<FieldConfig, 'label' | 'placeholder' | 'options'> & {
+  label: string
+  placeholder?: string
+  options?: LocalizedOption[]
+  validation?: {
+    requiredMessage?: string
+    invalidMessage?: string
+  }
 }
 
 export type ResourceConfig = {
   key: string
-  label: string
-  singularLabel?: string
-  description: string
+  label: LocalizedText
+  singularLabel?: LocalizedText
+  description: LocalizedText
   searchPath: (patientId: string) => string | string[]
   getPath: (id: string) => string
   createPath?: string | ((patientId: string) => string)
@@ -27,91 +50,219 @@ export type ResourceConfig = {
   canEdit?: boolean
 }
 
+export type LocalizedResourceConfig = Omit<ResourceConfig, 'label' | 'singularLabel' | 'description' | 'createFields' | 'updateFields'> & {
+  label: string
+  singularLabel?: string
+  description: string
+  createFields?: LocalizedFieldConfig[]
+  updateFields?: LocalizedFieldConfig[]
+}
+
+function t(en: string, de: string): LocalizedText {
+  return { en, de }
+}
+
+function localizeText(value: LocalizedText | undefined, language: Language) {
+  return value?.[language]
+}
+
+function localizeOption(option: Option, language: Language) {
+  return {
+    ...option,
+    label: localizeText(option.label, language) ?? '',
+  }
+}
+
+function localizeField(field: FieldConfig, language: Language): LocalizedFieldConfig {
+  return {
+    ...field,
+    label: localizeText(field.label, language) ?? '',
+    placeholder: localizeText(field.placeholder, language),
+    options: field.options?.map((option) => localizeOption(option, language)),
+    validation: field.validation
+      ? {
+          requiredMessage: localizeText(field.validation.requiredMessage, language),
+          invalidMessage: localizeText(field.validation.invalidMessage, language),
+        }
+      : undefined,
+  }
+}
+
+function localizeResource(config: ResourceConfig, language: Language): LocalizedResourceConfig {
+  return {
+    ...config,
+    label: localizeText(config.label, language) ?? '',
+    singularLabel: localizeText(config.singularLabel, language),
+    description: localizeText(config.description, language) ?? '',
+    createFields: config.createFields?.map((field) => localizeField(field, language)),
+    updateFields: config.updateFields?.map((field) => localizeField(field, language)),
+  }
+}
+
 const genderOptions: Option[] = [
-  { label: 'male', value: 'male' },
-  { label: 'female', value: 'female' },
-  { label: 'other', value: 'other' },
-  { label: 'unknown', value: 'unknown' },
+  { label: t('male', 'männlich'), value: 'male' },
+  { label: t('female', 'weiblich'), value: 'female' },
+  { label: t('other', 'divers'), value: 'other' },
+  { label: t('unknown', 'unbekannt'), value: 'unknown' },
 ]
 
 const immunizationStatusOptions: Option[] = [
-  { label: 'completed', value: 'completed' },
-  { label: 'entered-in-error', value: 'entered_in_error' },
-  { label: 'not-done', value: 'not_done' },
+  { label: t('completed', 'abgeschlossen'), value: 'completed' },
+  { label: t('entered-in-error', 'irrtümlich erfasst'), value: 'entered_in_error' },
+  { label: t('not-done', 'nicht durchgeführt'), value: 'not_done' },
 ]
 
 const recommendationStatusOptions: Option[] = [
-  { label: 'due', value: 'due' },
-  { label: 'completed', value: 'completed' },
-  { label: 'overdue', value: 'overdue' },
+  { label: t('due', 'fällig'), value: 'due' },
+  { label: t('completed', 'abgeschlossen'), value: 'completed' },
+  { label: t('overdue', 'überfällig'), value: 'overdue' },
+]
+
+const requestStatusOptions: Option[] = [
+  { label: t('draft', 'Entwurf'), value: 'draft' },
+  { label: t('active', 'aktiv'), value: 'active' },
+  { label: t('on-hold', 'pausiert'), value: 'on-hold' },
+  { label: t('revoked', 'widerrufen'), value: 'revoked' },
+  { label: t('completed', 'abgeschlossen'), value: 'completed' },
+  { label: t('entered-in-error', 'irrtümlich erfasst'), value: 'entered-in-error' },
+  { label: t('unknown', 'unbekannt'), value: 'unknown' },
 ]
 
 const goalStatusOptions: Option[] = [
-  { label: 'planned', value: 'planned' },
-  { label: 'active', value: 'active' },
-  { label: 'on-hold', value: 'on-hold' },
-  { label: 'completed', value: 'completed' },
-  { label: 'cancelled', value: 'cancelled' },
+  { label: t('planned', 'geplant'), value: 'planned' },
+  { label: t('active', 'aktiv'), value: 'active' },
+  { label: t('on-hold', 'pausiert'), value: 'on-hold' },
+  { label: t('completed', 'abgeschlossen'), value: 'completed' },
+  { label: t('cancelled', 'abgebrochen'), value: 'cancelled' },
+]
+
+const appointmentStatusOptions: Option[] = [
+  { label: t('proposed', 'vorgeschlagen'), value: 'proposed' },
+  { label: t('pending', 'ausstehend'), value: 'pending' },
+  { label: t('booked', 'gebucht'), value: 'booked' },
+  { label: t('arrived', 'angekommen'), value: 'arrived' },
+  { label: t('fulfilled', 'erfüllt'), value: 'fulfilled' },
+  { label: t('cancelled', 'abgesagt'), value: 'cancelled' },
+  { label: t('noshow', 'nicht erschienen'), value: 'noshow' },
+  { label: t('entered-in-error', 'irrtümlich erfasst'), value: 'entered-in-error' },
+  { label: t('checked-in', 'eingecheckt'), value: 'checked-in' },
+  { label: t('waitlist', 'warteliste'), value: 'waitlist' },
+]
+
+const encounterStatusOptions: Option[] = [
+  { label: t('planned', 'geplant'), value: 'planned' },
+  { label: t('in-progress', 'in Bearbeitung'), value: 'in-progress' },
+  { label: t('on-hold', 'pausiert'), value: 'on-hold' },
+  { label: t('discharged', 'entlassen'), value: 'discharged' },
+  { label: t('completed', 'abgeschlossen'), value: 'completed' },
+  { label: t('cancelled', 'abgebrochen'), value: 'cancelled' },
+  { label: t('discontinued', 'eingestellt'), value: 'discontinued' },
+  { label: t('entered-in-error', 'irrtümlich erfasst'), value: 'entered-in-error' },
+  { label: t('unknown', 'unbekannt'), value: 'unknown' },
+]
+
+const communicationStatusOptions: Option[] = [
+  { label: t('preparation', 'vorbereitung'), value: 'preparation' },
+  { label: t('in-progress', 'in Bearbeitung'), value: 'in-progress' },
+  { label: t('not-done', 'nicht durchgeführt'), value: 'not-done' },
+  { label: t('on-hold', 'pausiert'), value: 'on-hold' },
+  { label: t('stopped', 'gestoppt'), value: 'stopped' },
+  { label: t('completed', 'abgeschlossen'), value: 'completed' },
+  { label: t('entered-in-error', 'irrtümlich erfasst'), value: 'entered-in-error' },
+  { label: t('unknown', 'unbekannt'), value: 'unknown' },
+]
+
+const communicationMediumOptions: Option[] = [
+  { label: t('sms', 'SMS'), value: 'sms' },
+  { label: t('email', 'E-Mail'), value: 'email' },
+  { label: t('portal', 'Portal'), value: 'portal' },
+]
+
+const consentStatusOptions: Option[] = [
+  { label: t('draft', 'Entwurf'), value: 'draft' },
+  { label: t('active', 'aktiv'), value: 'active' },
+  { label: t('inactive', 'inaktiv'), value: 'inactive' },
+  { label: t('not-done', 'nicht durchgeführt'), value: 'not-done' },
+  { label: t('entered-in-error', 'irrtümlich erfasst'), value: 'entered-in-error' },
+  { label: t('unknown', 'unbekannt'), value: 'unknown' },
+]
+
+const conditionClinicalStatusOptions: Option[] = [
+  { label: t('active', 'aktiv'), value: 'active' },
+  { label: t('recurrence', 'rezidiv'), value: 'recurrence' },
+  { label: t('relapse', 'rückfall'), value: 'relapse' },
+  { label: t('inactive', 'inaktiv'), value: 'inactive' },
+  { label: t('remission', 'remission'), value: 'remission' },
+  { label: t('resolved', 'gelöst'), value: 'resolved' },
+]
+
+const conditionVerificationStatusOptions: Option[] = [
+  { label: t('unconfirmed', 'unbestätigt'), value: 'unconfirmed' },
+  { label: t('provisional', 'vorläufig'), value: 'provisional' },
+  { label: t('differential', 'differentialdiagnose'), value: 'differential' },
+  { label: t('confirmed', 'bestätigt'), value: 'confirmed' },
+  { label: t('refuted', 'widerlegt'), value: 'refuted' },
+  { label: t('entered-in-error', 'irrtümlich erfasst'), value: 'entered-in-error' },
 ]
 
 const allergyClinicalStatusOptions: Option[] = [
-  { label: 'ACTIVE', value: 'ACTIVE' },
-  { label: 'INACTIVE', value: 'INACTIVE' },
-  { label: 'RESOLVED', value: 'RESOLVED' },
+  { label: t('ACTIVE', 'AKTIV'), value: 'ACTIVE' },
+  { label: t('INACTIVE', 'INAKTIV'), value: 'INACTIVE' },
+  { label: t('RESOLVED', 'GELÖST'), value: 'RESOLVED' },
 ]
 
 const allergyTypeOptions: Option[] = [
-  { label: 'ALLERGY', value: 'ALLERGY' },
-  { label: 'INTOLERANCE', value: 'INTOLERANCE' },
+  { label: t('ALLERGY', 'ALLERGIE'), value: 'ALLERGY' },
+  { label: t('INTOLERANCE', 'INTOLERANZ'), value: 'INTOLERANCE' },
 ]
 
 const allergyCategoryOptions: Option[] = [
-  { label: 'FOOD', value: 'FOOD' },
-  { label: 'MEDICATION', value: 'MEDICATION' },
-  { label: 'ENVIRONMENT', value: 'ENVIRONMENT' },
-  { label: 'BIOLOGIC', value: 'BIOLOGIC' },
+  { label: t('FOOD', 'LEBENSMITTEL'), value: 'FOOD' },
+  { label: t('MEDICATION', 'MEDIKAMENT'), value: 'MEDICATION' },
+  { label: t('ENVIRONMENT', 'UMWELT'), value: 'ENVIRONMENT' },
+  { label: t('BIOLOGIC', 'BIOLOGISCH'), value: 'BIOLOGIC' },
 ]
 
 const allergyCriticalityOptions: Option[] = [
-  { label: 'LOW', value: 'LOW' },
-  { label: 'HIGH', value: 'HIGH' },
-  { label: 'UNABLE_TO_ASSESS', value: 'UNABLE_TO_ASSESS' },
+  { label: t('LOW', 'NIEDRIG'), value: 'LOW' },
+  { label: t('HIGH', 'HOCH'), value: 'HIGH' },
+  { label: t('UNABLE_TO_ASSESS', 'NICHT BEURTEILBAR'), value: 'UNABLE_TO_ASSESS' },
 ]
 
 const adverseStatusOptions: Option[] = [
-  { label: 'IN_PROGRESS', value: 'IN_PROGRESS' },
-  { label: 'COMPLETED', value: 'COMPLETED' },
-  { label: 'ENTERED_IN_ERROR', value: 'ENTERED_IN_ERROR' },
-  { label: 'UNKNOWN', value: 'UNKNOWN' },
+  { label: t('IN_PROGRESS', 'IN BEARBEITUNG'), value: 'IN_PROGRESS' },
+  { label: t('COMPLETED', 'ABGESCHLOSSEN'), value: 'COMPLETED' },
+  { label: t('ENTERED_IN_ERROR', 'IRRTÜMLICH ERFASST'), value: 'ENTERED_IN_ERROR' },
+  { label: t('UNKNOWN', 'UNBEKANNT'), value: 'UNKNOWN' },
 ]
 
 const adverseActualityOptions: Option[] = [
-  { label: 'ACTUAL', value: 'ACTUAL' },
-  { label: 'POTENTIAL', value: 'POTENTIAL' },
+  { label: t('ACTUAL', 'TATSÄCHLICH'), value: 'ACTUAL' },
+  { label: t('POTENTIAL', 'POTENZIELL'), value: 'POTENTIAL' },
 ]
 
-export const patientCreateFields: FieldConfig[] = [
-  { key: 'svnr', label: 'SVNR', type: 'text', required: true },
-  { key: 'firstName', label: 'First name', type: 'text', required: true },
-  { key: 'lastName', label: 'Last name', type: 'text', required: true },
-  { key: 'birthDate', label: 'Birth date', type: 'date', required: true },
-  { key: 'gender', label: 'Gender', type: 'select', options: genderOptions, required: true },
+const patientCreateFields: FieldConfig[] = [
+  { key: 'svnr', label: t('SVNR', 'SVNR'), type: 'text', required: true },
+  { key: 'firstName', label: t('First name', 'Vorname'), type: 'text', required: true },
+  { key: 'lastName', label: t('Last name', 'Nachname'), type: 'text', required: true },
+  { key: 'birthDate', label: t('Birth date', 'Geburtsdatum'), type: 'date', required: true },
+  { key: 'gender', label: t('Gender', 'Geschlecht'), type: 'select', options: genderOptions, required: true },
 ]
 
-export const patientUpdateFields: FieldConfig[] = [
-  { key: 'firstName', label: 'First name', type: 'text' },
-  { key: 'lastName', label: 'Last name', type: 'text' },
-  { key: 'phone', label: 'Phone', type: 'text' },
-  { key: 'email', label: 'Email', type: 'text' },
-  { key: 'address', label: 'Address', type: 'textarea', full: true },
+const patientUpdateFields: FieldConfig[] = [
+  { key: 'firstName', label: t('First name', 'Vorname'), type: 'text' },
+  { key: 'lastName', label: t('Last name', 'Nachname'), type: 'text' },
+  { key: 'phone', label: t('Phone', 'Telefon'), type: 'text' },
+  { key: 'email', label: t('Email', 'E-Mail'), type: 'text' },
+  { key: 'address', label: t('Address', 'Adresse'), type: 'textarea', full: true },
 ]
 
-export const resourceConfigs: ResourceConfig[] = [
+const resourceConfigs: ResourceConfig[] = [
   {
     key: 'relatedPersons',
-    label: 'Related persons',
-    singularLabel: 'related person',
-    description: 'Parents and guardians linked to the selected child.',
+    label: t('Related persons', 'Bezugs­personen'),
+    singularLabel: t('related person', 'Bezugs­person'),
+    description: t('Parents and guardians linked to the selected child.', 'Eltern und Obsorgeberechtigte, die mit dem ausgewählten Kind verknüpft sind.'),
     searchPath: (patientId) => `/fhir/RelatedPerson?patient=${encodeURIComponent(patientId)}`,
     getPath: (id) => `/api/practitioner/related-persons/${id}`,
     createPath: (patientId) => `/api/practitioner/patients/${patientId}/related-persons`,
@@ -119,24 +270,24 @@ export const resourceConfigs: ResourceConfig[] = [
     canCreate: true,
     canEdit: true,
     createFields: [
-      { key: 'firstName', label: 'First name', type: 'text', required: true },
-      { key: 'lastName', label: 'Last name', type: 'text', required: true },
-      { key: 'relationship', label: 'Relationship', type: 'text', required: true },
-      { key: 'phone', label: 'Phone', type: 'text' },
-      { key: 'email', label: 'Email', type: 'text' },
-      { key: 'address', label: 'Address', type: 'textarea', full: true },
+      { key: 'firstName', label: t('First name', 'Vorname'), type: 'text', required: true },
+      { key: 'lastName', label: t('Last name', 'Nachname'), type: 'text', required: true },
+      { key: 'relationship', label: t('Relationship', 'Beziehung'), type: 'text', required: true },
+      { key: 'phone', label: t('Phone', 'Telefon'), type: 'text' },
+      { key: 'email', label: t('Email', 'E-Mail'), type: 'text' },
+      { key: 'address', label: t('Address', 'Adresse'), type: 'textarea', full: true },
     ],
     updateFields: [
-      { key: 'phone', label: 'Phone', type: 'text' },
-      { key: 'email', label: 'Email', type: 'text' },
-      { key: 'address', label: 'Address', type: 'textarea', full: true },
+      { key: 'phone', label: t('Phone', 'Telefon'), type: 'text' },
+      { key: 'email', label: t('Email', 'E-Mail'), type: 'text' },
+      { key: 'address', label: t('Address', 'Adresse'), type: 'textarea', full: true },
     ],
   },
   {
     key: 'immunizations',
-    label: 'Immunizations',
-    singularLabel: 'immunization',
-    description: 'Completed or planned administered vaccines.',
+    label: t('Immunizations', 'Impfungen'),
+    singularLabel: t('immunization', 'Impfung'),
+    description: t('Completed or planned administered vaccines.', 'Abgeschlossene oder geplante verabreichte Impfungen.'),
     searchPath: (patientId) => `/fhir/Immunization?patient=${encodeURIComponent(patientId)}`,
     getPath: (id) => `/api/practitioner/immunizations/${id}`,
     createPath: '/api/practitioner/immunizations',
@@ -144,27 +295,27 @@ export const resourceConfigs: ResourceConfig[] = [
     canCreate: true,
     canEdit: true,
     createFields: [
-      { key: 'status', label: 'Status', type: 'select', options: immunizationStatusOptions, required: true },
-      { key: 'vaccineCode', label: 'Vaccine code', type: 'text', required: true },
-      { key: 'vaccineDisplay', label: 'Display', type: 'text', required: true },
-      { key: 'administrationDate', label: 'Administration date', type: 'date', required: true },
-      { key: 'lotNumber', label: 'Lot number', type: 'text' },
-      { key: 'site', label: 'Site', type: 'text' },
-      { key: 'doseNumber', label: 'Dose number', type: 'number' },
-      { key: 'encounterId', label: 'Encounter id', type: 'text' },
+      { key: 'status', label: t('Status', 'Status'), type: 'select', options: immunizationStatusOptions, required: true },
+      { key: 'vaccineCode', label: t('Vaccine code', 'Impfstoffcode'), type: 'text', required: true },
+      { key: 'vaccineDisplay', label: t('Display', 'Bezeichnung'), type: 'text', required: true },
+      { key: 'administrationDate', label: t('Administration date', 'Verabreichungsdatum'), type: 'date', required: true },
+      { key: 'lotNumber', label: t('Lot number', 'Chargennummer'), type: 'number' },
+      { key: 'site', label: t('Site', 'Applikationsstelle'), type: 'text' },
+      { key: 'doseNumber', label: t('Dose number', 'Dosisnummer'), type: 'number' },
+      { key: 'encounterId', label: t('Encounter id', 'Begegnungs-ID'), type: 'select', options: [] },
     ],
     updateFields: [
-      { key: 'lotNumber', label: 'Lot number', type: 'text' },
-      { key: 'site', label: 'Site', type: 'text' },
-      { key: 'status', label: 'Status', type: 'select', options: immunizationStatusOptions },
-      { key: 'notes', label: 'Notes', type: 'textarea', full: true },
+      { key: 'lotNumber', label: t('Lot number', 'Chargennummer'), type: 'text' },
+      { key: 'site', label: t('Site', 'Applikationsstelle'), type: 'text' },
+      { key: 'status', label: t('Status', 'Status'), type: 'select', options: immunizationStatusOptions },
+      { key: 'notes', label: t('Notes', 'Notizen'), type: 'textarea', full: true },
     ],
   },
   {
     key: 'recommendations',
-    label: 'Recommendations',
-    singularLabel: 'recommendation',
-    description: 'Suggested or overdue vaccine recommendations.',
+    label: t('Recommendations', 'Empfehlungen'),
+    singularLabel: t('recommendation', 'Empfehlung'),
+    description: t('Suggested or overdue vaccine recommendations.', 'Empfohlene oder überfällige Impfempfehlungen.'),
     searchPath: (patientId) => `/fhir/ImmunizationRecommendation?patient=${encodeURIComponent(patientId)}`,
     getPath: (id) => `/api/practitioner/immunization-recommendations/${id}`,
     createPath: '/api/practitioner/immunization-recommendations',
@@ -172,22 +323,22 @@ export const resourceConfigs: ResourceConfig[] = [
     canCreate: true,
     canEdit: true,
     createFields: [
-      { key: 'vaccineCode', label: 'Vaccine code', type: 'text', required: true },
-      { key: 'vaccineDisplay', label: 'Display', type: 'text', required: true },
-      { key: 'status', label: 'Status', type: 'select', options: recommendationStatusOptions, required: true },
-      { key: 'dueDate', label: 'Due date', type: 'date' },
-      { key: 'recommendationSource', label: 'Recommendation source', type: 'text' },
+      { key: 'vaccineCode', label: t('Vaccine code', 'Impfstoffcode'), type: 'text', required: true },
+      { key: 'vaccineDisplay', label: t('Display', 'Bezeichnung'), type: 'text', required: true },
+      { key: 'status', label: t('Status', 'Status'), type: 'select', options: recommendationStatusOptions, required: true },
+      { key: 'dueDate', label: t('Due date', 'Fälligkeitsdatum'), type: 'date' },
+      { key: 'recommendationSource', label: t('Recommendation source', 'Empfehlungsquelle'), type: 'text' },
     ],
     updateFields: [
-      { key: 'dueDate', label: 'Due date', type: 'date' },
-      { key: 'status', label: 'Status', type: 'select', options: recommendationStatusOptions },
+      { key: 'dueDate', label: t('Due date', 'Fälligkeitsdatum'), type: 'date' },
+      { key: 'status', label: t('Status', 'Status'), type: 'select', options: recommendationStatusOptions },
     ],
   },
   {
     key: 'carePlans',
-    label: 'Care plans',
-    singularLabel: 'care plan',
-    description: 'Vaccination care plans that group next steps and goals.',
+    label: t('Care plans', 'Versorgungspläne'),
+    singularLabel: t('care plan', 'Versorgungsplan'),
+    description: t('Vaccination care plans that group next steps and goals.', 'Impf-Versorgungspläne, die nächste Schritte und Ziele bündeln.'),
     searchPath: (patientId) => [
       `/fhir/CarePlan?patient=${encodeURIComponent(patientId)}`,
       `/fhir/CarePlan?subject=Patient/${encodeURIComponent(patientId)}`,
@@ -199,24 +350,24 @@ export const resourceConfigs: ResourceConfig[] = [
     canCreate: true,
     canEdit: true,
     createFields: [
-      { key: 'title', label: 'Title', type: 'text', required: true },
-      { key: 'note', label: 'Note', type: 'textarea', full: true },
-      { key: 'startDate', label: 'Start date', type: 'date' },
-      { key: 'endDate', label: 'End date', type: 'date' },
-      { key: 'status', label: 'Status', type: 'text', required: true },
+      { key: 'title', label: t('Title', 'Titel'), type: 'text', required: true },
+      { key: 'note', label: t('Note', 'Notiz'), type: 'textarea', full: true },
+      { key: 'startDate', label: t('Start date', 'Startdatum'), type: 'date' },
+      { key: 'endDate', label: t('End date', 'Enddatum'), type: 'date' },
+      { key: 'status', label: t('Status', 'Status'), type: 'select', options: requestStatusOptions, required: true },
     ],
     updateFields: [
-      { key: 'title', label: 'Title', type: 'text' },
-      { key: 'description', label: 'Description', type: 'textarea', full: true },
-      { key: 'endDate', label: 'End date', type: 'date' },
-      { key: 'status', label: 'Status', type: 'text' },
+      { key: 'title', label: t('Title', 'Titel'), type: 'text' },
+      { key: 'description', label: t('Description', 'Beschreibung'), type: 'textarea', full: true },
+      { key: 'endDate', label: t('End date', 'Enddatum'), type: 'date' },
+      { key: 'status', label: t('Status', 'Status'), type: 'select', options: requestStatusOptions },
     ],
   },
   {
     key: 'goals',
-    label: 'Goal resources',
-    singularLabel: 'goal resource',
-    description: 'Vaccines left to do inside a care plan.',
+    label: t('Goals', 'Ziele'),
+    singularLabel: t('goal', 'Ziel'),
+    description: t('Vaccines left to do inside a care plan.', 'Noch ausstehende Impfungen innerhalb eines Versorgungsplans.'),
     searchPath: (patientId) => [
       `/fhir/Goal?patient=${encodeURIComponent(patientId)}`,
       `/fhir/Goal?subject=Patient/${encodeURIComponent(patientId)}`,
@@ -228,22 +379,22 @@ export const resourceConfigs: ResourceConfig[] = [
     canCreate: true,
     canEdit: true,
     createFields: [
-      { key: 'lifecycleStatus', label: 'Lifecycle status', type: 'select', options: goalStatusOptions, required: true },
-      { key: 'description', label: 'Description', type: 'textarea', required: true, full: true },
-      { key: 'targetDueDate', label: 'Target due date', type: 'date' },
-      { key: 'startDate', label: 'Start date', type: 'date' },
-      { key: 'carePlanId', label: 'Care plan id', type: 'text' },
+      { key: 'lifecycleStatus', label: t('Lifecycle status', 'Lebenszyklusstatus'), type: 'select', options: goalStatusOptions, required: true },
+      { key: 'description', label: t('Description', 'Beschreibung'), type: 'textarea', required: true, full: true },
+      { key: 'targetDueDate', label: t('Target due date', 'Ziel-Fälligkeitsdatum'), type: 'date' },
+      { key: 'startDate', label: t('Start date', 'Startdatum'), type: 'date' },
+      { key: 'carePlanId', label: t('Care plan id', 'Versorgungsplan-ID'), type: 'select', options: [] },
     ],
     updateFields: [
-      { key: 'lifecycleStatus', label: 'Lifecycle status', type: 'select', options: goalStatusOptions, required: true },
-      { key: 'description', label: 'Description', type: 'textarea', required: true, full: true },
+      { key: 'lifecycleStatus', label: t('Lifecycle status', 'Lebenszyklusstatus'), type: 'select', options: goalStatusOptions, required: true },
+      { key: 'description', label: t('Description', 'Beschreibung'), type: 'textarea', required: true, full: true },
     ],
   },
   {
     key: 'appointments',
-    label: 'Appointments',
-    singularLabel: 'appointment',
-    description: 'Planned visits for the selected child.',
+    label: t('Appointments', 'Termine'),
+    singularLabel: t('appointment', 'Termin'),
+    description: t('Planned visits for the selected child.', 'Geplante Termine für das ausgewählte Kind.'),
     searchPath: (patientId) => [
       `/fhir/Appointment?patient=${encodeURIComponent(patientId)}`,
       `/fhir/Appointment?actor=Patient/${encodeURIComponent(patientId)}`,
@@ -254,44 +405,51 @@ export const resourceConfigs: ResourceConfig[] = [
     canCreate: true,
     canEdit: true,
     createFields: [
-      { key: 'start', label: 'Start', type: 'datetime', required: true },
-      { key: 'end', label: 'End', type: 'datetime' },
-      { key: 'reason', label: 'Reason', type: 'text' },
-      { key: 'locationId', label: 'Location id', type: 'text' },
+      { key: 'start', label: t('Start', 'Beginn'), type: 'datetime', required: true },
+      { key: 'end', label: t('End', 'Ende'), type: 'datetime' },
+      { key: 'reason', label: t('Reason', 'Grund'), type: 'text' },
+      { key: 'locationId', label: t('Location id', 'Standort-ID'), type: 'select', options: [] },
     ],
     updateFields: [
-      { key: 'start', label: 'Start', type: 'datetime' },
-      { key: 'end', label: 'End', type: 'datetime' },
-      { key: 'status', label: 'Status', type: 'text' },
+      { key: 'start', label: t('Start', 'Beginn'), type: 'datetime' },
+      { key: 'end', label: t('End', 'Ende'), type: 'datetime' },
+      { key: 'status', label: t('Status', 'Status'), type: 'select', options: appointmentStatusOptions },
     ],
   },
   {
     key: 'encounters',
-    label: 'Encounters',
-    singularLabel: 'encounter',
-    description: 'Clinical encounter snapshots tied to immunizations and observations.',
+    label: t('Encounters', 'Begegnungen'),
+    singularLabel: t('encounter', 'Begegnung'),
+    description: t('Clinical encounter snapshots tied to immunizations and observations.', 'Klinische Begegnungen im Zusammenhang mit Impfungen und Beobachtungen.'),
     searchPath: (patientId) => [
       `/fhir/Encounter?patient=${encodeURIComponent(patientId)}`,
       `/fhir/Encounter?subject=Patient/${encodeURIComponent(patientId)}`,
       `/fhir/Encounter?subject=${encodeURIComponent(patientId)}`,
     ],
     getPath: (id) => `/api/practitioner/encounters/${id}`,
+    createPath: '/api/practitioner/encounters',
     updatePath: (id) => `/api/practitioner/encounters/${id}`,
-    canCreate: false,
+    canCreate: true,
     canEdit: true,
+    createFields: [
+      { key: 'start', label: t('Start', 'Beginn'), type: 'datetime' },
+      { key: 'end', label: t('End', 'Ende'), type: 'datetime' },
+      { key: 'reason', label: t('Reason', 'Grund'), type: 'text' },
+      { key: 'location', label: t('Location', 'Ort'), type: 'select', options: [] },
+    ],
     updateFields: [
-      { key: 'start', label: 'Start', type: 'datetime' },
-      { key: 'end', label: 'End', type: 'datetime' },
-      { key: 'reason', label: 'Reason', type: 'text' },
-      { key: 'location', label: 'Location', type: 'text' },
-      { key: 'status', label: 'Status', type: 'text' },
+      { key: 'start', label: t('Start', 'Beginn'), type: 'datetime' },
+      { key: 'end', label: t('End', 'Ende'), type: 'datetime' },
+      { key: 'reason', label: t('Reason', 'Grund'), type: 'text' },
+      { key: 'location', label: t('Location', 'Ort'), type: 'text' },
+      { key: 'status', label: t('Status', 'Status'), type: 'select', options: encounterStatusOptions },
     ],
   },
   {
     key: 'observations',
-    label: 'Observations',
-    singularLabel: 'observation',
-    description: 'Clinical measurements and notes for the selected child.',
+    label: t('Observations', 'Beobachtungen'),
+    singularLabel: t('observation', 'Beobachtung'),
+    description: t('Clinical measurements and notes for the selected child.', 'Klinische Messwerte und Notizen für das ausgewählte Kind.'),
     searchPath: (patientId) => [
       `/fhir/Observation?patient=${encodeURIComponent(patientId)}`,
       `/fhir/Observation?subject=Patient/${encodeURIComponent(patientId)}`,
@@ -303,23 +461,23 @@ export const resourceConfigs: ResourceConfig[] = [
     canCreate: true,
     canEdit: true,
     createFields: [
-      { key: 'code', label: 'Code', type: 'text', required: true },
-      { key: 'display', label: 'Display', type: 'text', required: true },
-      { key: 'value', label: 'Value', type: 'text' },
-      { key: 'unit', label: 'Unit', type: 'text' },
-      { key: 'effectiveDateTime', label: 'Effective date', type: 'datetime' },
-      { key: 'encounterId', label: 'Encounter id', type: 'text' },
+      { key: 'code', label: t('Code', 'Code'), type: 'text', required: true },
+      { key: 'display', label: t('Display', 'Bezeichnung'), type: 'text', required: true },
+      { key: 'value', label: t('Value', 'Wert'), type: 'text' },
+      { key: 'unit', label: t('Unit', 'Einheit'), type: 'text' },
+      { key: 'effectiveDateTime', label: t('Effective date', 'Wirksamkeitsdatum'), type: 'datetime' },
+      { key: 'encounterId', label: t('Encounter id', 'Begegnungs-ID'), type: 'select', options: [] },
     ],
     updateFields: [
-      { key: 'value', label: 'Value', type: 'text' },
-      { key: 'unit', label: 'Unit', type: 'text' },
+      { key: 'value', label: t('Value', 'Wert'), type: 'text' },
+      { key: 'unit', label: t('Unit', 'Einheit'), type: 'text' },
     ],
   },
   {
     key: 'conditions',
-    label: 'Conditions',
-    singularLabel: 'condition',
-    description: 'Clinical conditions, notes and verification status.',
+    label: t('Conditions', 'Diagnosen'),
+    singularLabel: t('condition', 'Diagnose'),
+    description: t('Clinical conditions, notes and verification status.', 'Klinische Diagnosen, Notizen und Verifizierungsstatus.'),
     searchPath: (patientId) => [
       `/fhir/Condition?patient=${encodeURIComponent(patientId)}`,
       `/fhir/Condition?subject=Patient/${encodeURIComponent(patientId)}`,
@@ -330,24 +488,24 @@ export const resourceConfigs: ResourceConfig[] = [
     canCreate: true,
     canEdit: true,
     createFields: [
-      { key: 'code', label: 'Code', type: 'text', required: true },
-      { key: 'display', label: 'Display', type: 'text', required: true },
-      { key: 'clinicalStatus', label: 'Clinical status', type: 'text' },
-      { key: 'verificationStatus', label: 'Verification status', type: 'text' },
-      { key: 'onsetDate', label: 'Onset date', type: 'date' },
-      { key: 'notes', label: 'Notes', type: 'textarea', full: true },
+      { key: 'code', label: t('Code', 'Code'), type: 'text', required: true },
+      { key: 'display', label: t('Display', 'Bezeichnung'), type: 'text', required: true },
+      { key: 'clinicalStatus', label: t('Clinical status', 'Klinischer Status'), type: 'select', options: conditionClinicalStatusOptions },
+      { key: 'verificationStatus', label: t('Verification status', 'Verifizierungsstatus'), type: 'select', options: conditionVerificationStatusOptions },
+      { key: 'onsetDate', label: t('Onset date', 'Beginn-Datum'), type: 'date' },
+      { key: 'notes', label: t('Notes', 'Notizen'), type: 'textarea', full: true },
     ],
     updateFields: [
-      { key: 'clinicalStatus', label: 'Clinical status', type: 'text' },
-      { key: 'verificationStatus', label: 'Verification status', type: 'text' },
-      { key: 'notes', label: 'Notes', type: 'textarea', full: true },
+      { key: 'clinicalStatus', label: t('Clinical status', 'Klinischer Status'), type: 'select', options: conditionClinicalStatusOptions },
+      { key: 'verificationStatus', label: t('Verification status', 'Verifizierungsstatus'), type: 'select', options: conditionVerificationStatusOptions },
+      { key: 'notes', label: t('Notes', 'Notizen'), type: 'textarea', full: true },
     ],
   },
   {
     key: 'allergies',
-    label: 'Allergies',
-    singularLabel: 'allergy',
-    description: 'Allergy and intolerance data.',
+    label: t('Allergies', 'Allergien'),
+    singularLabel: t('allergy', 'Allergie'),
+    description: t('Allergy and intolerance data.', 'Allergie- und Intoleranzdaten.'),
     searchPath: (patientId) => `/fhir/AllergyIntolerance?patient=${encodeURIComponent(patientId)}`,
     getPath: (id) => `/api/practitioner/allergy-intolerances/${id}`,
     createPath: '/api/practitioner/allergy-intolerances',
@@ -355,23 +513,23 @@ export const resourceConfigs: ResourceConfig[] = [
     canCreate: true,
     canEdit: true,
     createFields: [
-      { key: 'clinicalStatus', label: 'Clinical status', type: 'select', options: allergyClinicalStatusOptions, required: true },
-      { key: 'type', label: 'Type', type: 'select', options: allergyTypeOptions, required: true },
-      { key: 'category', label: 'Category', type: 'select', options: allergyCategoryOptions, required: true },
-      { key: 'criticality', label: 'Criticality', type: 'select', options: allergyCriticalityOptions, required: true },
-      { key: 'code', label: 'Code', type: 'text', required: true },
-      { key: 'encounterId', label: 'Encounter id', type: 'text' },
+      { key: 'clinicalStatus', label: t('Clinical status', 'Klinischer Status'), type: 'select', options: allergyClinicalStatusOptions, required: true },
+      { key: 'type', label: t('Type', 'Typ'), type: 'select', options: allergyTypeOptions, required: true },
+      { key: 'category', label: t('Category', 'Kategorie'), type: 'select', options: allergyCategoryOptions, required: true },
+      { key: 'criticality', label: t('Criticality', 'Kritikalität'), type: 'select', options: allergyCriticalityOptions, required: true },
+      { key: 'code', label: t('Code', 'Code'), type: 'text', required: true },
+      { key: 'encounterId', label: t('Encounter id', 'Begegnungs-ID'), type: 'select', options: [] },
     ],
     updateFields: [
-      { key: 'clinicalStatus', label: 'Clinical status', type: 'select', options: allergyClinicalStatusOptions },
-      { key: 'criticality', label: 'Criticality', type: 'select', options: allergyCriticalityOptions },
+      { key: 'clinicalStatus', label: t('Clinical status', 'Klinischer Status'), type: 'select', options: allergyClinicalStatusOptions },
+      { key: 'criticality', label: t('Criticality', 'Kritikalität'), type: 'select', options: allergyCriticalityOptions },
     ],
   },
   {
     key: 'consents',
-    label: 'Consents',
-    singularLabel: 'consent',
-    description: 'Guardian consent history for vaccination decisions.',
+    label: t('Consents', 'Einwilligungen'),
+    singularLabel: t('consent', 'Einwilligung'),
+    description: t('Guardian consent history for vaccination decisions.', 'Einwilligungsverlauf der Sorgeberechtigten für Impfentscheidungen.'),
     searchPath: (patientId) => [
       `/fhir/Consent?patient=${encodeURIComponent(patientId)}`,
       `/fhir/Consent?subject=Patient/${encodeURIComponent(patientId)}`,
@@ -382,20 +540,20 @@ export const resourceConfigs: ResourceConfig[] = [
     canCreate: true,
     canEdit: true,
     createFields: [
-      { key: 'relatedPersonId', label: 'Related person id', type: 'text' },
-      { key: 'scope', label: 'Scope', type: 'text', required: true },
-      { key: 'status', label: 'Status', type: 'text', required: true },
-      { key: 'dateGiven', label: 'Date given', type: 'date' },
+      { key: 'relatedPersonId', label: t('Related person id', 'Bezugs­personen-ID'), type: 'select', options: [] },
+      { key: 'scope', label: t('Scope', 'Geltungsbereich'), type: 'text', required: true },
+      { key: 'status', label: t('Status', 'Status'), type: 'select', options: consentStatusOptions, required: true },
+      { key: 'dateGiven', label: t('Date given', 'Erteilungsdatum'), type: 'date' },
     ],
     updateFields: [
-      { key: 'status', label: 'Status', type: 'text' },
+      { key: 'status', label: t('Status', 'Status'), type: 'select', options: consentStatusOptions },
     ],
   },
   {
     key: 'communications',
-    label: 'Communications',
-    singularLabel: 'communication',
-    description: 'Messages sent to families or linked to recommendations.',
+    label: t('Communications', 'Mitteilungen'),
+    singularLabel: t('communication', 'Mitteilung'),
+    description: t('Messages sent to families or linked to recommendations.', 'Nachrichten an Familien oder im Zusammenhang mit Empfehlungen.'),
     searchPath: (patientId) => [
       `/fhir/Communication?patient=${encodeURIComponent(patientId)}`,
       `/fhir/Communication?subject=Patient/${encodeURIComponent(patientId)}`,
@@ -407,21 +565,21 @@ export const resourceConfigs: ResourceConfig[] = [
     canCreate: true,
     canEdit: true,
     createFields: [
-      { key: 'relatedPersonId', label: 'Related person id', type: 'text' },
-      { key: 'recommendationId', label: 'Recommendation id', type: 'text' },
-      { key: 'medium', label: 'Medium', type: 'text' },
-      { key: 'message', label: 'Message', type: 'textarea', full: true },
-      { key: 'sentDate', label: 'Sent date', type: 'datetime' },
+      { key: 'relatedPersonId', label: t('Related person id', 'Bezugs­personen-ID'), type: 'select', options: [] },
+      { key: 'recommendationId', label: t('Recommendation id', 'Empfehlungs-ID'), type: 'select', options: [] },
+      { key: 'medium', label: t('Medium', 'Medium'), type: 'select', options: communicationMediumOptions },
+      { key: 'message', label: t('Message', 'Nachricht'), type: 'textarea', full: true },
+      { key: 'sentDate', label: t('Sent date', 'Sendedatum'), type: 'datetime' },
     ],
     updateFields: [
-      { key: 'status', label: 'Status', type: 'text' },
+      { key: 'status', label: t('Status', 'Status'), type: 'select', options: communicationStatusOptions },
     ],
   },
   {
     key: 'adverseEvents',
-    label: 'Adverse events',
-    singularLabel: 'adverse event',
-    description: 'Follow-up adverse events after vaccination.',
+    label: t('Adverse events', 'Nebenwirkungen'),
+    singularLabel: t('adverse event', 'Nebenwirkung'),
+    description: t('Follow-up adverse events after vaccination.', 'Nachverfolgte unerwünschte Ereignisse nach einer Impfung.'),
     searchPath: (patientId) => [
       `/fhir/AdverseEvent?subject=Patient/${encodeURIComponent(patientId)}`,
       `/fhir/AdverseEvent?subject=${encodeURIComponent(patientId)}`,
@@ -433,21 +591,33 @@ export const resourceConfigs: ResourceConfig[] = [
     canCreate: true,
     canEdit: true,
     createFields: [
-      { key: 'status', label: 'Status', type: 'select', options: adverseStatusOptions, required: true },
-      { key: 'actuality', label: 'Actuality', type: 'select', options: adverseActualityOptions, required: true },
-      { key: 'category', label: 'Category', type: 'text' },
-      { key: 'recordedDate', label: 'Recorded date', type: 'date' },
-      { key: 'encounter', label: 'Encounter id', type: 'text' },
+      { key: 'status', label: t('Status', 'Status'), type: 'select', options: adverseStatusOptions, required: true },
+      { key: 'actuality', label: t('Actuality', 'Tatsächlichkeit'), type: 'select', options: adverseActualityOptions, required: true },
+      { key: 'category', label: t('Category', 'Kategorie'), type: 'text' },
+      { key: 'recordedDate', label: t('Recorded date', 'Erfassungsdatum'), type: 'date' },
+      { key: 'encounter', label: t('Encounter id', 'Begegnungs-ID'), type: 'select', options: [] },
     ],
     updateFields: [
-      { key: 'status', label: 'Status', type: 'select', options: adverseStatusOptions },
-      { key: 'actuality', label: 'Actuality', type: 'select', options: adverseActualityOptions },
-      { key: 'category', label: 'Category', type: 'text' },
-      { key: 'recordedDate', label: 'Recorded date', type: 'date' },
-      { key: 'encounter', label: 'Encounter id', type: 'text' },
+      { key: 'status', label: t('Status', 'Status'), type: 'select', options: adverseStatusOptions },
+      { key: 'actuality', label: t('Actuality', 'Tatsächlichkeit'), type: 'select', options: adverseActualityOptions },
+      { key: 'category', label: t('Category', 'Kategorie'), type: 'text' },
+      { key: 'recordedDate', label: t('Recorded date', 'Erfassungsdatum'), type: 'date' },
+      { key: 'encounter', label: t('Encounter id', 'Begegnungs-ID'), type: 'text' },
     ],
   },
 ]
+
+export function getPatientCreateFields(language: Language = 'en') {
+  return patientCreateFields.map((field) => localizeField(field, language))
+}
+
+export function getPatientUpdateFields(language: Language = 'en') {
+  return patientUpdateFields.map((field) => localizeField(field, language))
+}
+
+export function getResourceConfigs(language: Language = 'en') {
+  return resourceConfigs.map((config) => localizeResource(config, language))
+}
 
 export function titleCase(key: string) {
   return key
