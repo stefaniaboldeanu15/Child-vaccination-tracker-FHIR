@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// Landing page – VaxCare Junior
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { startSmartLogin } from '@/utils/smart'
 
@@ -558,7 +557,6 @@ onBeforeUnmount(() => {
   margin: 0 0 var(--space-md);
 }
 
-/* Flexible grids: wrap when space is tight */
 .landing-page .portals-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));

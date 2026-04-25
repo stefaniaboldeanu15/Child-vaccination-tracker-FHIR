@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Hero illustration – child + specialist symbol (optional use)
+// Hero illustration – child + specialist symbol
 defineProps<{
   class?: string
 }>()
@@ -19,14 +19,13 @@ defineProps<{
         stroke-width="2.2"
         stroke-linejoin="miter"
       />
+      <!-- Cartoon child -->
       <path d="M100 52 L100 112 M76 82 L124 82" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
       <circle cx="100" cy="82" r="3.5" fill="currentColor" />
-      <!-- Cartoon child: head, eyes, smile, simple body -->
       <circle cx="100" cy="142" r="26" fill="currentColor" fill-opacity="0.08" stroke="currentColor" stroke-width="2" />
       <circle cx="92" cy="136" r="3" fill="currentColor" fill-opacity="0.8" />
       <circle cx="108" cy="136" r="3" fill="currentColor" fill-opacity="0.8" />
       <path d="M92 148 Q100 154 108 148" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.9" />
-      <!-- Little body -->
       <ellipse cx="100" cy="172" rx="18" ry="12" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5" opacity="0.9" />
     </svg>
   </div>

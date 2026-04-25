@@ -9,7 +9,7 @@ defineProps<{
 <template>
   <div class="vaccination-logo" :class="[variant]" :style="{ width: size ? `${size}px` : undefined, height: size ? `${size}px` : undefined }">
     <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" aria-label="VaxCare Junior - care for children">
-      <!-- Shield: specialist / protection (spitze Form) -->
+      <!-- Shield -->
       <path
         d="M24 1 L45 12 L45 22 C45 34 24 47 24 47 C24 47 3 34 3 22 L3 12 Z"
         fill="currentColor"
@@ -18,10 +18,10 @@ defineProps<{
         stroke-width="2"
         stroke-linejoin="miter"
       />
-      <!-- Medical plus: care / vaccination -->
+      <!-- Medical plus -->
       <path d="M24 14 L24 34 M16 24 L32 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
       <circle cx="24" cy="24" r="2.5" fill="currentColor" />
-      <!-- Kids: small heart = care for children / Junior -->
+      <!-- Kids-->
       <path
         d="M24 44 C22 40 18 39 18 42 C18 44 21 46 24 46 C27 46 30 44 30 42 C30 39 26 40 24 44 Z"
         fill="currentColor"
